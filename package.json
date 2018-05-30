@@ -1,0 +1,35 @@
+{
+  "name": "healthscout",
+  "version": "1.0.0",
+  "description": "Enables sharing of medical records between practitioners and patients",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/ld234/health-scout.git"
+  },
+  "keywords": [
+    "health",
+    "practioner",
+    "sharing",
+    "patient",
+    "medical"
+  ],
+  "author": "Dan Tran",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/ld234/health-scout/issues"
+  },
+  "homepage": "https://gitlab.com/ld234/health-scout#README",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.2.1",
+    "mysql2": "^1.5.3",
+    "nodemailer": "^4.6.5",
+    "sequelize": "^4.37.10",
+    "stripe": "^6.0.0"
+  }
+}
