@@ -8,19 +8,10 @@ var authController = require('./auth.controller');
 module.exports = {
     getUser: getUser,
     createUser: createUser,
-    updateUser: updateUser
-}
-
-function updateUser(user) {
-    return User.findByIdAndUpdate(user._id, user)
-        .then(function (user) {
-            return Promise.resolve(user);
-        })
-        .catch(function (err) {
-            return Promise.reject(err);
-        })
+    // updateUser: updateUser
 } 
 
+// Get user info
 function getUser(u) {
     return User.findOne({where:{username:u}})
         .then(function (user) {
@@ -35,6 +26,7 @@ function getUser(u) {
         
 }
 
+// Add new user
 function createUser(newUser) {
     return User.findAll({ attributes:['username','password','email'], 
                             where:{

@@ -8,15 +8,6 @@ var errorHandler = require('./middleware/error-handler');
 var db = require('./db/sql-connection');
 var User = require('./model/user.model');
 var Verification = require('./model/verification.model');
-var Practitioner = require('./model/practitioner.model');
-var Qualification = require('./model/qualification.model');
-var Specialty = require('./model/specialty.model');
-var Patient = require('./model/patient.model');
-var PatientRelation = require('./model/patient.relation.model');
-var PatientAllergy = require('./model/patient.allergy.model');
-var Consultation = require('./model/consultation.model');
-var Testimonial = require('./model/testimonial.model');
-var HealthGoalCondition = require('./model/health.goal.condition.model');
 var path = require('path');
 var stripe = require('stripe')('sk_test_UC9a3zmYliiPfthmAmNg3FtV');
 
