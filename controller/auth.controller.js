@@ -22,17 +22,20 @@ function login(username, password) {
                 var hash = crypto.createHmac('sha256', secret)
                     .update(password.concat(user.salt))
                     .digest('hex');
+                // Account is activated? 
                 if (!user.active)
                     return Promise.reject({
                         statusCode: 400,
                         message: 'This account has not been activated.'
                     });
+                // Password is correct? 
                 else if(!user.password.localeCompare(hash) == 0){
                     return Promise.reject({
                         statusCode: 400,
                         message: 'Incorrect password.'
                     });
                 }
+                // Return token
                 return new Promise(function (resolve, reject) {
                     jwt.sign({
                         username: user.username,
@@ -51,7 +54,7 @@ function login(username, password) {
             } else {
                 return Promise.reject({
                     statusCode: 400,
-                    message: 'Email or password is incorrect'
+                    message: 'Username or password is incorrect'
                 });
             }
         })
@@ -60,6 +63,7 @@ function login(username, password) {
         })
 }
 
+// Verify the link from the email
 function verifyEmail(token){
     return jwt.verify (token, function (err, decodedData) {
         if (err) {
@@ -97,6 +101,7 @@ function verifyEmail(token){
     })
 }
 
+// Send email to registered user
 function sendEmail(user,callback){
     var smtpTransport = nodemailer.createTransport({
         service: "Gmail",
@@ -134,6 +139,7 @@ function sendEmail(user,callback){
     });
 }
 
+// Check whether username exists
 function checkAuth(user) {
     return User.findOne( {attributes:['username'],where: { username : user.username}})
         .then(function (foundUser) {

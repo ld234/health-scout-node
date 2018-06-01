@@ -17,7 +17,10 @@ var Verification = connection.define('verification',{
         type: Sequelize.STRING(100),
         allowNull: false,
         unique: true
-    }
+    },
+}, {
+	timestamps: false,
+	freezeTableName: true
 });
 
 //connection.sync().then(function(){});

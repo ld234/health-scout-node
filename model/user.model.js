@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const connection = require('../db/sql-connection')
 var User = connection.define('user',{
     username: { 
-        type: Sequelize.STRING(20),
+        type: Sequelize.STRING(30),
         primaryKey: true,
         allowNull: false
     },
@@ -24,6 +24,9 @@ var User = connection.define('user',{
         defaultValue : false,
         allowNull : false
     }
+},{
+	timestamps: false,
+	freezeTableName: true
 });
 
 connection.sync().then(() => {
