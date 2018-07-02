@@ -2,7 +2,6 @@ var User = require('../model/user.model');
 const Op = require('sequelize').Op;
 var nodemailer = require("nodemailer");
 var crypto = require('crypto');
-var secret = 'healthyandfresh';
 var authController = require('./auth.controller');
 var bcrypt = require('bcrypt');
 
@@ -29,7 +28,7 @@ function getUser(u) {
 
 // Add new user
 function createUser(newUser) {
-    return User.findAll({ attributes:['username','password','email'], 
+    return User.findOne({ attributes:['username','password','email'], 
                             where:{
                                 [Op.or]: [
                                     {username:newUser.username},
@@ -38,6 +37,7 @@ function createUser(newUser) {
                             }
                         })
         .then( (foundUsers) => {
+            RegisterBusinesses.findOne({where })
             if (foundUsers.length > 0) {
                 return Promise.reject({
                     statusCode: 400,

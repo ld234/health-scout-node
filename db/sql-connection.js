@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
-const connection = new Sequelize('healthscout', 'root', 'root',{
+require('dotenv').config();
+
+const connection = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
     dialect: 'mysql',
     operatorsAliases: false,
     logging: false

@@ -3,6 +3,7 @@ var Verification = require('../model/verification.model');
 var crypto = require('crypto');
 var jwt = require('../utils/jwt');
 var nodemailer = require('nodemailer');
+require('dotenv').config()
 
 module.exports = {
     login,
@@ -27,13 +28,6 @@ function login(username, password) {
                         statusCode: 400,
                         message: 'This account has not been activated.'
                     });
-                // Password is correct? 
-                /*else if(!user.password.localeCompare(hash) == 0){
-                    return Promise.reject({
-                        statusCode: 400,
-                        message: 'Incorrect password.'
-                    });
-                }*/
 				else{
 					// Load hash from your password DB.
 					bcrypt.compare(password, user.password, function(err, res) {
@@ -115,7 +109,7 @@ function sendEmail(user,callback){
         service: "Gmail",
         auth: {
             user: "healthscout321@gmail.com",
-            pass: "healthyandfresh"
+            pass: process.env.EMAIL_PASSWORD
         }
     });
     var rand = crypto.randomBytes(2).toString('hex');
@@ -149,6 +143,22 @@ function sendEmail(user,callback){
 
 // Check whether username exists
 function checkAuth(user) {
+    return User.findOne( {attributes:['username'],where: { username : user.username}})
+        .then(function (foundUser) {
+            if (foundUser) {
+                return Promise.resolve(foundUser);
+            } else {
+                return Promise.reject({
+                    message: 'Not Found'
+                });
+            }
+        })
+        .catch(function (err) {
+            return Promise.reject(err);
+        })
+}
+
+function resetPassword(user) {
     return User.findOne( {attributes:['username'],where: { username : user.username}})
         .then(function (foundUser) {
             if (foundUser) {

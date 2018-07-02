@@ -10,8 +10,7 @@ var db = require('./db/sql-connection');
 var User = require('./model/user.model');
 var Verification = require('./model/verification.model');
 var path = require('path');
-var stripe = require('stripe')('sk_test_UC9a3zmYliiPfthmAmNg3FtV');
-require('./passport');
+require('./utils/passport');
 const passport = require('passport');
 const cors = require('cors')
 

@@ -38,6 +38,7 @@ passport.use(new LocalStrategy(
 	}
 ));
 
+// Not working
 passport.use(new JWTStrategy({
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
         secretOrKey : cert,
