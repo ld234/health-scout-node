@@ -28,6 +28,6 @@ app.use('/charge', paymentRouter);
 
 app.use(errorHandler.errorHandler());
 
-app.listen(8888, function () {
-    console.log("HealthScout is listening for incoming requests at: http://localhost:8888");
+app.listen(process.env.PORT, function () {
+    console.log(`HealthScout is listening for incoming requests at: http://localhost:${process.env.PORT}`);
 })
