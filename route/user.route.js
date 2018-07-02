@@ -2,9 +2,35 @@ var router = require('express').Router();
 var path = require('path');
 var auth = require('../middleware/auth');
 var userController = require('../controller/user.controller');
+var multer = require('multer');
+const passport = require('passport');
+
+const storage = multer.diskStorage({
+	destination: function (req, file, callback){
+		callback(null, 'public/profilePics/');
+	},
+	filename: function (req, file, callback){
+		let fileNames = file.originalname.split('.');
+		let ext = fileNames[fileNames.length-1];
+		//let filename = req.file.filename;
+		callback(null, req.body.username + '-' + Date.now() +'.' +ext);
+	}
+});
+
+const fileFilter = (req, file, cb) => {
+	if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
+		cb(null,true);
+	}
+	else{
+		cb(new Error('Invalid file type.'),false);
+	}
+}
+
+const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, fileFilter : fileFilter});
+
 
 router.get('/', auth.auth(), getUser);
-router.post('/', createUser);
+router.post('/', upload.single('profilePic'), createUser);
 router.put('/', auth.auth(), updateUser);
 
 module.exports = router;
@@ -35,6 +61,7 @@ function getUser(req, res, next) {
 
 function createUser(req, res, next) {
     var newUser = req.body;
+	newUser['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
     if (!newUser.username) {
         next({
             statusCode: 400,
@@ -53,7 +80,8 @@ function createUser(req, res, next) {
     } else {
         userController.createUser(newUser)
             .then(function (user) {
-                res.json(user);
+				console.log('user created', user);
+                res.status(201).send(user);
             })
             .catch(function (err) {
                 next(err);

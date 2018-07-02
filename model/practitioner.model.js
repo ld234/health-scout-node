@@ -31,11 +31,11 @@ var Practitioner = connection.define('Practitioner', {
 		}
 	},
 	accBody: {
-		type: Sequelize.STRING, 
+		type: Sequelize.STRING(50), 
 		allowNull: false
 	},
 	businessName: {
-	    type: Sequelize.STRING,
+	    type: Sequelize.STRING(50),
 		allowNull: false
 	},
 	businessAddress: {
@@ -49,6 +49,11 @@ var Practitioner = connection.define('Practitioner', {
 	viewsToday: {
 	    type: Sequelize.DECIMAL(4,0),
 		allowNull: false
+	},
+	availableConnections: {
+		type: Sequelize.DECIMAL(10,0),
+		allowNull: false,
+		defaultValue: 0
 	}
 },{
 	timestamps: false,

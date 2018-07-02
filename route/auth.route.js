@@ -1,11 +1,40 @@
 var router = require('express').Router();
 var authController = require('../controller/auth.controller');
+const jwt = require('../utils/jwt');
+const passport = require('passport');
 
-router.post('/', login);
+router.post('/login', login );
 router.put('/verifyEmail',verifyEmail);
 
 module.exports = router;
 
+/* POST login. */
+function login (req, res, next) {
+    console.log('Logging in')
+    passport.authenticate('local', {session: false}, (err, user, info) => {
+        if (err || !user) {
+            return res.status(400).json({
+                message: err.message,
+                user: user
+            });
+        }
+       req.login(user, {session: false}, (err) => {
+           if (err) {
+               res.send(err);
+           }
+           // generate a signed son web token with the contents of user object and return it in the response
+           jwt.sign({username: user.username}, (err,token)=>{
+				if (!err)
+					return res.json({user, token});
+				else 
+					next(err);
+		   });
+           
+        });
+    })(req, res);
+}
+
+/*
 function login(req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
@@ -29,7 +58,8 @@ function login(req, res, next) {
                 next(err);
             })
     }
-}
+}*/
+
 
 function verifyEmail(req, res, next) {
     var token = req.query.token;
@@ -39,9 +69,10 @@ function verifyEmail(req, res, next) {
             message: "Cannot verify email."
         })
     } else {
-         authController.verifyEmail(token)
-            .then(function (token) {
-                res.send(token)
+        authController.verifyEmail(token)
+            .then(function (data) {
+				console.log('receive', data);
+                res.send(data);
             })
             .catch(function (err) {
                 next(err);

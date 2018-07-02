@@ -11,7 +11,7 @@ module.exports.auth = function () {
                 if (err) {
                     res.status(401);
                     res.json({
-                        message: 'Invalid Token'
+                        message: err.message
                     });
                 } else {
                     var user = decodedData.username;

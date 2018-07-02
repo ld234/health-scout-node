@@ -4,6 +4,7 @@ var nodemailer = require("nodemailer");
 var crypto = require('crypto');
 var secret = 'healthyandfresh';
 var authController = require('./auth.controller');
+var bcrypt = require('bcrypt');
 
 module.exports = {
     getUser: getUser,
@@ -13,8 +14,9 @@ module.exports = {
 
 // Get user info
 function getUser(u) {
-    return User.findOne({where:{username:u}})
+    return User.findOne({attributes:{ exclude:['password']},where:{username:u}})
         .then(function (user) {
+			
             return Promise.resolve(user);
         })
         .catch(function(err){
@@ -23,7 +25,6 @@ function getUser(u) {
                 message: err.message
             });
         })
-        
 }
 
 // Add new user
@@ -58,25 +59,32 @@ function createUser(newUser) {
                     message: 'Password must contain both letters and digits.'
                 });
             } else {
-                var salt = crypto.randomBytes(2).toString('hex');
+                /*var salt = crypto.randomBytes(2).toString('hex');
                 var hash = crypto.createHmac('sha256', secret)
                     .update(newUser.password.concat(salt))
-                    .digest('hex');
-                newUser.password = hash;
-                newUser.salt = salt;
-                var user = new User(newUser);
-                authController.sendEmail(user,function(){
-                    console.log('Email sent successfully and verification saved.');
-                });
-                return user.save()
-                    .then(function (user) {
-                        delete user.dataValues['salt'];
-                        delete user.dataValues['password'];
-                        return Promise.resolve(user);
-                    })
-                    .catch(function (err) {
-                        return Promise.reject(err);
-                    });
+                    .digest('hex');*/
+				const saltRounds = 10;
+				return bcrypt.hash(newUser.password, saltRounds)
+				.then( (hash) =>{
+				  // Store hash in your password DB.
+					newUser['password'] = hash;
+					console.log('new user', newUser);
+					let dateParts = newUser.dob.split('-');
+					newUser.dob = "".concat(dateParts[2],'-', dateParts[1],'-',dateParts[0]);
+					return User.create(newUser)
+					.then( savedUser => {
+						return authController.sendEmail(savedUser)
+						.then( (data) => {
+							delete savedUser.dataValues['password'];
+							console.log('usersaved', savedUser.dataValues);
+							return Promise.resolve(savedUser.dataValues);
+						} )
+						.catch( err => {
+							return Promise.reject(err);
+						} );
+					});
+				});
+                //newUser.salt = salt;
             }
         })
         .catch(function (err) {
