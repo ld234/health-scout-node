@@ -1,32 +1,8 @@
 var stripe = require('stripe')(process.env.STRIPE_KEY);
-
-stripe.products.create({
-    id: 'standard-bundle',
-    name: 'Standard Connection Bundle',
-    type: 'service',
-}, function(err, product) {
-    console.log(product);
-});
-
-stripe.products.create({
-    id: 'premium-bundle',
-    name: 'Premium Connection Bundle',
-    type: 'service',
-}, function(err, product) {
-    console.log(product);
-});
-
-stripe.products.create({
-    id: 'platinum-bundle',
-    name: 'Platinum Connection Bundle',
-    type: 'service',
-}, function(err, product) {
-    console.log(product);
-});
-
+//prod_D9ok2XQH3yo1n8
 stripe.plans.create({
     id: 'healthscout-annual',
-    amount: 19.99,
+    amount: 1999,
     interval: "year",
     product: {
       name: "HealthScout Annual Subscription"
@@ -35,3 +11,85 @@ stripe.plans.create({
 }, function(err, plan) {
     console.log(plan);
 });
+
+/*
+{ id: 'premium-bundle',
+  object: 'product',
+  active: true,
+  attributes: [],
+  caption: null,
+  created: 1530528506,
+  deactivate_on: [],
+  description: null,
+  images: [],
+  livemode: false,
+  metadata: {},
+  name: 'Premium Connection Bundle',
+  package_dimensions: null,
+  shippable: null,
+  statement_descriptor: null,
+  type: 'service',
+  unit_label: null,
+  updated: 1530528506,
+  url: null }
+
+{ id: 'standard-bundle',
+  object: 'product',
+  active: true,
+  attributes: [],
+  caption: null,
+  created: 1530528506,
+  deactivate_on: [],
+  description: null,
+  images: [],
+  livemode: false,
+  metadata: {},
+  name: 'Standard Connection Bundle',
+  package_dimensions: null,
+  shippable: null,
+  statement_descriptor: null,
+  type: 'service',
+  unit_label: null,
+  updated: 1530528506,
+  url: null }
+
+{ id: 'platinum-bundle',
+  object: 'product',
+  active: true,
+  attributes: [],
+  caption: null,
+  created: 1530528506,
+  deactivate_on: [],
+  description: null,
+  images: [],
+  livemode: false,
+  metadata: {},
+  name: 'Platinum Connection Bundle',
+  package_dimensions: null,
+  shippable: null,
+  statement_descriptor: null,
+  type: 'service',
+  unit_label: null,
+  updated: 1530528506,
+  url: null }
+
+{ id: 'healthscout-annual',
+  object: 'plan',
+  active: true,
+  aggregate_usage: null,
+  amount: 1999,
+  billing_scheme: 'per_unit',
+  created: 1530549786,
+  currency: 'aud',
+  interval: 'year',
+  interval_count: 1,
+  livemode: false,
+  metadata: {},
+  nickname: null,
+  product: 'prod_D9ok2XQH3yo1n8',
+  tiers: null,
+  tiers_mode: null,
+  transform_usage: null,
+  trial_period_days: null,
+  usage_type: 'licensed' }
+  */

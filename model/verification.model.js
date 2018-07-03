@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
-const connection = require('../db/sql-connection')
-const User = require('./user.model')
+const connection = require('../db/sql-connection');
+const User = require('./user.model');
 var Verification = connection.define('verification',{
     username: { 
         type: Sequelize.STRING(20),

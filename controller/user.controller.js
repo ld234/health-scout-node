@@ -28,7 +28,7 @@ function getUser(u) {
 
 // Add new user
 function createUser(newUser) {
-    return User.findOne({ attributes:['username','password','email'], 
+    return User.findAll({ attributes:['username','password','email'], 
                             where:{
                                 [Op.or]: [
                                     {username:newUser.username},
@@ -37,7 +37,6 @@ function createUser(newUser) {
                             }
                         })
         .then( (foundUsers) => {
-            RegisterBusinesses.findOne({where })
             if (foundUsers.length > 0) {
                 return Promise.reject({
                     statusCode: 400,
@@ -75,7 +74,7 @@ function createUser(newUser) {
 					.then( savedUser => {
 						return authController.sendEmail(savedUser)
 						.then( (data) => {
-							delete savedUser.dataValues['password'];
+							//delete savedUser.dataValues['password'];
 							console.log('usersaved', savedUser.dataValues);
 							return Promise.resolve(savedUser.dataValues);
 						} )

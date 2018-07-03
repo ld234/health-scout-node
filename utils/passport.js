@@ -13,25 +13,31 @@ passport.use(new LocalStrategy(
     function (username, password, done) {
         //this one is typically a DB call. Assume that the returned user object is pre-formatted and ready for storing in JWT		
 		return User.findOne({
+			attributes: ['username','password','active'],
 			where: {
 				username: username
 			}
 		})
 		.then(user => {
 			if (user){
-				return bcrypt.compare(password, user.password)
-				.then (res => {
-					if (res == false){
-						return done({message: 'Incorrect username or password.'}, false);
-					}
-					else {
-						return done(null, user, {message: 'Logged In Successfully'});
-					}
-				})
-				.catch(err => done(err));
+				if (user.active){
+					return bcrypt.compare(password, user.password)
+					.then (res => {
+						if (res == false){
+							return done({message: 'Incorrect username or password.'}, false);
+						}
+						else {
+							return done(null, user, {message: 'Logged In Successfully'});
+						}
+					})
+					.catch(err => done(err));
+				}
+				else{
+					return done({message: 'This account has not been activated.'}, false);
+				}
 			}
 			else{
-				done({message: "Incorrect username or password."});
+				return done({message: "Incorrect username or password."});
 			}
 		})
 		.catch(err => done(err));

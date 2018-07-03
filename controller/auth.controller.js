@@ -6,12 +6,13 @@ var nodemailer = require('nodemailer');
 require('dotenv').config()
 
 module.exports = {
-    login,
+    // login,
     checkAuth,
     verifyEmail,
     sendEmail
 }
 
+// Outdated
 function login(username, password) {
     return User.findOne({ attributes:['username','password','active'] ,where: {
             username: username
@@ -32,7 +33,7 @@ function login(username, password) {
 					// Load hash from your password DB.
 					bcrypt.compare(password, user.password, function(err, res) {
 						if (res == false){
-							return Promise.reject({statusCode: 401, message:'Incorrect password.'});
+							return Promise.reject({statusCode: 400, message:'Incorrect username or password.'});
 						}
 					});
 				}

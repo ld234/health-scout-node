@@ -61,7 +61,8 @@ function getUser(req, res, next) {
 
 function createUser(req, res, next) {
     var newUser = req.body;
-	newUser['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
+    if (req.file )
+	    newUser['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
     if (!newUser.username) {
         next({
             statusCode: 400,

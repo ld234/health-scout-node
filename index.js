@@ -5,22 +5,22 @@ var router = express.Router();
 var userRouter = require('./route/user.route');
 var authRouter = require('./route/auth.route');
 var paymentRouter = require('./route/payment.route');
+
 var errorHandler = require('./middleware/error-handler');
-var db = require('./db/sql-connection');
-var User = require('./model/user.model');
-var Verification = require('./model/verification.model');
-var path = require('path');
+require('./db/sql-connection');
+require('./model/user.model');
+require('./model/verification.model');
+
+const path = require('path');
 require('./utils/passport');
-const passport = require('passport');
 const cors = require('cors')
+require('./utils/stripe.plan');
 
 app.use(cors())
-
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); 
 app.use(express.static('./public'));
-
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
