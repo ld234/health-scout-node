@@ -31,6 +31,8 @@ const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, 
 
 router.get('/', auth.auth(), getUser);
 router.post('/', upload.single('profilePic'), createUser);
+router.post('/checkUserDetails', checkUserDetails);
+router.post('/checkPracDetails', checkPractitionerDetails);
 router.put('/', auth.auth(), updateUser);
 
 module.exports = router;
@@ -53,6 +55,26 @@ function getUser(req, res, next) {
     userController.getUser(username)
         .then(function (user) {
             res.send(user);
+        })
+        .catch(function (err) {
+            next(err);
+        })
+}
+
+function checkUserDetails(req, res, next) {
+    userController.checkUserDetails(req.body)
+        .then(function (user) {
+            res.send({valid: true});
+        })
+        .catch(function (err) {
+            next(err);
+        })
+}
+
+function checkPractitionerDetails(req, res, next) {
+    userController.checkPractitionerDetails(req.body)
+        .then(function (user) {
+            res.send({valid: true});
         })
         .catch(function (err) {
             next(err);

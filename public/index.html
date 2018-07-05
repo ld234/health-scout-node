@@ -99,12 +99,12 @@
             }, function(status, response) {
                 var $form = $('#form');
                 var token = response.id;
-
+                console.log(token)
                 // Save the token into a hidden input field
                 $form.append($('<input type="hidden" name="stripeToken" />').val(token));
 
                 // Now submit the form to our server so it can make the charge against the token
-                $form.get(0).submit();
+                //$form.get(0).submit();
 
                 // All done!
                 $btn.addClass('btn-success').removeClass('btn-primary');

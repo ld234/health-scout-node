@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+const path = require('path');
 var bodyParser = require('body-parser');
 var router = express.Router();
 var userRouter = require('./route/user.route');
@@ -8,13 +9,10 @@ var paymentRouter = require('./route/payment.route');
 
 var errorHandler = require('./middleware/error-handler');
 require('./db/sql-connection');
-require('./model/user.model');
-require('./model/verification.model');
-
-const path = require('path');
+require('./utils/create.db');
 require('./utils/passport');
-const cors = require('cors')
 require('./utils/stripe.plan');
+const cors = require('cors');
 
 app.use(cors())
 

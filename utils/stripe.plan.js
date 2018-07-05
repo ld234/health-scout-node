@@ -9,7 +9,8 @@ stripe.plans.create({
     },
     currency: "aud",
 }, function(err, plan) {
-    console.log(plan);
+    // console.log(plan);
+    console.log('Plan created');
 });
 
 /*

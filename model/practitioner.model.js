@@ -22,7 +22,7 @@ var Practitioner = connection.define('Practitioner', {
 	    type: Sequelize.DECIMAL(11,0),
 		allowNull: false
 	},
-	medicareNum: {
+	medicalProviderNum: {
 	    type: Sequelize.STRING,
 		unique: true,
 		allowNull: false,
@@ -44,11 +44,13 @@ var Practitioner = connection.define('Practitioner', {
 	},
 	rating: {
 	    type: Sequelize.DECIMAL(3,2),
-		allowNull: false
+		allowNull: false,
+		defaultValue: 0
 	},
 	viewsToday: {
 	    type: Sequelize.DECIMAL(4,0),
-		allowNull: false
+		allowNull: false,
+		defaultValue: 0
 	},
 	availableConnections: {
 		type: Sequelize.DECIMAL(10,0),
