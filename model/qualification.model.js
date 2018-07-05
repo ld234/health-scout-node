@@ -6,10 +6,10 @@ var Qualification = connection.define('Qualification', {
 		type: Sequelize.STRING,
 		primaryKey: true,
 		validate: {
-			len: {
-				args: [8,30],
-				msg: 'Please enter username with at lease 8 but max 30 characters'
-			},
+			/*len: {
+				args: [6,20],
+				msg: 'Please enter username with at lease 6 but max 20 characters'
+			},*/
 			isAlphanumeric: true
 		},
 	},
@@ -34,3 +34,4 @@ var Qualification = connection.define('Qualification', {
 });
 
 Practitioner.hasMany(Qualification,{foreignKey: 'pracUsername'});
+module.exports = Qualification;

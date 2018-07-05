@@ -144,6 +144,51 @@ function verifyEmail(token){
     })
 }
 
+//verify the password reset link
+function verifyLink(token) {
+	return jwt.verify (token, function (err, decodedData) {
+        if (err) {
+            return Promise.reject({
+                statusCode: 401,
+                message: 'Invalid token'
+            });
+        } else {
+			//Verification.destroy({where:{username:decodedData.username}});
+			
+            return User.findOne({attributes: ['username'], where:{ username: decodedData.username}})
+                .then(function (foundUser) {
+					return Verification.findAll({attributes: ['username','verification'], //to make sure the verification token is not an old one
+						where: {[Op.and]: [
+							{username: foundUser.username}, 
+							{verification: decodedData.verification}]
+						}
+					})
+					.then(function(foundVerifications) {
+						if (foundVerifications.length==1) {
+							return Promise.resolve(foundVerifications[0].dataValues);
+						}
+						else {
+							return Promise.reject({
+								statusCode:401,
+								message: 'Outdated token'
+							})
+						}
+					})
+					.catch(function(err) {
+						return Promise.reject(err);
+					});
+				})
+				.catch(function (err){
+					console.log(err);
+					return Promise.reject({
+						statusCode: 401,
+						message: err.message
+					});
+				});
+		}
+	})
+}
+
 // Send email to registered user
 function sendEmail(user,callback){
     var rand = crypto.randomBytes(2).toString('hex');
@@ -175,7 +220,62 @@ function sendEmail(user,callback){
 		return Promise.resolve(data);
 	})
 	.catch(function(err){
-		return Promise.rejct
+		return Promise.reject(err);
+	});
+}
+
+//function send email to reset password
+function sendResetEmail(user,callback) {
+	var smtpTransport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+            user: "healthscout321@gmail.com",
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+	var rand = crypto.randomBytes(2).toString('hex');
+	var newVerification = {  
+		username: user.username,
+		verification: rand
+	};
+	
+	return Verification.findAll({attributes:['username'],
+		where: {username: newVerification.username}
+	})
+	.then(function(foundVerifications) {
+		if (foundVerifications.length >0) { //a verify link already exists for this user (either a email verification or another reset link)
+			return Promise.reject({
+				statusCode:400,
+				message:'Another verification/reset link has already been sent to your email'
+			})
+		}
+		else {
+			jwt.sign({username: newVerification.username,verification: rand},function(err,token){
+				var link="http://localhost:8888/auth/resetPassword?token="+token;
+				mailOptions={
+					to: user.email, 
+					subject : "Reset Password",
+				html : `Hello ${user.fName},<br><br> Please click on the link to reset your password.<br><a href="${link}">Click here to reset password</a><br><br><i><b>Citron Inc.</b></i>`
+				}
+				smtpTransport.sendMail(mailOptions)
+				.then( response => {
+					console.log(rand,'Email sent successfully');
+				})
+				.catch( err => {
+					console.log(err);
+				});            
+			});
+			return Verification.create(newVerification)
+				.then (function (data) {
+					return Promise.resolve(data);
+				})
+				.catch(function(err){
+					return Promise.reject(err);
+				});
+		}
+	})
+	.catch(function(err) {
+		return Promise.reject(err);
 	});
 }
 

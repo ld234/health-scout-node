@@ -7,6 +7,9 @@ var userRouter = require('./route/user.route');
 var authRouter = require('./route/auth.route');
 var paymentRouter = require('./route/payment.route');
 
+var specialtyRouter = require('./route/specialty.route');
+var qualificationRouter = require('./route/qualification.route');
+
 var errorHandler = require('./middleware/error-handler');
 require('./db/sql-connection');
 require('./utils/create.db');
@@ -23,6 +26,9 @@ app.use(express.static('./public'));
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/charge', paymentRouter);
+
+app.use('/specialty',specialtyRouter);
+app.use('/qualification',qualificationRouter);
 
 app.use(errorHandler.errorHandler());
 
