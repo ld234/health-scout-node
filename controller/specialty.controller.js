@@ -4,16 +4,15 @@ var authController = require('./auth.controller');
 var Practitioner = require('../model/practitioner.model');
 
 module.exports= {
-	createSpecialty
+	createSpecialty,
+	deleteSpecialty
 }
 
 function createSpecialty(newSpecialty) {
 	return Specialty.findAll({
-		atributes: ['pracUsername','degree','institution','specialty'],
+		atributes: ['pracUsername','specialty'],
 		where: {[Op.and]:[
 			{pracUsername : newSpecialty.pracUsername},
-			{degree : newSpecialty.degree},
-			{institution: newSpecialty.institution},
 			{specialty:newSpecialty.specialty}
 		]
 	}})
@@ -47,6 +46,35 @@ function createSpecialty(newSpecialty) {
 		}
 	})
 	.catch(function(err) {
+		return Promise.reject(err);
+	})
+}
+
+function deleteSpecialty(deletedSpecialty) {
+	return Practitioner.findAll({
+		attributes: ['pracUsername'],
+		where: {pracUsername: deletedSpecialty.pracUsername}
+	})
+	.then(function(foundPractitioners){
+		if (foundPractitioners.length>0) {
+			return Specialty.destroy({where:[{pracUsername: deletedSpecialty.pracUsername},{specialty: deletedSpecialty.specialty}]})
+			.then (function(numOfDestroyed){
+				if (numOfDestroyed==1) {
+					return Promise.resolve('specialty deleted successfully');
+				}
+				else {
+					return Promise.reject({
+						statusCode:404, //should be changed to 204 NO CONTENT (and no response body) when deployed
+						message: 'Specialty does not exist'
+					})
+				}
+			})
+			.catch(err => {
+				return Promise.reject(err);
+			})
+		}
+	})
+	.catch(err=>{
 		return Promise.reject(err);
 	})
 }

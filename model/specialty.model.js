@@ -9,20 +9,9 @@ var Specialty = connection.define('Specialty',{
 			isAlphanumeric: true
 		},
 	},
-	degree: {
-		type: Sequelize.STRING,
-		primaryKey: true
-	},
-	institution: {
-		type: Sequelize.STRING,
-		primaryKey: true
-	},
 	specialty: {
 		type:Sequelize.STRING,
 		primaryKey: true
-	},
-	description: {
-		type: Sequelize.STRING
 	}
 },{
 	timestamps: false,

@@ -26,7 +26,8 @@ var Qualification = connection.define('Qualification', {
 		primaryKey: true
 	},
 	description: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+		allowNull: true
 	}
 },{
 	timestamps: false,
