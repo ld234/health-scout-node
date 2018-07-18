@@ -1,5 +1,6 @@
 const User = require('../model/user.model');
 const Practitioner = require('../model/practitioner.model');
+const Qualification = require('../model/qualification.model');
 const RegisteredBusiness = require('../model/registered.business.model');
 const Op = require('sequelize').Op;
 const nodemailer = require("nodemailer");
@@ -7,6 +8,7 @@ const crypto = require('crypto');
 const authController = require('./auth.controller');
 const bcrypt = require('bcrypt');
 const paymentController = require('./payment.controller');
+const RawQuery = require('../utils/raw.query');
 
 const STANDARD_CONN = 10;
 const PREMIUM_CONN = 20;
@@ -20,12 +22,12 @@ module.exports = {
     // updateUser: updateUser
 } 
 
+
 // Get user info
 function getUser(u) {
-    return User.findOne({attributes:{ exclude:['password']}, where:{username:u}})
+    return RawQuery.getPractitionerDetails(u)
         .then(function (user) {
-			
-            return Promise.resolve(user);
+			return Promise.resolve(user);
         })
         .catch(function(err){
             return Promise.reject({
@@ -63,10 +65,10 @@ function checkPractitionerDetails(abn,medicalProviderNumber) {
     var invalidFields = [];
     return RegisteredBusiness.findOne({ attribute:['ABN'], where : {ABN: abn}})
     .then(foundABN => {
-        if (foundABN)
-            return Promise.resolve(foundABN.ABN);
-        else
+        if (!foundABN){
            invalidFields.push('ABN');
+           return Promise.resolve(invalidFields);
+        }
     })
     .catch (err => {return Promise.reject(err)});
 }

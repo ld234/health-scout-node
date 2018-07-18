@@ -104,7 +104,7 @@ function resetPassword(req, res, next) {
     if (!token) {
         next({
             statusCode: 400,
-            message: "No token provided."
+            message: "Invalid password reset link."
         })
     } else {
         authController.resetPassword(newPassword,token)

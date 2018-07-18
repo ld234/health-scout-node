@@ -148,7 +148,7 @@ function verifyEmail(token){
 function sendEmail(user,callback){
     var rand = crypto.randomBytes(2).toString('hex');
     jwt.sign({username: user.username,verification: rand}, function(err,token){
-        var link="http://localhost:8888/verify?id="+token;
+        var link=`${process.env.ROOT_URL}verify?id=${token}`;
         mailOptions={
             to: user.email, 
             subject : "Welcome to HealthScout",
@@ -199,7 +199,7 @@ function checkAuth(user) {
 function requestPasswordReset(username, email , cb){
     if (username){
         User.findOne({
-            attributes: ['username','fName','email'],
+            attributes: ['username','fName','email','active'],
             where: {
                 username: username
             }
@@ -216,7 +216,7 @@ function requestPasswordReset(username, email , cb){
     }
     else if (email){
         User.findOne({
-            attributes: ['username','email','fName'],
+            attributes: ['username','email','fName','active'],
             where: {
                 email: email
             }
@@ -237,55 +237,64 @@ function requestPasswordReset(username, email , cb){
 
 function createResetLink(foundUser,cb){
     if (foundUser){
-        console.log('found user email', foundUser.email);
-        var rand = crypto.randomBytes(10).toString('hex');
-        jwt.sign({username: foundUser.username,verification: rand},function(err,token){
-            if (!err){
-                console.log(token);
-                var link=`http://localhost:${process.env.PORT}/forgotPassword?id=${token}`;
-                mailOptions={
-                    from: 'HealthScout',
-                    to: foundUser.email, 
-                    subject : "Reset your HealthScout password",
-                    template: 'forgot-password-email',
-                    context: {
-                        url: link,
-                        name: foundUser.fName
+        if (!foundUser.active){
+            cb({
+                statusCode: 400,
+                message: 'This account has not been activated.'
+            })
+        }
+        else{
+            console.log('found user email', foundUser.email);
+            var rand = crypto.randomBytes(10).toString('hex');
+            jwt.sign({username: foundUser.username,verification: rand},function(err,token){
+                if (!err){
+                    console.log(token);
+                    var link=`${process.env.ROOT_URL}resetPassword?id=${token}`;
+                    mailOptions={
+                        from: 'HealthScout',
+                        to: foundUser.email, 
+                        subject : "Reset your HealthScout password",
+                        template: 'forgot-password-email',
+                        context: {
+                            url: link,
+                            name: foundUser.fName
+                        }
                     }
-                }
-                User.update({passwordReset:rand}, {where: { username: foundUser.username }})
-                .then (function (data) {
-                    smtpTransport.sendMail(mailOptions)
-                    .then( response => {
-                        cb(null, {
-                            message: 'An email with instructions to reset password has been sent to your nominated email.'
+                    User.update({passwordReset:rand}, {where: { username: foundUser.username }})
+                    .then (function (data) {
+                        smtpTransport.sendMail(mailOptions)
+                        .then( response => {
+                            cb(null, {
+                                message: 'An email with instructions to reset password has been sent to your nominated email.'
+                            })
                         })
+                        .catch( err => {
+                            console.log('err2',err)
+                            cb({
+                                message: 'Email cannot be sent to your nominated email. Please try again later.'
+                            })
+                        });
                     })
-                    .catch( err => {
-                        console.log('err2',err)
+                    .catch(function(err){
+                        console.log('err1',err)
                         cb({
                             message: 'Email cannot be sent to your nominated email. Please try again later.'
                         })
                     });
-                })
-                .catch(function(err){
-                    console.log('err1',err)
+                }
+                else{
                     cb({
-                        message: 'Email cannot be sent to your nominated email. Please try again later.'
+                        message: 'Cannot reset password.'
                     })
-                });
-            }
-            else{
-                cb({
-                    message: 'Cannot reset password.'
-                })
-            }
-        });
+                }
+            });
+        }
+        
     }
     else{
         cb({
             statusCode: 400,
-            message: 'The email you provided has not been registered with HealthScout.'
+            message: 'The email or username you provided has not been registered with HealthScout.'
         })
     }
 }
@@ -302,7 +311,7 @@ function resetPassword(newPassword, token){
             });
         } else {
             return User.findOne({
-                attributes:['username','passwordReset','fName'],
+                attributes:['username','passwordReset','fName','email'],
                 where:{
                     username:decodedData.username,
                     passwordReset: decodedData.verification
@@ -353,7 +362,7 @@ function resetPassword(newPassword, token){
                 }else{
                     return Promise.reject({
                         statusCode: 400,
-                        message: 'Cannot reset password.'
+                        message: 'Invalid reset password link.'
                     });
                 }
             })

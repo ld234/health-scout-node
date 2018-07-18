@@ -20,8 +20,8 @@ function createQualification(newQualification) {
 	.then((foundQualifications) => {
 		if (foundQualifications.length>0) {
 			return Promise.reject({
-                    statusCode: 400,
-                    message: 'Qualification already existed'
+				statusCode: 400,
+				message: 'Qualification already existed'
             });
 		}
 		else {

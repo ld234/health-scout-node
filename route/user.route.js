@@ -64,7 +64,7 @@ function getUser(req, res, next) {
 function checkUserDetails(req, res, next) {
     userController.checkUserDetails(req.body)
         .then(function (user) {
-            res.send({valid: true});
+            res.send(user);
         })
         .catch(function (err) {
             next(err);
@@ -72,9 +72,11 @@ function checkUserDetails(req, res, next) {
 }
 
 function checkPractitionerDetails(req, res, next) {
-    userController.checkPractitionerDetails(req.body)
+    const abn = req.body.abn;
+    const medicalProviderNumber =req.body.medicalProviderNumber;
+    userController.checkPractitionerDetails(abn, medicalProviderNumber)
         .then(function (user) {
-            res.send({valid: true});
+            res.send(user);
         })
         .catch(function (err) {
             next(err);

@@ -30,7 +30,8 @@ function charge(username, stripeToken, bundle) {
                 currency: 'aud',
                 amount: amount,
                 receipt_email: user.email,
-                description: `Payment for ${bundle} bundle.`
+                customer: user.customerID,
+                description: `Payment by ${username} for ${bundle} bundle.`
             })
             .then(charge => {
                 console.log('Charged');

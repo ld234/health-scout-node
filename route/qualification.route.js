@@ -24,7 +24,7 @@ function addQualification(req,res,next) {
 	} else if (!newQualification.graduateYear) {
 		next({
             statusCode: 400,
-            message: "Graduate Year is required"
+            message: "Graduation year is required"
         })
 	}  else {
 		qualificationController.createQualification(newQualification)
