@@ -67,7 +67,20 @@ function checkPractitionerDetails(abn,medicalProviderNumber) {
     .then(foundABN => {
         if (!foundABN){
            invalidFields.push('ABN');
-           return Promise.resolve(invalidFields);
+           return Practitioner.findOne({attribute: ['medicalProviderNumber'], where : {medicalProviderNumber: medicalProviderNumber}})
+           .then (foundMedProviderNum => {
+                if(foundMedProviderNum){
+                    return Promise.reject({
+                        statusCode:400,
+                        message: "Medicare Provider Number already existed."
+                    })
+                }
+                else{
+                    return Promise.resolve(invalidFields);
+                }
+           })
+           .catch(err => {return Promise.reject(err)});
+           
         }
     })
     .catch (err => {return Promise.reject(err)});
@@ -118,6 +131,7 @@ function createUser(newUser){
                 return paymentController.subscribe(newUser.username, newUser.email)
                 .then (data => {
                     newUser.customerID = data.customer;
+                    console.log('successful payment');
                     return User.create(newUser)
                     .then( savedUser => {
                         let hasBundle = false;
@@ -133,7 +147,8 @@ function createUser(newUser){
                             newUser.availableConnections =  PLATINUM_CONN;
                             hasBundle = true;
                         }
-                        if (hasBundle)
+                        if (hasBundle){
+                            console.log('has bundle');
                             return paymentController.charge(newUser.username, newUser.stripeToken, newUser.bundle)
                             .then( charge => {
                                 return savePractitioner(newUser)
@@ -142,6 +157,7 @@ function createUser(newUser){
                                 })
                                 .catch( err => {return Promise.reject(err)});
                             })
+                        }
                         else{
                             return savePractitioner(newUser)
                             .then ( savedPrac => {
@@ -162,6 +178,7 @@ function createUser(newUser){
 }
 
 function savePractitioner(newUser){
+    console.log('saving prac')
     newUser.pracUsername = newUser.username;
     return Practitioner.create(newUser)
     .then( data => {
@@ -169,7 +186,7 @@ function savePractitioner(newUser){
         .then( (data) => {
             return Promise.resolve(newUser);
         })
-        .catch( err => {return Promise.reject(err); });
+        .catch( err => {console.log('sending email err'); return Promise.reject(err); });
     })
-    .catch(err => {return Promise.reject(err);})
+    .catch(err => { console.log('create prac err', err); return Promise.reject(err);})
 }

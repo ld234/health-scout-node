@@ -85,7 +85,7 @@ function checkPractitionerDetails(req, res, next) {
 
 function createUser(req, res, next) {
     var newUser = req.body;
-    if (req.file )
+    if (req.file)
 	    newUser['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
     if (!newUser.username) {
         next({

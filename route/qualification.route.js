@@ -3,6 +3,7 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var qualificationController = require('../controller/qualification.controller');
 
+router.get('/',auth.auth(),getQualifications);
 router.post('/add',auth.auth(),addQualification);
 
 module.exports=router;
@@ -36,4 +37,11 @@ function addQualification(req,res,next) {
 				next(err);
 			})
 	}
+}
+
+function getQualifications(req,res,next) {
+	var username = req.user;
+	qualificationController.getQualifications(username)
+	.then(qualifcations => res.send(qualifcations))
+	.catch( err => next(err));
 }
