@@ -73,7 +73,7 @@ function checkUserDetails(req, res, next) {
 
 function checkPractitionerDetails(req, res, next) {
     const abn = req.body.abn;
-    const medicalProviderNumber =req.body.medicalProviderNumber;
+    const medicalProviderNumber =req.body.medicalProviderNum;
     userController.checkPractitionerDetails(abn, medicalProviderNumber)
         .then(function (user) {
             res.send(user);

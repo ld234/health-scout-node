@@ -66,17 +66,16 @@ function checkPractitionerDetails(abn,medicalProviderNumber) {
     return RegisteredBusiness.findOne({ attribute:['ABN'], where : {ABN: abn}})
     .then(foundABN => {
         if (!foundABN){
-           invalidFields.push('ABN');
-           return Practitioner.findOne({attribute: ['medicalProviderNumber'], where : {medicalProviderNumber: medicalProviderNumber}})
-           .then (foundMedProviderNum => {
-                if(foundMedProviderNum){
-                    invalidFields.push('medicalProviderNumber');
-                }
-                return Promise.resolve(invalidFields);
-           })
-           .catch(err => {return Promise.reject(err)});
-           
+            invalidFields.push('ABN');
         }
+        return Practitioner.findOne({attribute: ['medicalProviderNum'], where : {medicalProviderNum: medicalProviderNumber}})
+        .then (foundMedProviderNum => {
+            if(foundMedProviderNum){
+                invalidFields.push('medicalProviderNumber');
+            }
+            return Promise.resolve(invalidFields);
+        })
+        .catch(err => {return Promise.reject(err)});
     })
     .catch (err => {return Promise.reject(err)});
 }
