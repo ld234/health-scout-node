@@ -70,14 +70,9 @@ function checkPractitionerDetails(abn,medicalProviderNumber) {
            return Practitioner.findOne({attribute: ['medicalProviderNumber'], where : {medicalProviderNumber: medicalProviderNumber}})
            .then (foundMedProviderNum => {
                 if(foundMedProviderNum){
-                    return Promise.reject({
-                        statusCode:400,
-                        message: "Medicare Provider Number already existed."
-                    })
+                    invalidFields.push('medicalProviderNumber');
                 }
-                else{
-                    return Promise.resolve(invalidFields);
-                }
+                return Promise.resolve(invalidFields);
            })
            .catch(err => {return Promise.reject(err)});
            
