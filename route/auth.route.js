@@ -3,13 +3,19 @@ var router = require('express').Router();
 var authController = require('../controller/auth.controller');
 const jwt = require('../utils/jwt');
 const passport = require('passport');
+const auth = require('../middleware/auth');
 
 router.post('/login', login );
+router.post('/checkAuth', auth.auth(),checkIfAuthenticated);
 router.put('/verifyEmail',verifyEmail);
 router.put('/forgetPassword',requestPasswordReset)
 router.put('/resetPassword',resetPassword)
 
 module.exports = router;
+
+function checkIfAuthenticated(req, res, next) {
+    res.send({message: 'The user is authenticated.'})
+}
 
 /* POST login. */
 function login (req, res, next) {

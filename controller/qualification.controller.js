@@ -4,7 +4,8 @@ var authController = require('./auth.controller');
 var Practitioner = require('../model/practitioner.model');
 
 module.exports= {
-	createQualification
+	createQualification,
+	getQualifications
 }
 
 function createQualification(newQualification) {
@@ -49,4 +50,18 @@ function createQualification(newQualification) {
 	.catch(function(err) {
 		return Promise.reject(err);
 	})
+}
+
+function getQualifications(username){
+	return Qualification.findAll({
+		where: {
+			pracUsername: username
+		},
+		order: [
+			['graduateYear', 'DESC']
+		],})
+	.then(qualifications => {
+		return Promise.resolve(qualifications);
+	})
+	.catch(err => Promise.reject(err));
 }

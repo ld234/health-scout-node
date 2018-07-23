@@ -4,7 +4,7 @@ var auth = require('../middleware/auth');
 var qualificationController = require('../controller/qualification.controller');
 
 router.get('/',auth.auth(),getQualifications);
-router.post('/add',auth.auth(),addQualification);
+router.post('/',auth.auth(),addQualification);
 
 module.exports=router;
 
@@ -30,8 +30,8 @@ function addQualification(req,res,next) {
 	}  else {
 		qualificationController.createQualification(newQualification)
 			.then(function(qualification) {
-				console.log('Qualification added',qualification);
-				res.status(201).send(qualification);
+				console.log('Qualification added',qualification.dataValues);
+				res.status(201).send(qualification.dataValues);
 			})
 			.catch(function(err) {
 				next(err);

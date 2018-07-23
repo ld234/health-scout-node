@@ -19,7 +19,7 @@ var User = connection.define('User',{
         allowNull: false
     },
 	title: {
-		type: Sequelize.ENUM('Mr.','Mrs.','Ms.','Dr.','Prof.'),
+		type: Sequelize.ENUM('Mr.','Mrs.','Ms.','Dr.','Prof.', 'Miss'),
 		allowNull: false
 	},
     email: {
