@@ -3,14 +3,10 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var qualificationController = require('../controller/qualification.controller');
 
-<<<<<<< HEAD
 router.get('/',auth.auth(),getQualifications);
 router.post('/',auth.auth(),addQualification);
-=======
-router.post('/add',auth.auth(),addQualification);
-router.put('/update',auth.auth(),updateQualification);
-router.delete('/delete',auth.auth(),deleteQualification);
->>>>>>> kevin
+router.put('/',auth.auth(),updateQualification);
+router.delete('/',auth.auth(),deleteQualification);
 
 module.exports=router;
 
