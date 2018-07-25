@@ -19,6 +19,7 @@ var Patient = connection.define('Patient',{
 	freezeTableName: true
 });
 
+//User.hasOne(Patient,{foreignKey: 'patientUsername'});
 Patient.belongsTo(User,{foreignKey: 'patientUsername'});
 
 module.exports = Patient;

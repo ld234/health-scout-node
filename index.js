@@ -8,6 +8,7 @@ var paymentRouter = require('./route/payment.route');
 
 var specialtyRouter = require('./route/specialty.route');
 var qualificationRouter = require('./route/qualification.route');
+var clientsRouter = require('./route/clients.route');
 
 var errorHandler = require('./middleware/error-handler');
 require('./db/sql-connection');
@@ -31,6 +32,7 @@ app.use('/charge', paymentRouter);
 
 app.use('/specialty',specialtyRouter);
 app.use('/qualification',qualificationRouter);
+app.use('/clients',clientsRouter);
 
 app.use(errorHandler.errorHandler());
 

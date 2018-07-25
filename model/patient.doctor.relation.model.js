@@ -1,10 +1,9 @@
 const Sequelize = require('sequelize');
 const connection = require('../db/sql-connection');
-var PatientDoctorRelation = require('./patient.doctor.relation.model');
 var Patient = require('./patient.model');
 var Practitioner = require('./practitioner.model');
 
-var Consultation = connection.define('Consultation',{
+var PatientDoctorRelation = connection.define('PatientDoctorRelation',{
 	pracUsername: {
 		type: Sequelize.STRING,
 		primaryKey: true,
@@ -15,10 +14,6 @@ var Consultation = connection.define('Consultation',{
 			},
 			isAlphanumeric: true
 		},
-		/*references: {
-			model: PatientDoctorRelation,
-			key: 'pracUsername'
-		},*/
 	},
 	patientUsername: {
 		type: Sequelize.STRING,
@@ -30,33 +25,32 @@ var Consultation = connection.define('Consultation',{
 			},
 			isAlphanumeric: true
 		},
-		/*references: {
-			model: PatientDoctorRelation,
-			key: 'patientUsername'
-		},*/
 	},
-	consultDate: {
-		type: Sequelize.DATEONLY,
-		primaryKey: true
-	},
-	title: {
+	goal: Sequelize.STRING,
+	conditions: Sequelize.STRING,
+	testimonial: {
 		type: Sequelize.STRING,
-		allowNull: false
+		allowNull: true
 	},
-	summary: {
-		type: Sequelize.TEXT
+	rating: {
+		type: Sequelize.DECIMAL(1,0),
+		allowNull: true
 	},
-	intervention: {
-		type: Sequelize.TEXT
+	seen: {
+		type : Sequelize.BOOLEAN,
+        defaultValue : false,
+        allowNull : false
+	},
+	message: { //an optional message when first connected that a patient wants to exchange to the practitioner
+		type: Sequelize.STRING,
+		allowNull: true
 	}
 },{
 	timestamps: false,
 	freezeTableName: true
 });
 
+Practitioner.belongsToMany(Patient,{through: PatientDoctorRelation, foreignKey: 'pracUsername'});
+Patient.belongsToMany(Practitioner,{through: PatientDoctorRelation, foreignKey: 'patientUsername'});
 
-//PatientDoctorRelation.hasMany(Consultation);
-Practitioner.hasMany(Consultation,{foreignKey: 'pracUsername'});
-Patient.hasMany(Consultation,{foreignKey: 'patientUsername'});
-
-module.exports = Consultation;
+module.exports = PatientDoctorRelation;

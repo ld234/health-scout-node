@@ -60,4 +60,6 @@ var Practitioner = connection.define('Practitioner', {
 	freezeTableName: true
 });
 
+Practitioner.belongsTo(User,{foreignKey: 'pracUsername'});
+
 module.exports = Practitioner;
