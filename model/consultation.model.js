@@ -15,10 +15,10 @@ var Consultation = connection.define('Consultation',{
 			},
 			isAlphanumeric: true
 		},
-		/*references: {
+		references: {
 			model: PatientDoctorRelation,
 			key: 'pracUsername'
-		},*/
+		}
 	},
 	patientUsername: {
 		type: Sequelize.STRING,
@@ -30,10 +30,10 @@ var Consultation = connection.define('Consultation',{
 			},
 			isAlphanumeric: true
 		},
-		/*references: {
+		references: {
 			model: PatientDoctorRelation,
 			key: 'patientUsername'
-		},*/
+		}
 	},
 	consultDate: {
 		type: Sequelize.DATEONLY,
@@ -56,7 +56,7 @@ var Consultation = connection.define('Consultation',{
 
 
 //PatientDoctorRelation.hasMany(Consultation);
-Practitioner.hasMany(Consultation,{foreignKey: 'pracUsername'});
-Patient.hasMany(Consultation,{foreignKey: 'patientUsername'});
+//Practitioner.belongsToMany(Patient,{through: Consultation, foreignKey: 'pracUsername'});
+//Patient.belongsToMany(Practitioner,{through: Consultation, foreignKey: 'patientUsername'});
 
 module.exports = Consultation;
