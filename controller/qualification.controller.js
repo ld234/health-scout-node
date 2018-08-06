@@ -109,9 +109,14 @@ function deleteQualification(deletedQualification) {
 }
 
 function updateQualification(updatedQualification) {
-	return Practitioner.findAll({
+	return Qualification.findAll({
 		attributes: ['pracUsername'],
-		where: {pracUsername: updatedQualification.pracUsername}
+		where: {
+			pracUsername: updatedQualification.pracUsername,
+			degree: updatedQualification.oldDegree,
+			institution: updatedQualification.oldInstitution,
+			graduateYear : updatedQualification.oldGraduateYear
+		}
 	})
 	.then(function(foundPractitioners){
 		if (foundPractitioners.length>0) {
@@ -123,7 +128,7 @@ function updateQualification(updatedQualification) {
 					graduateYear : updatedQualification.newGraduateYear,
 					description : updatedQualification.description
 				},
-				{where: {
+				{ where: {
 					pracUsername : updatedQualification.pracUsername,
 					degree : updatedQualification.oldDegree,
 					institution : updatedQualification.oldInstitution,
@@ -133,7 +138,15 @@ function updateQualification(updatedQualification) {
 			.then(function(updatedArray){
 				console.log(updatedArray[0]);
 				if (updatedArray[0]==1) {
-					return Promise.resolve("updated successfully");
+					let { newDegree, newInstitution, newGraduateYear, description, position } = updatedQualification;
+					return Promise.resolve({ 
+						qualification: {
+							degree: newDegree, 
+							institution: newInstitution, 
+							graduateYear: newGraduateYear, 
+							description
+						},
+						position });
 				}
 				else {
 					return Promise.reject({

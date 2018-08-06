@@ -1,7 +1,21 @@
 const sequelize = require('../db/sql-connection');
+const fs = require('fs');
 
 module.exports = {
+	init,
     getPractitionerDetails
+}
+
+function init(){
+	const fileContent = fs.readFileSync(__dirname+'/../db/sqlScripts/init.sql','utf8').split(';');
+	fileContent.forEach( (line, idx) => {
+		sequelize.query(line, { type: sequelize.QueryTypes.INSERT})
+		.then(res => {
+			console.log(res)
+		})
+		.catch( () => {} );
+	})
+	
 }
 
 function getPractitionerDetails(username) {

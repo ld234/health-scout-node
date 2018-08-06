@@ -8,7 +8,7 @@ router.post('/',auth.auth(),addQualification);
 router.put('/',auth.auth(),updateQualification);
 router.delete('/',auth.auth(),deleteQualification);
 
-module.exports=router;
+module.exports = router;
 
 function addQualification(req,res,next) {
 	console.log('Adding qualification');
@@ -50,6 +50,7 @@ function getQualifications(req,res,next) {
 
 function updateQualification(req,res,next) {
 	var updatedQualification= req.body;
+	console.log(req.body)
 	updatedQualification.pracUsername=req.user;
 	if (!updatedQualification.oldDegree) {
 		next({
@@ -87,16 +88,19 @@ function updateQualification(req,res,next) {
 			message: "New graduate year is required"
 		})
 	}
+	else if (updatedQualification.position === 'undefined') {
+		next({
+			statusCode: 400,
+			message: "Position is required"
+		})
+	}
 	//for description, if the user update it to be an empty string, we put description:"" in updatedQualification
 	else {
 		//console.log(updatedQualification);
 		qualificationController.updateQualification(updatedQualification)
 		.then(function(qualification){
 			console.log('qualification updated');
-			res.send({
-				statusCode:200,
-				message: qualification
-			})
+			res.send(qualification);
 		})
 		.catch(function(err){
 			next(err);
@@ -106,7 +110,8 @@ function updateQualification(req,res,next) {
 
 function deleteQualification(req,res,next) {
 	var pracUsername=req.user;
-	var degree=req.query.degree;
+	console.log(req.query);
+	var degree = req.query.degree;
 	var institution = req.query.institution;
 	var graduateYear= req.query.graduateYear;
 	if (!degree) {
@@ -127,7 +132,8 @@ function deleteQualification(req,res,next) {
             message: "Graduate year is required"
         })
 	}
-	var deletedQualification={pracUsername:pracUsername, degree: degree, institution: institution, graduateYear: graduateYear};
+	
+	var deletedQualification = {pracUsername:pracUsername, degree: degree, institution: institution, graduateYear: graduateYear};
 	qualificationController.deleteQualification(deletedQualification)
 		.then(function(qualification){
 			console.log('qualification deleted');
