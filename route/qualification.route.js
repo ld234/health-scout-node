@@ -110,7 +110,6 @@ function updateQualification(req,res,next) {
 
 function deleteQualification(req,res,next) {
 	var pracUsername=req.user;
-	console.log(req.query);
 	var degree = req.query.degree;
 	var institution = req.query.institution;
 	var graduateYear= req.query.graduateYear;
@@ -132,7 +131,7 @@ function deleteQualification(req,res,next) {
             message: "Graduate year is required"
         })
 	}
-	
+	console.log('deletig qualification')
 	var deletedQualification = {pracUsername:pracUsername, degree: degree, institution: institution, graduateYear: graduateYear};
 	qualificationController.deleteQualification(deletedQualification)
 		.then(function(qualification){

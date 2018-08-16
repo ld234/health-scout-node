@@ -85,6 +85,7 @@ function deleteSpecialty(deletedSpecialty) {
 			return Specialty.destroy({where:[{pracUsername: deletedSpecialty.pracUsername},{specialty: deletedSpecialty.specialty}]})
 			.then (function(numOfDestroyed){
 				if (numOfDestroyed==1) {
+					
 					return Promise.resolve('specialty deleted successfully');
 				}
 				else {

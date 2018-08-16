@@ -1,8 +1,6 @@
 var express = require('express');
 var app = express();
-const path = require('path');
 var bodyParser = require('body-parser');
-var router = express.Router();
 var userRouter = require('./route/user.route');
 var authRouter = require('./route/auth.route');
 var paymentRouter = require('./route/payment.route');
@@ -17,12 +15,9 @@ require('./db/sql-connection');
 require('./utils/create.db');
 require('./utils/passport');
 require('./utils/stripe.plan');
-const cors = require('cors');
 require('./model/practype.specialty.model');
 
 RawQuery.init();
-
-app.use(cors())
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); 

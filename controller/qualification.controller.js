@@ -69,6 +69,7 @@ function getQualifications(username){
 }
 
 function deleteQualification(deletedQualification) {
+	console.log('deleting qualification 2')
 	return Practitioner.findAll({
 		attributes: ['pracUsername'],
 		where: {pracUsername: deletedQualification.pracUsername}
@@ -82,6 +83,7 @@ function deleteQualification(deletedQualification) {
 				{graduateYear : deletedQualification.graduateYear}
 			]})
 			.then (function(numOfDestroyed){
+				console.log('num of destroyed', numOfDestroyed)
 				if (numOfDestroyed==1) {
 					return Promise.resolve('qualiication deleted successfully');
 				}
