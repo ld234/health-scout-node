@@ -1,7 +1,9 @@
 const Sequelize = require('sequelize');
-const connection = require('../db/sql-connection')
+const connection = require('../db/sql-connection');
+var PatientDoctorRelation = require('./patient.doctor.relation.model');
 var Patient = require('./patient.model');
-var Practitioner = require('./practitioner.model')
+var Practitioner = require('./practitioner.model');
+
 var Consultation = connection.define('Consultation',{
 	pracUsername: {
 		type: Sequelize.STRING,
@@ -13,6 +15,10 @@ var Consultation = connection.define('Consultation',{
 			},
 			isAlphanumeric: true
 		},
+		references: {
+			model: PatientDoctorRelation,
+			key: 'pracUsername'
+		}
 	},
 	patientUsername: {
 		type: Sequelize.STRING,
@@ -24,6 +30,10 @@ var Consultation = connection.define('Consultation',{
 			},
 			isAlphanumeric: true
 		},
+		references: {
+			model: PatientDoctorRelation,
+			key: 'patientUsername'
+		}
 	},
 	consultDate: {
 		type: Sequelize.DATEONLY,
@@ -44,6 +54,9 @@ var Consultation = connection.define('Consultation',{
 	freezeTableName: true
 });
 
-Practitioner.belongsToMany(Patient,{through: Consultation, foreignKey: 'pracUsername'});
-Patient.belongsToMany(Practitioner,{through: Consultation, foreignKey: 'patientUsername'});
+
+//PatientDoctorRelation.hasMany(Consultation);
+//Practitioner.belongsToMany(Patient,{through: Consultation, foreignKey: 'pracUsername'});
+//Patient.belongsToMany(Practitioner,{through: Consultation, foreignKey: 'patientUsername'});
+
 module.exports = Consultation;
