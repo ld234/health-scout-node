@@ -1,121 +1,19 @@
-<!doctype html>
-<html lang=en>
-<head>
-    <meta charset="utf-8">
-    <title>Stripe example</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
-
-    <style>
-        body {
-            margin: 8px;
-        }
-        .modal-dialog {
-            width: 350px;
-        }
-        .modal-header {
-            border: none;
-            padding: 0;
-        }
-        .modal-content {
-            padding: 10px;
-        }
-    </style>
-</head>
-<body>
-    <button class="btn btn-primary" data-toggle="modal" data-target="#checkout">Dolla dolla bill y'all</button>
-
-    <div class="modal fade" id="checkout">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-
-                <div class="modal-body">
-                    <form id="form" action="/charge" method="POST" class="form-horizontal">
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <div class="input-group">
-                                    <span class="input-group-addon"><span class="glyphicon glyphicon-credit-card"></span></span>
-                                    <input id="card-num" class="form-control" type="text" size="16" placeholder="Card number" autofocus="autofocus" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-6">
-                                <div class="input-group">
-                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                                    <input id="card-exp" class="form-control" type="text" size="5" placeholder="MM/YY" />
-                                </div>
-                            </div>
-
-                            <div class="col-sm-6">
-                                <div class="input-group">
-                                    <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
-                                    <input id="card-cvc" class="form-control" type="text" size="4" placeholder="CVC" />
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="modal-footer">
-                    <button id="submit" type="button" class="btn btn-primary col-sm-12"
-                            data-progress-text="<span class='glyphicon glyphicon-refresh fa-spin'></span>"
-                            data-success-text="<span class='glyphicon glyphicon-ok'></span>"
-                    >
-                        Pay
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="https://js.stripe.com/v2/"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-
-    <script type="text/javascript">
-        Stripe.setPublishableKey('pk_test_6ENTZj1Qk1DRjeqgLBVRyrCN');
-
-        var $btn = $('#submit');
-        $btn.on('click', function() {
-            $btn.prop('disabled', true);
-            $btn.button('progress');
-
-            var cardNum = $('#card-num').val();
-            var cardExp = $('#card-exp').val().split('/');
-            var cardCVC = $('#card-cvc').val();
-
-            // First submit the card information to Stripe to get back a token
-            Stripe.card.createToken({
-                number: cardNum,
-                exp_month: cardExp[0],
-                exp_year: cardExp[1],
-                cvc: cardCVC
-            }, function(status, response) {
-                var $form = $('#form');
-                var token = response.id;
-
-                // Save the token into a hidden input field
-                $form.append($('<input type="hidden" name="stripeToken" />').val(token));
-
-                // Now submit the form to our server so it can make the charge against the token
-                $form.get(0).submit();
-
-                // All done!
-                $btn.addClass('btn-success').removeClass('btn-primary');
-                $btn.button('success');
-                setTimeout(function() {
-                    $('#checkout').modal('hide');
-                }, 250);
-            });
-
-            return false;
-        });
-    </script>
-</body>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/style/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+	  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous"> -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+  </head>
+  <body id="app-body" >
+    <div class="app-container"></div>
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> -->
+  </body>
+  <script src="/bundle.js"></script>
 </html>

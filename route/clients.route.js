@@ -2,10 +2,11 @@ var router = require('express').Router();
 var path = require('path');
 var auth = require('../middleware/auth');
 var clientsController = require('../controller/clients.controller');
+var clientProfileRouter = require('./client.profile.route');
 
-router.get('/view', auth.auth(), viewClients);
-router.get('/viewNew',auth.auth(),viewNewClients);
-router.get('/clickNew',auth.auth(),seeNewClient); //when practitioner actually clicks on a new client, we want to update the seen attribute to true in PatientDoctorRelation
+router.get('/view', auth.auth(), auth.pracAuth(),viewClients);
+router.get('/viewNew',auth.auth(),auth.pracAuth(),viewNewClients);
+router.use('/clientProfile', clientProfileRouter); //viewClientProfile function is to be put here
 //router.get('/search',auth.auth(),searchClients);
 
 module.exports = router;
@@ -28,21 +29,6 @@ function viewNewClients(req,res,next) {
 			res.send(clients);
 		})
 		.catch(err=> {
-			next(err);
-		})
-}
-
-function seeNewClient(req,res,next) {
-	var patientUsername= req.query.patientUsername;
-	var pracUsername=req.user;
-	clientsController.seeNewClient(patientUsername,pracUsername)
-		.then(function(updatedClient){
-			res.send({
-				statusCode:200,
-				message: updatedClient
-			});
-		})
-		.catch(err=>{
 			next(err);
 		})
 }

@@ -3,9 +3,9 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var qualificationController = require('../controller/qualification.controller');
 
-router.post('/add',auth.auth(),addQualification);
-router.put('/update',auth.auth(),updateQualification);
-router.delete('/delete',auth.auth(),deleteQualification);
+router.post('/add',auth.auth(),auth.pracAuth(),addQualification);
+router.put('/update',auth.auth(),auth.pracAuth(),updateQualification);
+router.delete('/delete',auth.auth(),auth.pracAuth(),deleteQualification);
 
 module.exports=router;
 

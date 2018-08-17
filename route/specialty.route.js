@@ -3,8 +3,8 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var specialtyController = require('../controller/specialty.controller');
 
-router.post('/add',auth.auth(),addSpecialty);
-router.delete('/delete',auth.auth(),deleteSpecialty);
+router.post('/add',auth.auth(),auth.pracAuth(),addSpecialty);
+router.delete('/delete',auth.auth(),auth.pracAuth(),deleteSpecialty);
 
 module.exports=router;
 

@@ -24,25 +24,8 @@ function createSpecialty(newSpecialty) {
             });
 		}
 		else {
-			return Practitioner.findOne({
-				attributes: ['pracUsername'],
-				where: {pracUsername: newSpecialty.pracUsername}
-			})
-			.then ((foundPractictioner) => {
-				if (foundPractictioner===null) {
-					return Promise.reject({
-						statusCode: 400,
-						message: 'Practitioner does not exist'
-					});
-				}
-				else {
-					console.log('new specialty', newSpecialty);
-					return Specialty.create(newSpecialty);
-				}
-			})
-			.catch(function(err) {
-				return Promise.reject(err);
-			})
+			console.log('new specialty', newSpecialty);
+			return Specialty.create(newSpecialty);
 		}
 	})
 	.catch(function(err) {
@@ -51,30 +34,19 @@ function createSpecialty(newSpecialty) {
 }
 
 function deleteSpecialty(deletedSpecialty) {
-	return Practitioner.findAll({
-		attributes: ['pracUsername'],
-		where: {pracUsername: deletedSpecialty.pracUsername}
-	})
-	.then(function(foundPractitioners){
-		if (foundPractitioners.length>0) {
-			return Specialty.destroy({where:[{pracUsername: deletedSpecialty.pracUsername},{specialty: deletedSpecialty.specialty}]})
-			.then (function(numOfDestroyed){
-				if (numOfDestroyed==1) {
-					return Promise.resolve('specialty deleted successfully');
-				}
-				else {
-					return Promise.reject({
-						statusCode:404, //should be changed to 204 NO CONTENT (and no response body) when deployed
-						message: 'Specialty does not exist'
-					})
-				}
-			})
-			.catch(err => {
-				return Promise.reject(err);
+	return Specialty.destroy({where:[{pracUsername: deletedSpecialty.pracUsername},{specialty: deletedSpecialty.specialty}]})
+	.then (function(numOfDestroyed){
+		if (numOfDestroyed==1) {
+			return Promise.resolve('specialty deleted successfully');
+		}
+		else {
+			return Promise.reject({
+				statusCode:404, //should be changed to 204 NO CONTENT (and no response body) when deployed
+				message: 'Specialty does not exist'
 			})
 		}
 	})
-	.catch(err=>{
+	.catch(err => {
 		return Promise.reject(err);
 	})
 }

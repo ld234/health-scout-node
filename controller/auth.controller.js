@@ -1,4 +1,5 @@
 var User = require('../model/user.model');
+var Practitioner = require('../model/practitioner.model');
 const Op = require('sequelize').Op;
 var Verification = require('../model/verification.model');
 var crypto = require('crypto');
@@ -10,6 +11,7 @@ require('dotenv').config()
 module.exports = {
     // login,
     checkAuth,
+	checkPracAuth,
     verifyEmail,
     sendEmail,
 	sendResetEmail,
@@ -255,7 +257,24 @@ function checkAuth(user) {
                 return Promise.resolve(foundUser);
             } else {
                 return Promise.reject({
-                    message: 'Not Found'
+                    message: 'User Not Found'
+                });
+            }
+        })
+        .catch(function (err) {
+            return Promise.reject(err);
+        })
+}
+
+//check whether a practitioner username exists
+function checkPracAuth(user) {
+    return Practitioner.findOne( {attributes:['pracUsername'],where: { pracUsername : user.username}})
+        .then(function (foundPractitioner) {
+            if (foundPractitioner) {
+                return Promise.resolve(foundPractitioner);
+            } else {
+                return Promise.reject({
+                    message: 'Practitioner Not Found'
                 });
             }
         })
