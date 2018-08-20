@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-var User = require('../model/user.model');
-var Practitioner = require('../model/practitioner.model');
-const Op = require('sequelize').Op;
-var Verification = require('../model/verification.model');
-var crypto = require('crypto');
-var jwt = require('../utils/jwt');
-var nodemailer = require('nodemailer');
-var bcrypt = require('bcrypt');
-=======
 const User = require('../model/user.model');
 const Verification = require('../model/verification.model');
 const crypto = require('crypto');
@@ -16,7 +6,6 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const  hbs = require('nodemailer-express-handlebars');
 const bcrypt = require('bcrypt');
->>>>>>> master
 require('dotenv').config()
 
 var smtpTransport = nodemailer.createTransport({
