@@ -3,10 +3,46 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var specialtyController = require('../controller/specialty.controller');
 
-router.post('/add',auth.auth(),auth.pracAuth(),addSpecialty);
-router.delete('/delete',auth.auth(),auth.pracAuth(),deleteSpecialty);
+router.post('/',auth.auth(),addSpecialty);
+router.get('/',auth.auth(), getSpecialties);
+router.get('/:pracType', auth.auth(), getAvailableSpecialties);
+router.delete('/',auth.auth(),deleteSpecialty);
 
 module.exports=router;
+
+function getAvailableSpecialties (req,res,next){
+	var pracType = req.param('pracType');
+	if (pracType){
+		specialtyController.getAvailableSpecialties (pracType) 
+		.then( (specialtyList) => {
+			res.status(200).send(specialtyList);
+		})
+		.catch((err) => next(err));
+	}
+	else{
+		next({
+			status: 400,
+			message: 'No practitioner type provided.'
+		})
+	}
+}
+
+function getSpecialties (req,res,next){
+	var username = req.user;
+	if (username){
+		specialtyController.getSpecialties (username) 
+		.then( (specialtyList) => {
+			res.status(200).send(specialtyList);
+		})
+		.catch((err) => next(err));
+	}
+	else{
+		next({
+			statusCode: 400,
+			message: 'No username to get practitioner\'s specialties.'
+		})
+	}
+}
 
 function addSpecialty(req,res,next) {
 	var newSpecialty = req.body;

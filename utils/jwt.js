@@ -5,10 +5,10 @@ var cert = fs.readFileSync(__dirname + '/key/key.pem');
 var pub = fs.readFileSync(__dirname + '/key/key.pub');
 
 // Encrypt
-exports.sign = function(obj, callback){
+exports.sign = function(obj, callback, duration){
     jwt.sign(obj, cert, {
         algorithm: 'RS256',
-        expiresIn: '1d'
+        expiresIn: duration || '1d' 
     }, function (err, token) {
         callback(err, token);
     });

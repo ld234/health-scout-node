@@ -27,7 +27,18 @@ passport.use(new LocalStrategy(
 							return done({message: 'Incorrect username or password.'}, false);
 						}
 						else {
-							return done(null, user, {message: 'Logged In Successfully'});
+							User.findOne({
+								attributes: {
+									exclude: ['password','customerID']
+								},
+								where: {
+									username: username
+								}
+							})
+							.then ((newUser) => {
+								return done(null, newUser, {message: 'Logged In Successfully'});
+							})
+							.catch( err => done(err));
 						}
 					})
 					.catch(err => done(err));

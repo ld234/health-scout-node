@@ -36,6 +36,8 @@ const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, 
 
 router.get('/', auth.auth(), getUser);
 router.post('/', upload.single('profilePic'), createUser);
+router.post('/checkUserDetails', checkUserDetails);
+router.post('/checkPracDetails', checkPractitionerDetails);
 router.put('/', auth.auth(), updateUser);
 
 module.exports = router;
@@ -64,9 +66,31 @@ function getUser(req, res, next) {
         })
 }
 
+function checkUserDetails(req, res, next) {
+    userController.checkUserDetails(req.body)
+        .then(function (user) {
+            res.send(user);
+        })
+        .catch(function (err) {
+            next(err);
+        })
+}
+
+function checkPractitionerDetails(req, res, next) {
+    const abn = req.body.abn;
+    const medicalProviderNumber =req.body.medicalProviderNum;
+    userController.checkPractitionerDetails(abn, medicalProviderNumber)
+        .then(function (user) {
+            res.send(user);
+        })
+        .catch(function (err) {
+            next(err);
+        })
+}
+
 function createUser(req, res, next) {
     var newUser = req.body;
-    if (req.file )
+    if (req.file)
 	    newUser['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
     if (!newUser.username) {
         next({

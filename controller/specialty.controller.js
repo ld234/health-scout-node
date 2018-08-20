@@ -2,10 +2,35 @@ var Specialty = require('../model/specialty.model');
 var Op = require('sequelize').Op;
 var authController = require('./auth.controller');
 var Practitioner = require('../model/practitioner.model');
+var PracTypeSpecialty = require('../model/practype.specialty.model');
 
 module.exports= {
 	createSpecialty,
-	deleteSpecialty
+	deleteSpecialty,
+	getSpecialties,
+	getAvailableSpecialties
+}
+
+function getSpecialties(username) {
+	return Specialty.findAll ({
+		where:{pracUsername: username}
+	})
+	.then(foundSpecialties => {
+		console.log(foundSpecialties);
+		return Promise.resolve(foundSpecialties);
+	})
+	.catch( err => Promise.reject(err));
+}
+
+function getAvailableSpecialties(pracType){
+	return PracTypeSpecialty.findAll ({
+		where:{pracType: pracType}
+	})
+	.then(foundSpecialties => {
+		console.log(foundSpecialties);
+		return Promise.resolve(foundSpecialties);
+	})
+	.catch( err => Promise.reject(err));
 }
 
 function createSpecialty(newSpecialty) {
@@ -19,8 +44,8 @@ function createSpecialty(newSpecialty) {
 	.then((foundSpecialties) => {
 		if (foundSpecialties.length>0) {
 			return Promise.reject({
-                    statusCode: 400,
-                    message: 'Specialty already existed'
+				statusCode: 400,
+				message: 'Specialty already existed'
             });
 		}
 		else {

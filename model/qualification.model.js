@@ -22,7 +22,7 @@ var Qualification = connection.define('Qualification', {
 		primaryKey: true
 	},
 	graduateYear: {
-		type: Sequelize.STRING,
+		type: Sequelize.INTEGER(4),
 		primaryKey: true
 	},
 	description: {

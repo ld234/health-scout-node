@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var User = require('../model/user.model');
 var Practitioner = require('../model/practitioner.model');
 const Op = require('sequelize').Op;
@@ -6,7 +7,33 @@ var crypto = require('crypto');
 var jwt = require('../utils/jwt');
 var nodemailer = require('nodemailer');
 var bcrypt = require('bcrypt');
+=======
+const User = require('../model/user.model');
+const Verification = require('../model/verification.model');
+const crypto = require('crypto');
+const jwt = require('../utils/jwt');
+const path = require('path');
+const nodemailer = require('nodemailer');
+const  hbs = require('nodemailer-express-handlebars');
+const bcrypt = require('bcrypt');
+>>>>>>> master
 require('dotenv').config()
+
+var smtpTransport = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+        user: process.env.MAILER_EMAIL_ID,
+        pass: process.env.MAILER_EMAIL_PASSWORD
+    }
+});
+
+var handlebarsOptions = {
+    viewEngine: 'handlebars',
+    viewPath: path.resolve(__dirname,'../templates/'),
+    extName: '.html'
+};
+
+smtpTransport.use('compile', hbs(handlebarsOptions));
 
 module.exports = {
     // login,
@@ -14,22 +41,22 @@ module.exports = {
 	checkPracAuth,
     verifyEmail,
     sendEmail,
-	sendResetEmail,
-	verifyLink,
-	resetPassword
+    allowPasswordReset,
+    requestPasswordReset,
+    resetPassword
 }
 
 // Outdated
-function login(username, password) {
+/* function login(username, password) {
     return User.findOne({ attributes:['username','password','active'] ,where: {
             username: username
         }
     })
         .then(function (user) {
             if (user) {
-                /* var hash = crypto.createHmac('sha256', secret)
+                var hash = crypto.createHmac('sha256', secret)
                     .update(password.concat(user.salt))
-                    .digest('hex'); */
+                    .digest('hex'); 
                 // Account is activated? 
                 if (!user.active)
                     return Promise.reject({
@@ -68,6 +95,7 @@ function login(username, password) {
             return Promise.reject(err);
         })
 }
+*/
 
 // Verify the link from the email
 function verifyEmail(token){
@@ -78,100 +106,69 @@ function verifyEmail(token){
                 message: 'Invalid token'
             });
         } else {
-            Verification.destroy({where:{username:decodedData.username}});
-			
-            return User.findOne({attributes: ['username','email'], where:{ username: decodedData.username}})
-                .then(function (foundUser) {
-					console.log(foundUser.dataValues);
-                    return User.update(
-                            { active: 1 },
-                            { where: {username: foundUser.dataValues.username} }
-                        )
-                        .then (function (result) {
-							console.log('update active', result);
-                            return Promise.resolve({
-                                message: `Your email ${foundUser.email} is verified successfully.`
-                            });
-                        })
-                        .catch(function (err){
-							console.log(err);
-                            return Promise.reject({
-                                statusCode: 401,
-                                message: err.message
-                            });
-                        });
+            return Verification.findOne({
+                    where:{
+                        username:decodedData.username,
+                        verification: decodedData.verification
+                    }
                 })
-                .catch(function (err) {
-                    return Promise.reject({
-                        statusCode: 401,
-                        message: err.message
+            .then ((ver) => {
+                if (ver){
+                    Verification.destroy({where:{username:decodedData.username}});
+			
+                    return User.findOne({attributes: ['username','email'], where:{ username: decodedData.username}})
+                    .then(function (foundUser) {
+                        console.log(foundUser.dataValues);
+                        return User.update(
+                                { active: 1 },
+                                { where: {username: foundUser.dataValues.username} }
+                            )
+                            .then (function (result) {
+                                console.log('update active', result);
+                                return Promise.resolve({
+                                    message: `Your email ${foundUser.email} is verified successfully.`
+                                });
+                            })
+                            .catch(function (err){
+                                console.log(err);
+                                return Promise.reject({
+                                    statusCode: 401,
+                                    message: err.message
+                                });
+                            });
                     })
-                });
+                    .catch(function (err) {
+                        return Promise.reject({
+                            statusCode: 401,
+                            message: err.message
+                        })
+                    });
+                }
+                else{
+                    return Promise.reject({
+                        statusCode: 400,
+                        message: `Your email ${foundUser.email} cannot be verified.`
+                    })
+                }
+            })
+            
         }
     })
 }
 
-//verify the password reset link
-function verifyLink(token) {
-	return jwt.verify (token, function (err, decodedData) {
-        if (err) {
-            return Promise.reject({
-                statusCode: 401,
-                message: 'Invalid token'
-            });
-        } else {
-			//Verification.destroy({where:{username:decodedData.username}});
-			
-            return User.findOne({attributes: ['username'], where:{ username: decodedData.username}})
-                .then(function (foundUser) {
-					return Verification.findAll({attributes: ['username','verification'], //to make sure the verification token is not an old one
-						where: {[Op.and]: [
-							{username: foundUser.username}, 
-							{verification: decodedData.verification}]
-						}
-					})
-					.then(function(foundVerifications) {
-						if (foundVerifications.length==1) {
-							return Promise.resolve(foundVerifications[0].dataValues);
-						}
-						else {
-							return Promise.reject({
-								statusCode:401,
-								message: 'Outdated token'
-							})
-						}
-					})
-					.catch(function(err) {
-						return Promise.reject(err);
-					});
-				})
-				.catch(function (err){
-					console.log(err);
-					return Promise.reject({
-						statusCode: 401,
-						message: err.message
-					});
-				});
-		}
-	})
-}
-
 // Send email to registered user
 function sendEmail(user,callback){
-    var smtpTransport = nodemailer.createTransport({
-        service: "Gmail",
-        auth: {
-            user: "healthscout321@gmail.com",
-            pass: process.env.EMAIL_PASSWORD
-        }
-    });
     var rand = crypto.randomBytes(2).toString('hex');
-    jwt.sign({username: user.username,verification: rand},function(err,token){
-        var link="http://localhost:8888/verify?id="+token;
+    jwt.sign({username: user.username,verification: rand}, function(err,token){
+        var link=`${process.env.ROOT_URL}verify?id=${token}`;
         mailOptions={
             to: user.email, 
             subject : "Welcome to HealthScout",
-		html : `Hello ${user.fName},<br><br> Thank you for using our service. Please click on the link to verify your email.<br><a href="${link}">Click here to verify</a><br><br><i><b>Citron Inc.</b></i>`
+            template : 'registration-verification-email',
+            context: {
+                fName: user.fName,
+                url: link
+            }        
         }
         smtpTransport.sendMail(mailOptions)
 		.then( response => {
@@ -180,7 +177,7 @@ function sendEmail(user,callback){
 		.catch( err => {
 			console.log(err);
         });            
-    });
+    } ,'3d');
 	var newVerification = {  
 		username: user.username,
 		verification: rand
@@ -190,61 +187,6 @@ function sendEmail(user,callback){
 		return Promise.resolve(data);
 	})
 	.catch(function(err){
-		return Promise.reject(err);
-	});
-}
-
-//function send email to reset password
-function sendResetEmail(user,callback) {
-	var smtpTransport = nodemailer.createTransport({
-        service: "Gmail",
-        auth: {
-            user: "healthscout321@gmail.com",
-            pass: process.env.EMAIL_PASSWORD
-        }
-    });
-	var rand = crypto.randomBytes(2).toString('hex');
-	var newVerification = {  
-		username: user.username,
-		verification: rand
-	};
-	
-	return Verification.findAll({attributes:['username'],
-		where: {username: newVerification.username}
-	})
-	.then(function(foundVerifications) {
-		if (foundVerifications.length >0) { //a verify link already exists for this user (either a email verification or another reset link)
-			return Promise.reject({
-				statusCode:400,
-				message:'Another verification/reset link has already been sent to your email'
-			})
-		}
-		else {
-			jwt.sign({username: newVerification.username,verification: rand},function(err,token){
-				var link="http://localhost:8888/auth/resetPassword?token="+token;
-				mailOptions={
-					to: user.email, 
-					subject : "Reset Password",
-				html : `Hello ${user.fName},<br><br> Please click on the link to reset your password.<br><a href="${link}">Click here to reset password</a><br><br><i><b>Citron Inc.</b></i>`
-				}
-				smtpTransport.sendMail(mailOptions)
-				.then( response => {
-					console.log(rand,'Email sent successfully');
-				})
-				.catch( err => {
-					console.log(err);
-				});            
-			});
-			return Verification.create(newVerification)
-				.then (function (data) {
-					return Promise.resolve(data);
-				})
-				.catch(function(err){
-					return Promise.reject(err);
-				});
-		}
-	})
-	.catch(function(err) {
 		return Promise.reject(err);
 	});
 }
@@ -283,34 +225,219 @@ function checkPracAuth(user) {
         })
 }
 
-//POST resetPassword: take in token, newPassword and confirmPassword. Reverify the token to get user and verification, destroy verification and update user's password
-function resetPassword(passwords) {
-    return jwt.verify (passwords.token, function (err, decodedData) {
+function requestPasswordReset(username, email , cb){
+    if (username){
+        User.findOne({
+            attributes: ['username','fName','email','active'],
+            where: {
+                username: username
+            }
+        })
+        .then (foundUser => {
+            createResetLink(foundUser,function (err, message){
+                console.log( 'create reset link callback');
+                if (err)
+                    cb(err);
+                else
+                    cb(null,message);
+            })
+        })
+    }
+    else if (email){
+        User.findOne({
+            attributes: ['username','email','fName','active'],
+            where: {
+                email: email
+            }
+        })
+        .then (foundUser => {
+            createResetLink(foundUser, function(err,data){
+                console.log( 'create reset link callback');
+                if (err)
+                    cb(err);
+                else
+                    cb(null, data);
+            })
+                  
+        })
+              
+    }
+}
+
+function createResetLink(foundUser,cb){
+    if (foundUser){
+        if (!foundUser.active){
+            cb({
+                statusCode: 400,
+                message: 'This account has not been activated.'
+            })
+        }
+        else{
+            console.log('found user email', foundUser.email);
+            var rand = crypto.randomBytes(10).toString('hex');
+            jwt.sign({username: foundUser.username,verification: rand},function(err,token){
+                if (!err){
+                    console.log(token);
+                    var link=`${process.env.ROOT_URL}resetPassword?id=${token}`;
+                    mailOptions={
+                        from: 'HealthScout',
+                        to: foundUser.email, 
+                        subject : "Reset your HealthScout password",
+                        template: 'forgot-password-email',
+                        context: {
+                            url: link,
+                            name: foundUser.fName
+                        }
+                    }
+                    User.update({passwordReset:rand}, {where: { username: foundUser.username }})
+                    .then (function (data) {
+                        smtpTransport.sendMail(mailOptions)
+                        .then( response => {
+                            cb(null, {
+                                message: 'An email with instructions to reset password has been sent to your nominated email.'
+                            })
+                        })
+                        .catch( err => {
+                            console.log('err2',err)
+                            cb({
+                                message: 'Email cannot be sent to your nominated email. Please try again later.'
+                            })
+                        });
+                    })
+                    .catch(function(err){
+                        console.log('err1',err)
+                        cb({
+                            message: 'Email cannot be sent to your nominated email. Please try again later.'
+                        })
+                    });
+                }
+                else{
+                    cb({
+                        message: 'Cannot reset password.'
+                    })
+                }
+            });
+        }
+        
+    }
+    else{
+        cb({
+            statusCode: 400,
+            message: 'The email or username you provided has not been registered with HealthScout.'
+        })
+    }
+}
+
+function resetPassword(newPassword, token){
+    if (!newPassword.match('^(?=.{8,})(?=.*[0-9].*)(?=.*[A-Za-z].*).*$')){
+        return Promise.reject({statusCode: 400, message: 'Invalid password'})
+    }
+    return jwt.verify (token, function (err, decodedData) {
         if (err) {
             return Promise.reject({
                 statusCode: 401,
-                message: 'Invalid token'
+                message: err.message
             });
         } else {
-			Verification.destroy({where:{username:decodedData.username}}); //destroy the token correspond to user here
-			
-            return User.findOne({attributes: ['username'], where:{ username: decodedData.username}})
-			.then(function (foundUser) {
-				const saltRounds = 10;
-				return bcrypt.hash(passwords.newPassword, saltRounds)
-				.then( (hash) =>{
-					return foundUser.updateAttributes({password:hash}); //update the password hash
-				})
-				.catch(function(err) {
-					return Promise.reject(err);
-				});
-			})
-			.catch(function (err){
-				return Promise.reject({
-					statusCode: 401,
-					message: err.message
-				});
-			});
-		}
-	})
+            return User.findOne({
+                attributes:['username','passwordReset','fName','email'],
+                where:{
+                    username:decodedData.username,
+                    passwordReset: decodedData.verification
+                }
+            })
+            .then ((foundUser) => {
+                if (foundUser){
+                    const saltRounds = 10;
+                    return bcrypt.hash(newPassword, saltRounds)
+                    .then( (hash) => {
+                        // Store hash in your password DB.
+                        
+                        return User.update({
+                            passwordReset : null, 
+                            password: hash
+                        }, 
+                        {
+                            where:{
+                                username:foundUser.username
+                            }
+                        })
+                        .then (updatedUser => {
+                            mailOptions={
+                                from: 'HealthScout',
+                                to: foundUser.email, 
+                                subject : "Successful HealthScout password reset",
+                                template: 'reset-password-email',
+                                context: {
+                                    name: foundUser.fName
+                                }
+                            }
+                            smtpTransport.sendMail(mailOptions)
+                            .then( response => {
+                                console.log('Reset email sent.')
+                            })
+                            .catch( err => {
+                                console.log('reset email error', err);
+                            });
+                            return Promise.resolve({
+                                statusCode: 200
+                            });
+                        })
+                        .catch( (err) => {
+                            return Promise.reject(err);
+                        });
+                    })
+                    .catch(err => {return Promise.reject(err)})
+                }else{
+                    return Promise.reject({
+                        statusCode: 400,
+                        message: 'Invalid reset password link.'
+                    });
+                }
+            })
+        }
+    });
 }
+
+function allowPasswordReset(token){
+    return jwt.verify (token, function (err, decodedData) {
+        if (err) {
+            return Promise.reject({
+                statusCode: 401,
+                message: err.message
+            });
+        } else {
+            return User.findOne({
+                    attributes:['username','passwordReset'],
+                    where:{
+                        username:decodedData.username,
+                        passwordReset: decodedData.verification
+                    }
+                })
+            .then ((foundPasswordReset) => {
+                if (foundPasswordReset){
+                    return User.update({passwordReset : null}, {where:{username:foundPasswordReset.username}})
+                    .then (updatedUser => {
+                        return Promise.resolve({
+                            valid: true
+                        })
+                    })
+                    .catch(function (err) {
+                        return Promise.reject({
+                            message: err.message,
+                            valid: false
+                        })
+                    });
+                }
+                else{
+                    return Promise.reject({
+                        statusCode: 400,
+                        valid: false,
+                        message: 'The link is invalid.'
+                    })
+                }
+            })
+        }
+    })
+}
+

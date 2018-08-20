@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const connection = require('../db/sql-connection')
 const moment = require('moment');
 
-var User = connection.define('user',{
+var User = connection.define('User',{
     username: { 
         type: Sequelize.STRING(30),
 		primaryKey: true,
@@ -19,7 +19,7 @@ var User = connection.define('user',{
         allowNull: false
     },
 	title: {
-		type: Sequelize.ENUM('Mr.','Mrs.','Ms.','Dr.','Prof.'),
+		type: Sequelize.ENUM('Mr.','Mrs.','Ms.','Dr.','Prof.', 'Miss'),
 		allowNull: false
 	},
     email: {
@@ -49,6 +49,9 @@ var User = connection.define('user',{
 			else{
 				return time;
 			}
+		},
+		set(val) {
+			this.setDataValue('dob', moment(val,'DD-MM-YYYY').toDate());
 		}
 	},
 	gender: {
@@ -64,14 +67,23 @@ var User = connection.define('user',{
         type : Sequelize.BOOLEAN,
         defaultValue : false,
         allowNull : false
-    }
+	},
+	customerID: {
+		type : Sequelize.STRING,
+        allowNull : false
+	},
+	passwordReset: {
+		type: Sequelize.STRING(20),
+		allowNull: true,
+		defaultValue: null
+	}
 },{
 	timestamps: false,
 	freezeTableName: true
 });
 
-
 connection.sync().then(() => {
     console.log('Successfully connected to database');
 });
+
 module.exports = User;

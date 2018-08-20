@@ -1,8 +1,8 @@
 var router = require('express').Router();
 const paymentController = require('../controller/payment.controller');
 
-router.post('/', charge);
-router.post('/subscribe', subscribe);
+router.put('/', charge);
+router.put('/subscribe', subscribe);
 
 module.exports = router;
 
@@ -10,7 +10,8 @@ function charge(req,res,next) {
     console.log('charging');
     const username = req.body.user;
     const stripeToken = req.body.stripeToken;
-    paymentController.charge(username,stripeToken)
+    const bundle = req.body.bundle;
+    paymentController.charge(username,stripeToken,bundle)
     .then((charge) => {
         res.status(204).send(charge);
     })

@@ -18,16 +18,16 @@ module.exports.auth = function () {
                     authController.checkAuth({
                         username: user
                     })
-                        .then(function (user) {
-                            req.user = user.dataValues.username;
-                            next();
-                        })
-                        .catch(function (err) {
-                            res.status(401);
-                            res.json({
-                                message: 'Invalid token, user not found'
-                            });
+                    .then(function (user) {
+                        req.user = user.dataValues.username;
+                        next();
+                    })
+                    .catch(function (err) {
+                        res.status(401);
+                        res.json({
+                            message: 'Invalid token, user not found'
                         });
+                    });
                 }
             })
         } else {
