@@ -33,9 +33,9 @@ const fileFilter = (req, file, callback) => {
 
 const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, fileFilter : fileFilter});
 
-router.post('/upload',auth.auth(),auth.pracAuth(),upload.single('file'),addDocument);
-router.delete('/delete',auth.auth(),auth.pracAuth(),deleteDocument);
-router.put('/update',auth.auth(),auth.pracAuth(),upload.single('file'),updateDocument);
+router.post('/',auth.auth(),auth.pracAuth(),upload.single('file'),addDocument);
+router.delete('/',auth.auth(),auth.pracAuth(),deleteDocument);
+router.put('/',auth.auth(),auth.pracAuth(),upload.single('file'),updateDocument);
 
 module.exports = router;
 

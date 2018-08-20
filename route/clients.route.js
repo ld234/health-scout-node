@@ -4,9 +4,9 @@ var auth = require('../middleware/auth');
 var clientsController = require('../controller/clients.controller');
 var clientProfileRouter = require('./client.profile.route');
 
-router.get('/view', auth.auth(), auth.pracAuth(),viewClients);
-router.get('/viewNew',auth.auth(),auth.pracAuth(),viewNewClients);
-router.use('/clientProfile', clientProfileRouter); //viewClientProfile function is to be put here
+router.get('/', auth.auth(), auth.pracAuth(),viewClients);
+router.get('/new',auth.auth(),auth.pracAuth(),viewNewClients);
+router.use('/profile', clientProfileRouter); //viewClientProfile function is to be put here
 //router.get('/search',auth.auth(),searchClients);
 
 module.exports = router;

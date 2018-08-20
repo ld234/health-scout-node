@@ -6,11 +6,8 @@ var router = express.Router();
 var userRouter = require('./route/user.route');
 var authRouter = require('./route/auth.route');
 var paymentRouter = require('./route/payment.route');
-<<<<<<< HEAD
 var documentRouter = require('./route/document.route');
-=======
 const RawQuery = require('./utils/raw.query');
->>>>>>> master
 
 var specialtyRouter = require('./route/specialty.route');
 var qualificationRouter = require('./route/qualification.route');
