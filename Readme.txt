@@ -1,22 +1,22 @@
-View old client list: http://localhost:8888/clients/view
-View new client list: http://localhost:8888/clietns/viewNew
-View Client Profile: http://localhost:8888/clients/viewProfile?patientUsername=...
+View old client list: http://localhost:8888/clients/
+View new client list: http://localhost:8888/clietns/new
+View Client Profile: http://localhost:8888/clients/profile?patientUsername=...
 
-Add new Document: http://localhost:8888/document/add
+Add new Document: http://localhost:8888/document (POST)
 	title:
 	description: (optional)
 	file: 
 
-Delete document: http://localhost:8888/document/delete?title=...
+Delete document: http://localhost:8888/document?title=... (DELETE)
 
-Update document: http://localhost:8888/document/update
+Update document: http://localhost:8888/document/ (UPDATE)
 	oldTitle:
 	newTitle:
 	description: (optional)
 	file: (optional). If specify, we replace the existing file with new uploaded file, and possibly rename it according to new title
 	
 In Client profile:
-	- Add new consultation: http://localhost:8888/clients/clientProfile/consultation (POST method).
+	- Add new consultation: http://localhost:8888/clients/profile/consultation (POST method).
 		- If medicines field is specified in request body, the medicines are added to Medicine table as well.
 		- Example:
 			{
