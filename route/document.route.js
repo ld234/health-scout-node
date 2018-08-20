@@ -142,7 +142,7 @@ function updateDocument(req,res,next) {
 					if (err) next(err);
 					else {
 						console.log('New file added');
-						res.status(200).send(document);
+						res.status(200).send(document.updated);
 					}
 				})
 			}
@@ -152,12 +152,12 @@ function updateDocument(req,res,next) {
 						if (err) next(err);
 						else {
 							console.log('File renamed');
-							res.status(200).send(document);
+							res.status(200).send(document.updated);
 						}
 					})
 				}
 				else {
-					res.status(200).send(document);
+					res.status(200).send(document.updated);
 				}
 			}
 		})
