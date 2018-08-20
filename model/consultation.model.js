@@ -1,18 +1,16 @@
 const Sequelize = require('sequelize');
 const connection = require('../db/sql-connection');
 var PatientDoctorRelation = require('./patient.doctor.relation.model');
-var Patient = require('./patient.model');
-var Practitioner = require('./practitioner.model');
 
 var Consultation = connection.define('Consultation',{
 	pracUsername: {
 		type: Sequelize.STRING,
 		primaryKey: true,
 		validate: {
-			len: {
+			/*len: {
 				args: [8,30],
 				msg: 'Please enter username with at lease 8 but max 30 characters'
-			},
+			},*/
 			isAlphanumeric: true
 		},
 		references: {
@@ -24,10 +22,10 @@ var Consultation = connection.define('Consultation',{
 		type: Sequelize.STRING,
 		primaryKey: true,
 		validate: {
-			len: {
+			/*len: {
 				args: [8,30],
 				msg: 'Please enter username with at lease 8 but max 30 characters'
-			},
+			},*/
 			isAlphanumeric: true
 		},
 		references: {
@@ -53,10 +51,5 @@ var Consultation = connection.define('Consultation',{
 	timestamps: false,
 	freezeTableName: true
 });
-
-
-//PatientDoctorRelation.hasMany(Consultation);
-//Practitioner.belongsToMany(Patient,{through: Consultation, foreignKey: 'pracUsername'});
-//Patient.belongsToMany(Practitioner,{through: Consultation, foreignKey: 'patientUsername'});
 
 module.exports = Consultation;

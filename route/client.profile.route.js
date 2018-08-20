@@ -11,7 +11,7 @@ router.post('/consultation',auth.auth(),auth.pracAuth(),addConsultation)
 function viewClientProfile(req,res,next) { //practitioner click on a client to see his or her profile.Change status seen to true in PatientDoctorRelation (if not already is)
 	var patientUsername= req.query.patientUsername;
 	var pracUsername=req.user;
-	clientsController.viewClientProfile(patientUsername,pracUsername)
+	clientProfileController.viewClientProfile(patientUsername,pracUsername)
 		.then(function(client){
 			res.send({
 				statusCode:200,
@@ -44,13 +44,26 @@ function addConsultation(req,res,next) {
 			message: 'Consultation title is required'
 		})
 	}
-	else {
-		clientProfileController.addConsultation(consultation)
-		.then(newConsultation=> {
-			res.status(200).send(newConsultation);
-		})
-		.catch(err=> {
-			next(err);
-		})
+	else if (consultation.medicines) { //if the practitioner gives some medicines to the patient
+		var missingMedication=false;
+		for (var i=0; i< consultation.medicines.length; i++) {
+			if (!consultation.medicines[i].medication) { //if the name of the medicine is lack
+				missingMedication=true;
+				break;
+			}
+		}
+		if (missingMedication) {
+			next({
+				statusCode:400,
+				message: 'Medication name is required'
+			});
+		}
 	}
+	clientProfileController.addConsultation(consultation)
+	.then(newConsultation=> {
+		res.status(200).send(newConsultation);
+	})
+	.catch(err=> {
+		next(err);
+	})
 }

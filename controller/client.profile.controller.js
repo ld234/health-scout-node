@@ -1,5 +1,6 @@
 var PatientDoctorRelation = require ('../model/patient.doctor.relation.model');
 var Consultation = require('../model/consultation.model');
+var Medicine = require('../model/medicine.model');
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
@@ -56,30 +57,87 @@ function viewClientProfile(patientUsername,pracUsername) {
 }
 
 function addConsultation(consultation) {
-	return Consultation.findAll({
-		attributes: ['pracUsername','patientUsername','consultDate'],
+	return PatientDoctorRelation.findAll({ //to confirm that there's a relationship between this patient and this practitioner
+		attributes:['pracUsername','patientUsername'],
+		where: [
+			{pracUsername: consultation.pracUsername},
+			{patientUsername: consultation.patientUsername}
+		]
+	})
+	.then(foundRelations=> {
+		return Consultation.findAll({
+			attributes: ['pracUsername','patientUsername','consultDate'],
+			where: [
+				{pracUsername: consultation.pracUsername},
+				{patientUsername: consultation.patientUsername},
+				{consultDate: consultation.consultDate}
+			]
+		})
+		.then(foundConsultations => {
+			if (foundConsultations.length>0) {
+				return Promise.reject({
+					statusCode:400,
+					message: 'Consultation already exists'
+				})
+			}
+			else {
+				if (consultation.medicines) { //we have some medicines to be inserted into medicine table
+					for (var i=0; i< consultation.medicines.length; i++) {
+						consultation.medicines[i].pracUsername=consultation.pracUsername;
+						consultation.medicines[i].patientUsername=consultation.patientUsername;
+						consultation.medicines[i].consultDate=consultation.consultDate;
+					}
+					return Medicine.bulkCreate(consultation.medicines)
+					.then(rows=> {
+						delete consultation.medicines;
+						console.log('New Consultation: ', consultation);
+						return Consultation.create(consultation);
+					})
+					.catch(err=> {
+						console.log(err);
+						return Promise.reject({
+							statusCode:400,
+							message:"An error occur while adding medicines to database"
+						});
+					})
+				}
+				else {
+					console.log('New Consultation: ', consultation);
+					return Consultation.create(consultation);
+				}
+			}
+		})
+		.catch(err=> {
+			return Promise.reject(err);
+		})
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	});
+}
+
+function addMedicine(medicine, consultation) {
+	return Medicine.findAll({
+		attributes: ['pracUsername','patientUsername','consultDate','medication'],
 		where: [
 			{pracUsername: consultation.pracUsername},
 			{patientUsername: consultation.patientUsername},
-			{consultDate: consultation.consultDate}
+			{consultDate: consultation.consultDate},
+			{medication: medicine.medication}
 		]
 	})
-	.then(foundConsultations => {
-		if (foundConsultations.length>0) {
-			return Promise.reject({
-				statusCode:400,
-				message: 'Consultation already exists'
-			})
+	.then (foundMedicines => {
+		if (foundMedicines.length>0) {
+			return Promise.resolve(false);
 		}
 		else {
-			if (consultation.medicines.length>0) { //we have some medicines to be inserted into medicine table
-				for (var i=0; i< consultation.medicines.length; i++) {
-					
-				}
-			}
+			medicine.pracUsername=consultation.pracUsername;
+			medicine.patientUsername=consultation.patientUsername;
+			medicine.consultDate=consultation.consultDate;
+			return Medicine.create(medicine);
 		}
 	})
-	.catch(err=> {
+	.catch(err => {
 		return Promise.reject(err);
 	})
 }

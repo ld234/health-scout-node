@@ -14,7 +14,6 @@ const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.
 module.exports = {
     getClients,
 	getNewClients,
-	viewClientProfile,
 	//searchClients
 } 
 
