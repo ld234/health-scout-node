@@ -75,29 +75,6 @@ function deleteQualification(deletedQualification) {
 }
 
 function updateQualification(updatedQualification) {
-<<<<<<< HEAD
-	return Qualification.update(
-		{
-			degree: updatedQualification.newDegree,
-			institution: updatedQualification.newInstitution,
-			graduateYear : updatedQualification.newGraduateYear,
-			description : updatedQualification.description
-		},
-		{where: {
-			pracUsername : updatedQualification.pracUsername,
-			degree : updatedQualification.oldDegree,
-			institution : updatedQualification.oldInstitution,
-			graduateYear : updatedQualification.oldGraduateYear
-		}}
-	)
-	.then(function(updatedArray){
-		console.log(updatedArray[0]);
-		if (updatedArray[0]==1) { //exactly 1 row updated which is what we want
-			return Promise.resolve({
-				updated: updatedQualification,
-				message: 'updated successfully'
-			});
-=======
 	return Qualification.findAll({
 		attributes: ['pracUsername'],
 		where: {
@@ -126,21 +103,21 @@ function updateQualification(updatedQualification) {
 			)
 			.then(function(updatedArray){
 				console.log(updatedArray[0]);
-				if (updatedArray[0]==1) {
+				if (updatedArray[0]==1) { //exactly one row gets updated
 					let { newDegree, newInstitution, newGraduateYear, description, position } = updatedQualification;
 					return Promise.resolve({ 
 						qualification: {
 							degree: newDegree, 
 							institution: newInstitution, 
 							graduateYear: newGraduateYear, 
-							description
+							description: description
 						},
 						position });
 				}
 				else {
 					return Promise.reject({
 						statusCode:404,
-						message: 'Old qualification not found/ New qualification exactly the same'
+						message: 'New qualification exactly the same wit the old one'
 					})
 				}
 			})
@@ -149,21 +126,19 @@ function updateQualification(updatedQualification) {
 					statusCode:404,
 					message: 'Updated qualification already exists'
 				});
-				//return Promise.reject(err);
 			})
->>>>>>> master
 		}
 		else {
 			return Promise.reject({
 				statusCode:404,
-				message: 'strange behavior.No row is updated or multiple rows updated'
+				message: 'Practitioner not found'
 			})
 		}
 	})
-	.catch(function(err){ //if the old qualification not found, or if updated qualification exactly the same, or if updated qualification already exists
+	.catch(function(err){ //if the old qualification not found
 		return Promise.reject({
 			statusCode:404,
-			message: 'Old qualification not found/Updated qualification already exists'
+			message: 'Old qualification not found'
 		});
 	})
 }
