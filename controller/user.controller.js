@@ -149,7 +149,10 @@ function createUser(newUser){
                                 .then ( savedPrac => {
                                     return Promise.resolve(savedUser);
                                 })
-                                .catch( err => {return Promise.reject(err)});
+                                .catch( err => {
+                                    User.destroy({where: { username: newUser.username}})
+                                    return Promise.reject(err)
+                                });
                             })
                         }
                         else{

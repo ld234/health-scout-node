@@ -61,37 +61,45 @@ module.exports = {
 }*/
 
 function getClients(username) {
-	var sql = "SELECT PatientDoctorRelation.pracUsername AS pracUsername, PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,"
-				+ "User.fName AS fName, User.lName AS lName,"
-				+ "PatientDoctorRelation.goal AS goal, MAX(Consultation.consultDate) AS lastConsultation"
-				+ " FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username"
-					   + " JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername"
-				+" GROUP BY PatientDoctorRelation.pracUsername, PatientDoctorRelation.patientUsername"
-				+" HAVING PatientDoctorRelation.pracUsername= :u AND seen=true";
+	var sql = `SELECT PatientDoctorRelation.pracUsername AS pracUsername, 
+				PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,
+				PatientDoctorRelation.goal AS goal, PatientDoctorRelation.conditions AS conditions,
+				PatientDoctorRelation.testimonial AS testimonial, PatientDoctorRelation.rating AS rating,
+				User.profilePic as profilePic,
+				User.title as title,
+				User.fName AS fName, User.lName AS lName, User.dob AS dob,
+				PatientDoctorRelation.goal AS goal, MAX(Consultation.consultDate) AS lastConsultation
+				FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username
+					LEFT OUTER JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername
+				GROUP BY PatientDoctorRelation.pracUsername, PatientDoctorRelation.patientUsername
+				HAVING PatientDoctorRelation.pracUsername= :u AND seen=true;`
 	return sequelize.query(sql, {replacements: {u: username}, type: Sequelize.QueryTypes.SELECT})
 		.then(rows=> {
-			console.log(rows);
 			return Promise.resolve(rows);
 		})
 		.catch(err=>{
-			console.log(err);
 			return Promise.reject(err);
 		});
 }
 
 function getNewClients(username) {
-	var sql = "SELECT PatientDoctorRelation.pracUsername AS pracUsername, PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,"
-				+ "User.fName AS fName, User.lName AS lName,"
-				+ "PatientDoctorRelation.message AS message"
-				+ " FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username"
-				+" WHERE PatientDoctorRelation.pracUsername= :u AND seen=false";
+	var sql = `SELECT PatientDoctorRelation.pracUsername AS pracUsername, 
+	PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,
+	PatientDoctorRelation.goal AS goal, PatientDoctorRelation.conditions AS conditions,
+	PatientDoctorRelation.testimonial AS testimonial, PatientDoctorRelation.rating AS rating,
+	User.profilePic as profilePic,
+	User.title as title,
+	User.fName AS fName, User.lName AS lName, User.dob AS dob,
+	PatientDoctorRelation.goal AS goal, MAX(Consultation.consultDate) AS lastConsultation
+	FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username
+		LEFT OUTER JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername
+	GROUP BY PatientDoctorRelation.pracUsername, PatientDoctorRelation.patientUsername
+	HAVING PatientDoctorRelation.pracUsername= :u AND seen=false;`;
 	return sequelize.query(sql, {replacements: {u: username}, type: Sequelize.QueryTypes.SELECT})
 		.then(rows=> {
-			console.log(rows);
 			return Promise.resolve(rows);
 		})
 		.catch(err=>{
-			console.log(err);
 			return Promise.reject(err);
 		});
 }
@@ -130,33 +138,49 @@ function getNewClients(username) {
 }*/
 
 function seeNewClient(patientUsername,pracUsername) {
-	return PatientDoctorRelation.update(
-		{
-			seen:true
-		},
-		{where: {
+	return PatientDoctorRelation.findOne({
+		where: {
 			patientUsername: patientUsername,
 			pracUsername: pracUsername,
-		}}
-	)
-	.then(function(rowsUpdated){
-		console.log('updated');
-		return PatientDoctorRelation.findOne({
-			where: {
-				patientUsername: patientUsername,
-				pracUsername: pracUsername,
-			}
-		})
-		.then(function(updatedClient){
-			return Promise.resolve(updatedClient);
-		})
-		.catch(function(err){
-			return Promise.reject(err);
-		})
+		}
 	})
-	.catch(err=> {
-		return Promise.reject(err);
+	.then(found => {
+		if (found){
+			return PatientDoctorRelation.update(
+				{
+					seen:true
+				},
+				{ where: {
+					patientUsername: patientUsername,
+					pracUsername: pracUsername,
+				}
+			})
+			.then(function(rowsUpdated){
+				return PatientDoctorRelation.findOne({
+					where: {
+						patientUsername: patientUsername,
+						pracUsername: pracUsername,
+					}
+				})
+				.then(function(updatedClient){
+					return Promise.resolve(updatedClient);
+				})
+				.catch(function(err){
+					return Promise.reject(err);
+				})
+			})
+			.catch(err=> {
+				return Promise.reject(err);
+			})
+		} else{ 
+			return Promise.reject({
+				statusCode: 400,
+				message: "No practitioner or patient found."
+			})
+		}
 	})
+	.catch( err => Promise.reject(err));
+	
 }
 
 /*function searchClients(pracUsername,patientName) {

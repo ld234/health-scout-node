@@ -34,45 +34,56 @@ function getAvailableSpecialties(pracType){
 }
 
 function createSpecialty(newSpecialty) {
-	return Specialty.findAll({
-		atributes: ['pracUsername','specialty'],
-		where: {[Op.and]:[
-			{pracUsername : newSpecialty.pracUsername},
-			{specialty:newSpecialty.specialty}
-		]
-	}})
-	.then((foundSpecialties) => {
-		if (foundSpecialties.length>0) {
-			return Promise.reject({
-				statusCode: 400,
-				message: 'Specialty already existed'
-            });
-		}
-		else {
-			return Practitioner.findOne({
-				attributes: ['pracUsername'],
-				where: {pracUsername: newSpecialty.pracUsername}
-			})
-			.then ((foundPractictioner) => {
-				if (foundPractictioner===null) {
+	return PracTypeSpecialty.findOne({where: {specialtyName: newSpecialty.specialty}})
+	.then((found) => {
+		if(found) {
+			return Specialty.findAll({
+				atributes: ['pracUsername','specialty'],
+				where: {[Op.and]:[
+					{pracUsername : newSpecialty.pracUsername},
+					{specialty:newSpecialty.specialty}
+				]
+			}})
+			.then((foundSpecialties) => {
+				if (foundSpecialties.length>0) {
 					return Promise.reject({
 						statusCode: 400,
-						message: 'Practitioner does not exist'
+						message: 'Specialty already existed'
 					});
 				}
 				else {
-					console.log('new specialty', newSpecialty);
-					return Specialty.create(newSpecialty);
+					return Practitioner.findOne({
+						attributes: ['pracUsername'],
+						where: {pracUsername: newSpecialty.pracUsername}
+					})
+					.then ((foundPractictioner) => {
+						if (foundPractictioner===null) {
+							return Promise.reject({
+								statusCode: 400,
+								message: 'Practitioner does not exist'
+							});
+						}
+						else {
+							console.log('new specialty', newSpecialty);
+							return Specialty.create(newSpecialty);
+						}
+					})
+					.catch(function(err) {
+						return Promise.reject(err);
+					})
 				}
 			})
 			.catch(function(err) {
 				return Promise.reject(err);
 			})
+		} else{
+			return Promise.reject({
+				statusCode: 400,
+				message: "Specialty not found."
+			})
 		}
 	})
-	.catch(function(err) {
-		return Promise.reject(err);
-	})
+	
 }
 
 function deleteSpecialty(deletedSpecialty) {

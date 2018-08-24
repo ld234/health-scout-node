@@ -5,7 +5,7 @@ var clientsController = require('../controller/clients.controller');
 
 router.get('/view', auth.auth(), viewClients);
 router.get('/viewNew',auth.auth(),viewNewClients);
-router.get('/clickNew',auth.auth(),seeNewClient); //when practitioner actually clicks on a new client, we want to update the seen attribute to true in PatientDoctorRelation
+router.put('/clickNew',auth.auth(),seeNewClient); //when practitioner actually clicks on a new client, we want to update the seen attribute to true in PatientDoctorRelation
 //router.get('/search',auth.auth(),searchClients);
 
 module.exports = router;
