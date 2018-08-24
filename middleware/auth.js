@@ -2,7 +2,7 @@ var jwt = require('./../utils/jwt');
 var path = require('path');
 var authController = require('../controller/auth.controller');
 
-// Check if a token is valid
+// Check if a token is valid for a user in general
 module.exports.auth = function () {
     return function (req, res, next) {
         var token = req.headers['x-access-token'];
@@ -33,8 +33,28 @@ module.exports.auth = function () {
         } else {
             res.status(401);
             res.json({
-                message: "Not authorized"
+                message: "User Not authorized"
             });
         }
     }
+}
+
+//check if a token is valid for a practitioner. Continue from auth() above,
+module.exports.pracAuth = function() {
+	return function (req, res, next) {
+		authController.checkPracAuth({
+			username: req.user,
+		})
+		.then(function(practitioner){
+			req.user = practitioner.dataValues.pracUsername;
+			console.log('Practitioner found');
+			next();
+		})
+		.catch(err => {
+			res.status(401);
+            res.json({
+                message: "Practitioner Not authorized"
+            });
+		})
+	}
 }

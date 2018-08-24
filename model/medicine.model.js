@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 const connection = require('../db/sql-connection');
-var PatientDoctorRelation = require('./patient.doctor.relation.model');
+var Consultation = require('./consultation.model');
 
-var Consultation = connection.define('Consultation',{
+var Medicine = connection.define('Medicine',{
 	pracUsername: {
 		type: Sequelize.STRING,
 		primaryKey: true,
@@ -13,10 +13,10 @@ var Consultation = connection.define('Consultation',{
 			},*/
 			isAlphanumeric: true
 		},
-		references: {
-			model: PatientDoctorRelation,
+		/*references: {
+			model: Consultation,
 			key: 'pracUsername'
-		}
+		}*/
 	},
 	patientUsername: {
 		type: Sequelize.STRING,
@@ -28,28 +28,38 @@ var Consultation = connection.define('Consultation',{
 			},*/
 			isAlphanumeric: true
 		},
-		references: {
-			model: PatientDoctorRelation,
+		/*references: {
+			model: Consultation,
 			key: 'patientUsername'
-		}
+		}*/
 	},
 	consultDate: {
 		type: Sequelize.DATEONLY,
+		primaryKey: true,
+		/*references: {
+			model: Consultation,
+			key: 'consultDate'
+		}*/
+	},
+	medication: {
+		type: Sequelize.STRING,
 		primaryKey: true
 	},
-	title: {
+	strength: {
+		type: Sequelize.DECIMAL(11,2),
+		allowNull: true
+	},
+	condition: {
 		type: Sequelize.STRING,
-		allowNull: false
+		allowNull: true
 	},
-	summary: {
-		type: Sequelize.TEXT
-	},
-	intervention: {
-		type: Sequelize.TEXT
+	refill: {
+		type: Sequelize.DECIMAL(11,0),
+		allowNull: true
 	}
 },{
 	timestamps: false,
 	freezeTableName: true
 });
 
-module.exports = Consultation;
+module.exports=Medicine;

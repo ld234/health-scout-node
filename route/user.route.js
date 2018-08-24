@@ -4,10 +4,15 @@ var auth = require('../middleware/auth');
 var userController = require('../controller/user.controller');
 var multer = require('multer');
 const passport = require('passport');
+var fs = require('fs');
 
 const storage = multer.diskStorage({
 	destination: function (req, file, callback){
-		callback(null, 'public/profilePics/');
+		var dir = 'public/profilePics/'+req.user+'/';
+		if (!fs.existsSync(dir)) {
+			fs.mkdirSync(dir);
+		}	
+		callback(null, dir);
 	},
 	filename: function (req, file, callback){
 		let fileNames = file.originalname.split('.');

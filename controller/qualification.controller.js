@@ -28,25 +28,8 @@ function createQualification(newQualification) {
             });
 		}
 		else {
-			return Practitioner.findOne({
-				attributes: ['pracUsername'],
-				where: {pracUsername: newQualification.pracUsername}
-			})
-			.then ((foundPractictioner) => {
-				if (foundPractictioner===null) {
-					return Promise.reject({
-						statusCode: 400,
-						message: 'Practitioner does not exist'
-					});
-				}
-				else {
-					console.log('new Qualification', newQualification);
-					return Qualification.create(newQualification);
-				}
-			})
-			.catch(function(err) {
-				return Promise.reject(err);
-			})
+			console.log('new Qualification', newQualification);
+			return Qualification.create(newQualification);
 		}
 	})
 	.catch(function(err) {
@@ -69,43 +52,24 @@ function getQualifications(username){
 }
 
 function deleteQualification(deletedQualification) {
-	console.log('deleting qualification 2')
-	return Practitioner.findAll({
-		attributes: ['pracUsername'],
-		where: {pracUsername: deletedQualification.pracUsername}
-	})
-	.then(function(foundPractitioners){
-		if (foundPractitioners.length>0) {
-			return Qualification.destroy({where: [
-				{pracUsername : deletedQualification.pracUsername},
-				{degree : deletedQualification.degree},
-				{institution : deletedQualification.institution},
-				{graduateYear : deletedQualification.graduateYear}
-			]})
-			.then (function(numOfDestroyed){
-				console.log('num of destroyed', numOfDestroyed)
-				if (numOfDestroyed==1) {
-					return Promise.resolve('qualiication deleted successfully');
-				}
-				else {
-					return Promise.reject({
-						statusCode:404, //should be changed to 204 NO CONTENT (no response body) when deployed
-						message: 'Qualification does not exist'
-					})
-				}
-			})
-			.catch(err => {
-				return Promise.reject(err);
-			})
+	return Qualification.destroy({where: [
+		{pracUsername : deletedQualification.pracUsername},
+		{degree : deletedQualification.degree},
+		{institution : deletedQualification.institution},
+		{graduateYear : deletedQualification.graduateYear}
+	]})
+	.then (function(numOfDestroyed){
+		if (numOfDestroyed==1) {
+			return Promise.resolve('qualiication deleted successfully');
 		}
 		else {
 			return Promise.reject({
-				statusCode:404,
-				message:'Practitioner not found'
+				statusCode:404, //should be changed to 204 NO CONTENT (no response body) when deployed
+				message: 'Qualification does not exist'
 			})
 		}
 	})
-	.catch(err=>{
+	.catch(err => {
 		return Promise.reject(err);
 	})
 }
@@ -139,21 +103,21 @@ function updateQualification(updatedQualification) {
 			)
 			.then(function(updatedArray){
 				console.log(updatedArray[0]);
-				if (updatedArray[0]==1) {
+				if (updatedArray[0]==1) { //exactly one row gets updated
 					let { newDegree, newInstitution, newGraduateYear, description, position } = updatedQualification;
 					return Promise.resolve({ 
 						qualification: {
 							degree: newDegree, 
 							institution: newInstitution, 
 							graduateYear: newGraduateYear, 
-							description
+							description: description
 						},
 						position });
 				}
 				else {
 					return Promise.reject({
 						statusCode:404,
-						message: 'Old qualification not found/ New qualification exactly the same'
+						message: 'New qualification exactly the same wit the old one'
 					})
 				}
 			})
@@ -162,7 +126,6 @@ function updateQualification(updatedQualification) {
 					statusCode:404,
 					message: 'Updated qualification already exists'
 				});
-				//return Promise.reject(err);
 			})
 		}
 		else {
@@ -172,7 +135,10 @@ function updateQualification(updatedQualification) {
 			})
 		}
 	})
-	.catch(function(err){
-		return Promise.reject(err);
+	.catch(function(err){ //if the old qualification not found
+		return Promise.reject({
+			statusCode:404,
+			message: 'Old qualification not found'
+		});
 	})
 }

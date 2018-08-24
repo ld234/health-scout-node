@@ -164,9 +164,9 @@ m2=*
     </coordinates>
     <panel_attributes>Document
 --
-title  
+title  ID
 description
-path  ID
+file CK
 bg=#dddddd
 </panel_attributes>
     <additional_attributes/>

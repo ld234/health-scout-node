@@ -1,4 +1,5 @@
 const User = require('../model/user.model');
+const Practitioner = require('../model/practitioner.model');
 const Verification = require('../model/verification.model');
 const crypto = require('crypto');
 const jwt = require('../utils/jwt');
@@ -27,63 +28,13 @@ smtpTransport.use('compile', hbs(handlebarsOptions));
 module.exports = {
     // login,
     checkAuth,
+	checkPracAuth,
     verifyEmail,
     sendEmail,
     allowPasswordReset,
     requestPasswordReset,
     resetPassword
 }
-
-// Outdated
-/* function login(username, password) {
-    return User.findOne({ attributes:['username','password','active'] ,where: {
-            username: username
-        }
-    })
-        .then(function (user) {
-            if (user) {
-                var hash = crypto.createHmac('sha256', secret)
-                    .update(password.concat(user.salt))
-                    .digest('hex'); 
-                // Account is activated? 
-                if (!user.active)
-                    return Promise.reject({
-                        statusCode: 400,
-                        message: 'This account has not been activated.'
-                    });
-				else{
-					// Load hash from your password DB.
-					bcrypt.compare(password, user.password, function(err, res) {
-						if (res == false){
-							return Promise.reject({statusCode: 400, message:'Incorrect username or password.'});
-						}
-					});
-				}
-                // Return token
-                return new Promise(function (resolve, reject) {
-                    jwt.sign({
-                        username: user.username,
-                    }, function (err, token) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve({token: token});
-                        }
-                    })
-                });
-
-            } else {
-                return Promise.reject({
-                    statusCode: 400,
-                    message: 'Username or password is incorrect'
-                });
-            }
-        })
-        .catch(function (err) {
-            return Promise.reject(err);
-        })
-}
-*/
 
 // Verify the link from the email
 function verifyEmail(token){
@@ -106,19 +57,16 @@ function verifyEmail(token){
 			
                     return User.findOne({attributes: ['username','email'], where:{ username: decodedData.username}})
                     .then(function (foundUser) {
-                        console.log(foundUser.dataValues);
                         return User.update(
                                 { active: 1 },
                                 { where: {username: foundUser.dataValues.username} }
                             )
                             .then (function (result) {
-                                console.log('update active', result);
                                 return Promise.resolve({
                                     message: `Your email ${foundUser.email} is verified successfully.`
                                 });
                             })
                             .catch(function (err){
-                                console.log(err);
                                 return Promise.reject({
                                     statusCode: 401,
                                     message: err.message
@@ -183,15 +131,39 @@ function sendEmail(user,callback){
 function checkAuth(user) {
     return User.findOne( {attributes:['username'],where: { username : user.username}})
         .then(function (foundUser) {
+            console.log('hello world');
             if (foundUser) {
                 return Promise.resolve(foundUser);
             } else {
                 return Promise.reject({
-                    message: 'Not Found'
+                    message: 'User Not Found'
                 });
             }
         })
         .catch(function (err) {
+            return Promise.reject(err);
+        })
+}
+
+//check whether a practitioner username exists
+function checkPracAuth(user) {
+    console.log('user', user);
+    console.log('hello');
+    return Practitioner.findOne( { attributes:['pracUsername'] ,where: { pracUsername : user.username}})
+        .then(function (foundPractitioner) {
+            console.log('faw')
+            if (foundPractitioner) {
+                console.log('found practitioner')
+                return Promise.resolve(foundPractitioner);
+            } else {
+                console.log('not found practitioner')
+                return Promise.reject({
+                    message: 'Practitioner Not Found'
+                });
+            }
+        })
+        .catch(function (err) {
+            console.log(err);
             return Promise.reject(err);
         })
 }

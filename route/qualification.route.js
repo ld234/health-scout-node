@@ -3,6 +3,7 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var qualificationController = require('../controller/qualification.controller');
 
+
 router.get('/',auth.auth(),getQualifications);
 router.post('/',auth.auth(),addQualification);
 router.put('/',auth.auth(),updateQualification);
