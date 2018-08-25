@@ -37,7 +37,7 @@ function viewClientProfile(patientUsername,pracUsername) {
 				return Promise.resolve(rows[0]);
 			}
 			else {
-				return Pormise.reject({
+				return Promise.reject({
 					statusCode:404,
 					message: 'Client not found/ Multiple clients found'
 				})

@@ -6,9 +6,10 @@ var medicalHistoryRouter = require('../route/medical.history.route');
 
 module.exports = router;
 
-router.get('/',auth.auth(),auth.pracAuth(),viewClientProfile);
+router.put('/',auth.auth(),auth.pracAuth(),viewClientProfile);
 router.post('/consultation',auth.auth(),auth.pracAuth(),addConsultation);
 router.use('/medicalHistory',auth.auth(),auth.pracAuth(),medicalHistoryRouter); //redirect medical history to medicalHistoryRouter
+
 
 function viewClientProfile(req,res,next) { //practitioner click on a client to see his or her profile.Change status seen to true in PatientDoctorRelation (if not already is)
 	var patientUsername= req.query.patientUsername;

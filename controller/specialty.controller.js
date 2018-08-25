@@ -53,9 +53,7 @@ function createSpecialty(newSpecialty) {
 			return Specialty.create(newSpecialty);
 		}
 	})
-	.catch(function(err) {
-		return Promise.reject(err);
-	})
+	
 }
 
 function deleteSpecialty(deletedSpecialty) {

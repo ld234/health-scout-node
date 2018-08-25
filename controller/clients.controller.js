@@ -17,43 +17,51 @@ module.exports = {
 	//searchClients
 } 
 
-function getClients(username) { //get existing client list
+function getClients(username) {
 	/*
 		we need to do a LEFT OUTER JOIN with Consultation because it might happen that patientUsername and pracUsername appears in PatientDoctorRelation,
 		their relationship is "seen=true", but they don't have any consultations yet, but we still want to show that patient as an existing patient, because
 		the practitioner has clicked on that patient's profile
 	*/
-	var sql = "SELECT PatientDoctorRelation.pracUsername AS pracUsername, PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,"
-				+ "User.fName AS fName, User.lName AS lName,"
-				+ "PatientDoctorRelation.goal AS goal, MAX(Consultation.consultDate) AS lastConsultation"
-				+ " FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username"
-					   + " LEFT OUTER JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername"
-				+" GROUP BY PatientDoctorRelation.pracUsername, PatientDoctorRelation.patientUsername"
-				+" HAVING PatientDoctorRelation.pracUsername= :u AND seen=true";
+	var sql = `SELECT PatientDoctorRelation.pracUsername AS pracUsername, 
+				PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,
+				PatientDoctorRelation.goal AS goal, PatientDoctorRelation.conditions AS conditions,
+				PatientDoctorRelation.testimonial AS testimonial, PatientDoctorRelation.rating AS rating,
+				User.profilePic as profilePic,
+				User.title as title,
+				User.fName AS fName, User.lName AS lName, User.dob AS dob,
+				PatientDoctorRelation.goal AS goal, MAX(Consultation.consultDate) AS lastConsultation
+				FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username
+					LEFT OUTER JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername
+				GROUP BY PatientDoctorRelation.pracUsername, PatientDoctorRelation.patientUsername
+				HAVING PatientDoctorRelation.pracUsername= :u AND seen=true;`
 	return sequelize.query(sql, {replacements: {u: username}, type: Sequelize.QueryTypes.SELECT})
 		.then(rows=> {
-			console.log(rows);
 			return Promise.resolve(rows);
 		})
 		.catch(err=>{
-			console.log(err);
 			return Promise.reject(err);
 		});
 }
 
-function getNewClients(username) { //get new client list
-	var sql = "SELECT PatientDoctorRelation.pracUsername AS pracUsername, PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,"
-				+ "User.fName AS fName, User.lName AS lName,"
-				+ "PatientDoctorRelation.message AS message"
-				+ " FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username"
-				+" WHERE PatientDoctorRelation.pracUsername= :u AND seen=false";
+function getNewClients(username) {
+	var sql = `SELECT PatientDoctorRelation.pracUsername AS pracUsername, 
+	PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,
+	PatientDoctorRelation.goal AS goal, PatientDoctorRelation.conditions AS conditions,
+	PatientDoctorRelation.testimonial AS testimonial, PatientDoctorRelation.rating AS rating,
+	User.profilePic as profilePic,
+	User.title as title,
+	User.fName AS fName, User.lName AS lName, User.dob AS dob,
+	PatientDoctorRelation.goal AS goal, MAX(Consultation.consultDate) AS lastConsultation
+	FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username
+		LEFT OUTER JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername
+	GROUP BY PatientDoctorRelation.pracUsername, PatientDoctorRelation.patientUsername
+	HAVING PatientDoctorRelation.pracUsername= :u AND seen=false;`;
 	return sequelize.query(sql, {replacements: {u: username}, type: Sequelize.QueryTypes.SELECT})
 		.then(rows=> {
-			console.log(rows);
 			return Promise.resolve(rows);
 		})
 		.catch(err=>{
-			console.log(err);
 			return Promise.reject(err);
 		});
 }

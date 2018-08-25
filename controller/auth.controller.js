@@ -56,19 +56,16 @@ function verifyEmail(token){
 			
                     return User.findOne({attributes: ['username','email'], where:{ username: decodedData.username}})
                     .then(function (foundUser) {
-                        console.log(foundUser.dataValues);
                         return User.update(
                                 { active: 1 },
                                 { where: {username: foundUser.dataValues.username} }
                             )
                             .then (function (result) {
-                                console.log('update active', result);
                                 return Promise.resolve({
                                     message: `Your email ${foundUser.email} is verified successfully.`
                                 });
                             })
                             .catch(function (err){
-                                console.log(err);
                                 return Promise.reject({
                                     statusCode: 401,
                                     message: err.message
@@ -133,6 +130,7 @@ function sendEmail(user,callback){
 function checkAuth(user) {
     return User.findOne( {attributes:['username'],where: { username : user.username}})
         .then(function (foundUser) {
+            console.log('hello world');
             if (foundUser) {
                 return Promise.resolve(foundUser);
             } else {
@@ -148,17 +146,23 @@ function checkAuth(user) {
 
 //check whether a practitioner username exists
 function checkPracAuth(user) {
-    return Practitioner.findOne( {attributes:['pracUsername'],where: { pracUsername : user.username}})
+    console.log('user', user);
+    console.log('hello');
+    return Practitioner.findOne( { attributes:['pracUsername'] ,where: { pracUsername : user.username}})
         .then(function (foundPractitioner) {
+            console.log('faw')
             if (foundPractitioner) {
+                console.log('found practitioner')
                 return Promise.resolve(foundPractitioner);
             } else {
+                console.log('not found practitioner')
                 return Promise.reject({
                     message: 'Practitioner Not Found'
                 });
             }
         })
         .catch(function (err) {
+            console.log(err);
             return Promise.reject(err);
         })
 }
