@@ -4,43 +4,7 @@ var Practitioner =require('../model/practitioner.model');
 
 module.exports = {
     charge,
-	chargeAtReg,
     subscribe
-}
-
-function chargeAtReg(username, email, stripeToken, bundle) {
-	var amount = 0;
-    if (bundle === 'standard'){
-        amount = 1999;
-    }
-    else if (bundle === 'premium'){
-        amount = 2499;
-    }
-    else if (bundle === 'platinum'){
-        amount = 4999;
-    }
-	if (amount!==0) {
-		return stripe.charges.create({
-			source: stripeToken,
-			currency: 'aud',
-			amount: amount,
-			receipt_email: email,
-			//customer: customerID, //we don't bind customerID with stripeToken, so error if we specify card: stripeToken. Instead, use source:stripeToken
-			description: `Payment by ${username} for ${bundle} bundle.`
-		})
-		.then(charge => {
-			console.log('Charged');
-			return Promise.resolve(charge);
-		})
-		.catch(err => {
-			console.log('failed charge')
-			return Promise.reject({statusCode:400, message:"Invalid card."})
-		});
-	}
-	else {
-		return Promise.resolve({message: 'No bundle purchased.'});
-	}
-	
 }
 
 function charge(username, stripeToken, bundle) { //charge after registration
@@ -54,22 +18,17 @@ function charge(username, stripeToken, bundle) { //charge after registration
     else if (bundle === 'platinum'){
         amount = 4999;
     }
-	return User.findAll({
-		attributes:'email',
-		include: [{
-			model:Practitioner,
-			//attributes:'customerID'
-		}],
-		where: {username: username}
-	})
-	.then(users=> {
-		if (amount !== 0)
+	if (amount!==0) {
+		return User.findAll({
+			attributes:['email'],
+			where: {username: username}
+		})
+		.then(users=> {
 			return stripe.charges.create({
-				card: stripeToken,
+				source: stripeToken,
 				currency: 'aud',
 				amount: amount,
 				receipt_email: users[0].email,
-				//customer: users[0].Practitioner[0].customerID,
 				description: `Payment by ${username} for ${bundle} bundle.`
 			})
 			.then(charge => {
@@ -80,14 +39,14 @@ function charge(username, stripeToken, bundle) { //charge after registration
 				console.log('failed charge')
 				return Promise.reject({statusCode:400, message:"Invalid card."})
 			});
-		else{
-			return Promise.resolve({message: 'No bundle purchased.'});
-		}
-	})
-	.catch(err=> {
-		return Promise.reject(err);
-	})
-    
+		})
+		.catch(err=> {
+			return Promise.reject(err);
+		})
+	}
+	else {
+		return Promise.resolve({message: 'No bundle purchased.'});
+	}
 }
 
 function createCustomer(username,email){
