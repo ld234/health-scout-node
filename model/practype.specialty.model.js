@@ -11,7 +11,7 @@ var PracTypeSpecialty = connection.define('PracTypeSpecialty', {
 	pracType: {
 		type: Sequelize.ENUM('Physiotherapist','Dietitian','Exercise physiologist'),
 		allowNull: false,
-		primary: true
+		primaryKey: true
 	},
 	
 },{

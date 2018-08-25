@@ -20,7 +20,7 @@ function charge(req,res,next) {
     })
 }
 
-function subscribe(req,res){
+function subscribe(req,res,next){
     paymentController.subscribe(req.body.user)
     .then ( subscription => res.send(subscription))
     .catch( err => next(err));

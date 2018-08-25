@@ -5,6 +5,7 @@ const moment = require('moment');
 var RegisteredBusiness = connection.define('RegisteredBusiness',{
     ABN: {
 	    type: Sequelize.DECIMAL(11,0),
+		primaryKey:true,
 		allowNull: false
 	},
 	businessName: {

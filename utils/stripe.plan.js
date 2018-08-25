@@ -1,6 +1,6 @@
-var stripe = require('stripe')(process.env.STRIPE_KEY);
+var stripe = require('stripe')(process.env.STRIPE_KEY); //this is the secret key (testing one). When deploy have to change to production one
 //prod_D9ok2XQH3yo1n8
-stripe.plans.create({
+stripe.plans.create({ //this is used to create subscriptions
     id: 'healthscout-annual',
     amount: 1999,
     interval: "year",

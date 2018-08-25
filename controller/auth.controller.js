@@ -1,4 +1,5 @@
 const User = require('../model/user.model');
+const Practitioner = require('../model/practitioner.model');
 const Verification = require('../model/verification.model');
 const crypto = require('crypto');
 const jwt = require('../utils/jwt');
@@ -25,7 +26,6 @@ var handlebarsOptions = {
 smtpTransport.use('compile', hbs(handlebarsOptions));
 
 module.exports = {
-    // login,
     checkAuth,
 	checkPracAuth,
     verifyEmail,
@@ -34,57 +34,6 @@ module.exports = {
     requestPasswordReset,
     resetPassword
 }
-
-// Outdated
-/* function login(username, password) {
-    return User.findOne({ attributes:['username','password','active'] ,where: {
-            username: username
-        }
-    })
-        .then(function (user) {
-            if (user) {
-                var hash = crypto.createHmac('sha256', secret)
-                    .update(password.concat(user.salt))
-                    .digest('hex'); 
-                // Account is activated? 
-                if (!user.active)
-                    return Promise.reject({
-                        statusCode: 400,
-                        message: 'This account has not been activated.'
-                    });
-				else{
-					// Load hash from your password DB.
-					bcrypt.compare(password, user.password, function(err, res) {
-						if (res == false){
-							return Promise.reject({statusCode: 400, message:'Incorrect username or password.'});
-						}
-					});
-				}
-                // Return token
-                return new Promise(function (resolve, reject) {
-                    jwt.sign({
-                        username: user.username,
-                    }, function (err, token) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve({token: token});
-                        }
-                    })
-                });
-
-            } else {
-                return Promise.reject({
-                    statusCode: 400,
-                    message: 'Username or password is incorrect'
-                });
-            }
-        })
-        .catch(function (err) {
-            return Promise.reject(err);
-        })
-}
-*/
 
 // Verify the link from the email
 function verifyEmail(token){

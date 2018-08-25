@@ -18,11 +18,16 @@ module.exports = {
 } 
 
 function getClients(username) { //get existing client list
+	/*
+		we need to do a LEFT OUTER JOIN with Consultation because it might happen that patientUsername and pracUsername appears in PatientDoctorRelation,
+		their relationship is "seen=true", but they don't have any consultations yet, but we still want to show that patient as an existing patient, because
+		the practitioner has clicked on that patient's profile
+	*/
 	var sql = "SELECT PatientDoctorRelation.pracUsername AS pracUsername, PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,"
 				+ "User.fName AS fName, User.lName AS lName,"
 				+ "PatientDoctorRelation.goal AS goal, MAX(Consultation.consultDate) AS lastConsultation"
 				+ " FROM PatientDoctorRelation JOIN User ON PatientDoctorRelation.patientUsername=User.username"
-					   + " JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername"
+					   + " LEFT OUTER JOIN Consultation ON PatientDoctorRelation.patientUsername=Consultation.patientUsername AND PatientDoctorRelation.pracUsername=Consultation.pracUsername"
 				+" GROUP BY PatientDoctorRelation.pracUsername, PatientDoctorRelation.patientUsername"
 				+" HAVING PatientDoctorRelation.pracUsername= :u AND seen=true";
 	return sequelize.query(sql, {replacements: {u: username}, type: Sequelize.QueryTypes.SELECT})

@@ -4,9 +4,22 @@ var authController = require('./auth.controller');
 var Practitioner = require('../model/practitioner.model');
 
 module.exports= {
+	getDocuments,
 	addDocument,
 	updateDocument,
 	deleteDocument
+}
+
+function getDocuments(pracUsername) {
+	return Document.findAll({
+		where: {pracUsername: pracUsername}
+	})
+	.then(foundDocuments=> {
+		return Promise.resolve({documents:foundDocuments});
+	})
+	.catch(err=>{
+		return Promise.reject(err);
+	})
 }
 
 function addDocument(newDocument) {
