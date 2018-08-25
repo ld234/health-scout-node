@@ -13,6 +13,10 @@ var Practitioner = connection.define('Practitioner', {
             key: 'username'
         },
 	},
+	customerID: {
+		type : Sequelize.STRING,
+        allowNull : false
+	},
 	pracType: {
 		type: Sequelize.ENUM('Physiotherapist','Dietitian','Exercise physiologist'),
 		allowNull: false
@@ -45,7 +49,7 @@ var Practitioner = connection.define('Practitioner', {
 	rating: {
 	    type: Sequelize.DECIMAL(3,2),
 		allowNull: false,
-		defaultValue: 0
+		defaultValue: 5.00
 	},
 	viewsToday: {
 	    type: Sequelize.DECIMAL(4,0),

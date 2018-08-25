@@ -68,10 +68,6 @@ var User = connection.define('User',{
         defaultValue : false,
         allowNull : false
 	},
-	customerID: {
-		type : Sequelize.STRING,
-        allowNull : false
-	},
 	passwordReset: {
 		type: Sequelize.STRING(20),
 		allowNull: true,
