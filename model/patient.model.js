@@ -1,25 +1,24 @@
 const Sequelize = require('sequelize');
-const connection = require('../db/sql-connection')
+//const connection = require('../db/sql-connection')
 var User = require('./user.model');
 
-var Patient = connection.define('Patient',{
-	patientUsername: {
-		type: Sequelize.STRING,
-		primaryKey: true,
-		validate: {
-			len: {
-				args: [8,30],
-				msg: 'Please enter username with at lease 8 but max 30 characters'
+module.exports = (connection) => {
+	return connection.define('Patient',{
+		patientUsername: {
+			type: Sequelize.STRING,
+			primaryKey: true,
+			validate: {
+				len: {
+					args: [8,30],
+					msg: 'Please enter username with at lease 8 but max 30 characters'
+				},
+				isAlphanumeric: true
 			},
-			isAlphanumeric: true
-		},
-	}
-},{
-	timestamps: false,
-	freezeTableName: true
-});
+		}
+	},{
+		timestamps: false,
+		freezeTableName: true
+	});
+}
 
-//User.hasOne(Patient,{foreignKey: 'patientUsername'});
-Patient.belongsTo(User,{foreignKey: 'patientUsername'});
-
-module.exports = Patient;
+//Patient.belongsTo(User,{foreignKey: 'patientUsername'});

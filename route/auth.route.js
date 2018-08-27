@@ -1,4 +1,5 @@
-var User = require('../model/user.model');
+const db = require('../utils/create.db');
+const User=db.User;
 var router = require('express').Router();
 var authController = require('../controller/auth.controller');
 const jwt = require('../utils/jwt');

@@ -1,13 +1,15 @@
-const User = require('../model/user.model');
-const Practitioner = require('../model/practitioner.model');
-const Verification = require('../model/verification.model');
+const db = require('../utils/create.db');
+const User=db.User;
+const Practitioner = db.Practitioner;
+const Verification = db.Verification;
+
 const crypto = require('crypto');
 const jwt = require('../utils/jwt');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const  hbs = require('nodemailer-express-handlebars');
 const bcrypt = require('bcrypt');
-require('dotenv').config()
+require('dotenv').config();
 
 var smtpTransport = nodemailer.createTransport({
     service: "Gmail",
@@ -130,7 +132,6 @@ function sendEmail(user,callback){
 function checkAuth(user) {
     return User.findOne( {attributes:['username'],where: { username : user.username}})
         .then(function (foundUser) {
-            console.log('hello world');
             if (foundUser) {
                 return Promise.resolve(foundUser);
             } else {
@@ -147,10 +148,8 @@ function checkAuth(user) {
 //check whether a practitioner username exists
 function checkPracAuth(user) {
     console.log('user', user);
-    console.log('hello');
     return Practitioner.findOne( { attributes:['pracUsername'] ,where: { pracUsername : user.username}})
         .then(function (foundPractitioner) {
-            console.log('faw')
             if (foundPractitioner) {
                 console.log('found practitioner')
                 return Promise.resolve(foundPractitioner);

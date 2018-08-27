@@ -1,8 +1,9 @@
-var User = require('../model/user.model');
-var Practitioner = require('../model/practitioner.model');
-var Patient = require('../model/patient.model');
-var Consultation = require ('../model/consultation.model');
-var PatientDoctorRelation = require ('../model/patient.doctor.relation.model');
+const db = require('../utils/create.db');
+const User = db.User;
+const Practitioner = db.Practitioner;
+const Patient = db.Patient;
+const Consultation=db.Consultation;
+const PatientDoctorRelation=db.PatientDoctorRelation;
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{

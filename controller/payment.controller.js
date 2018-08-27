@@ -1,6 +1,6 @@
 var stripe = require('stripe')(process.env.STRIPE_KEY);
-var User =require('../model/user.model');
-var Practitioner =require('../model/practitioner.model');
+const db = require('../utils/create.db');
+const User=db.User;
 
 module.exports = {
     charge,

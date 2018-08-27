@@ -1,6 +1,7 @@
-var Consultation = require('../model/consultation.model');
-var PatientRelation = require('../model/patient.relation.model');
-var PatientAllergy = require('../model/patient.allergy.model');
+const db = require('../utils/create.db');
+const Consultation=db.Consultation;
+const PatientRelation = db.PatientRelation;
+const PatientAllergy = db.PatientAllergy;
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
@@ -10,10 +11,11 @@ const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.
 });
 
 module.exports = {
-    getConsultHistory,
+    getAllergies,
+	getFamilyHistory,
 } 
 
-function getConsultHistory(pracUsername, patientUsername) {
+/*function getConsultHistory(pracUsername, patientUsername) {
 	var sql='SELECT Consultation.title as title, Consultation.consultDate as date, Consultation.summary as summary, '
 			+ 'Consultation.intervention as intervention, CONCAT(User.title," ",User.fName," ",User.lName) as "by"'
 			+ ' FROM Consultation JOIN Practitioner ON Consultation.pracUsername=Practitioner.pracUsername'
@@ -27,4 +29,4 @@ function getConsultHistory(pracUsername, patientUsername) {
 	.catch(err=> {
 		return Promise.reject(err);
 	})
-}
+}*/

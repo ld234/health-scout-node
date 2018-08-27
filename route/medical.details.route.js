@@ -1,14 +1,14 @@
 var router = require('express').Router();
 var path = require('path');
 var auth = require('../middleware/auth');
-var medicalHistoryController = require('../controller/medical.history.controller');
+var medicalDetailsController = require('../controller/medical.details.controller');
 module.exports = router;
 
-router.get('/consultHistory',auth.auth(),auth.pracAuth(),getConsultHistory);
+//router.get('/consultHistory',auth.auth(),auth.pracAuth(),getConsultHistory);
 router.get('/allergies',auth.auth(),auth.pracAuth(),getAllergies);
 router.get('/familyHistory',auth.auth(),auth.pracAuth(),getFamilyHistory);
 
-function getConsultHistory(req,res,next) {
+/*function getConsultHistory(req,res,next) {
 	var patientUsername=req.query.patientUsername;
 	var pracUsename=req.user; //we may need to use this if consultation history does not include this practitioner's own consultations
 	if (!patientUsername) {
@@ -29,7 +29,7 @@ function getConsultHistory(req,res,next) {
 			next(err);
 		})
 	}
-}
+}*/
 
 function getFamilyHistory(req,res,next) {
 	var patientUsername=req.query.patientUsername;

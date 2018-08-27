@@ -1,7 +1,7 @@
-const User = require('../model/user.model');
-const Practitioner = require('../model/practitioner.model');
-const Qualification = require('../model/qualification.model');
-const RegisteredBusiness = require('../model/registered.business.model');
+const db = require('../utils/create.db');
+const User=db.User;
+const Practitioner = db.Practitioner;
+const RegisteredBusiness=db.RegisteredBusiness;
 const Op = require('sequelize').Op;
 const nodemailer = require("nodemailer");
 const crypto = require('crypto');
@@ -94,7 +94,7 @@ function checkPractitionerDetails(business,medicalProviderNumber) {
 function createUser(newUser) { //after saving the user to database, we send a verification email to finish the registration process
 	return saveUser(newUser)
 	.then(savedUser=> {
-		delete savedUser.password; //we don't want to send back the password to front end
+		delete savedUser.dataValues.password; //we don't want to send back the password to front end
 		return authController.sendEmail(savedUser)
 		.then( (data) => {
 			return Promise.resolve(savedUser);
