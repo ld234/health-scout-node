@@ -38,33 +38,20 @@ function viewNewClients(req,res,next) {
 		})
 }
 
-function seeNewClient(patientUsername,pracUsername) {
-	return PatientDoctorRelation.update({
-			seen:true
-		},{
-			where: {
-				patientUsername: patientUsername,
-				pracUsername: pracUsername,
-			}
-		})
-	.then(function(rowsUpdated){
-		console.log('updated');
-		return PatientDoctorRelation.findOne({
-			where: {
-				patientUsername: patientUsername,
-				pracUsername: pracUsername,
-			}
-		})
+function seeNewClient(req,res,next) {
+	var patientUsername= req.query.patientUsername;
+	var pracUsername=req.user;
+	clientsController.seeNewClient(patientUsername,pracUsername)
 		.then(function(updatedClient){
-			return Promise.resolve(updatedClient);
+			console.log('Client seen');
+			res.send({
+				statusCode:200,
+				message: updatedClient
+			});
 		})
-		.catch(function(err){
-			return Promise.reject(err);
+		.catch(err=>{
+			next(err);
 		})
-	})
-	.catch(err=> {
-		return Promise.reject(err);
-	})
 }
 
 

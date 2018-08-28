@@ -38,6 +38,7 @@ module.exports = {
 
 // Verify the link from the email
 function verifyEmail(token){
+    console.log(token);
     return jwt.verify (token, function (err, decodedData) {
         if (err) {
             return Promise.reject({
@@ -96,7 +97,7 @@ function verifyEmail(token){
 function sendEmail(user,callback){
     var rand = crypto.randomBytes(2).toString('hex');
     jwt.sign({username: user.username,verification: rand}, function(err,token){
-        var link=`${process.env.ROOT_URL}verify?id=${token}`;
+        var link=`${process.env.ROOT_URL}/verify?id=${token}`;
         mailOptions={
             to: user.email, 
             subject : "Welcome to HealthScout",
@@ -131,7 +132,6 @@ function sendEmail(user,callback){
 function checkAuth(user) {
     return User.findOne( {attributes:['username'],where: { username : user.username}})
         .then(function (foundUser) {
-            console.log('hello world');
             if (foundUser) {
                 return Promise.resolve(foundUser);
             } else {
@@ -147,8 +147,6 @@ function checkAuth(user) {
 
 //check whether a practitioner username exists
 function checkPracAuth(user) {
-    console.log('user', user);
-    console.log('hello');
     return Practitioner.findOne( { attributes:['pracUsername'] ,where: { pracUsername : user.username}})
         .then(function (foundPractitioner) {
             console.log('faw')

@@ -14,6 +14,7 @@ const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.
 module.exports = {
     getClients,
 	getNewClients,
+	seeNewClient,
 	//searchClients
 } 
 
@@ -44,6 +45,7 @@ function getNewClients(username) {
 	PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,
 	PatientDoctorRelation.goal AS goal, PatientDoctorRelation.conditions AS conditions,
 	PatientDoctorRelation.testimonial AS testimonial, PatientDoctorRelation.rating AS rating,
+	PatientDoctorRelation.message AS message,
 	User.profilePic as profilePic,
 	User.title as title,
 	User.fName AS fName, User.lName AS lName, User.dob AS dob,
@@ -59,6 +61,38 @@ function getNewClients(username) {
 		.catch(err=>{
 			return Promise.reject(err);
 		});
+}
+
+function seeNewClient(patientUsername,pracUsername) {
+	console.log('see new client');
+	return PatientDoctorRelation.update(
+		{
+			seen:true
+		},
+		{
+			where: {
+				patientUsername: patientUsername,
+				pracUsername: pracUsername,
+			}
+		})
+	.then(function(rowsUpdated){
+		console.log('updated');
+		return PatientDoctorRelation.findOne({
+			where: {
+				patientUsername: patientUsername,
+				pracUsername: pracUsername,
+			}
+		})
+		.then(function(updatedClient){
+			return Promise.resolve(updatedClient);
+		})
+		.catch(function(err){
+			return Promise.reject(err);
+		})
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	})
 }
 
 /*function searchClients(pracUsername,patientName) {
