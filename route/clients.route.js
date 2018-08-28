@@ -4,8 +4,7 @@ var auth = require('../middleware/auth');
 var clientsController = require('../controller/clients.controller');
 var clientProfileRouter = require('./client.profile.route');
 
-// router.get('/view', auth.auth(), viewClients);
-// router.get('/viewNew',auth.auth(),viewNewClients);
+
 router.put('/clickNew',auth.auth(),seeNewClient); //when practitioner actually clicks on a new client, we want to update the seen attribute to true in PatientDoctorRelation
 router.get('/', auth.auth(), auth.pracAuth(),viewClients);
 router.get('/new',auth.auth(),auth.pracAuth(),viewNewClients);

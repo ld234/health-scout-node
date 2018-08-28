@@ -10,5 +10,7 @@ const connection = new Sequelize('healthscout', process.env.DB_USER, process.env
     logging: false
 });
 
-
 module.exports = connection;
+
+
+

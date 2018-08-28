@@ -5,20 +5,16 @@ var userRouter = require('./route/user.route');
 var authRouter = require('./route/auth.route');
 var paymentRouter = require('./route/payment.route');
 var documentRouter = require('./route/document.route');
-const RawQuery = require('./utils/raw.query');
 
 var specialtyRouter = require('./route/specialty.route');
 var qualificationRouter = require('./route/qualification.route');
 var clientsRouter = require('./route/clients.route');
 
 var errorHandler = require('./middleware/error-handler');
-require('./db/sql-connection');
-require('./utils/create.db');
+
+require('./utils/create.db'); //move RawQuery to here to be called after loading the database
 require('./utils/passport');
 require('./utils/stripe.plan');
-require('./model/practype.specialty.model');
-
-RawQuery.init();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); 

@@ -1,7 +1,10 @@
-var Qualification = require('../model/qualification.model');
+const db = require('../utils/create.db');
+const Qualification= db.Qualification;
+const Practitioner=db.Practitioner;
+
 var Op = require('sequelize').Op;
 var authController = require('./auth.controller');
-var Practitioner = require('../model/practitioner.model');
+
 
 module.exports= {
 	createQualification,
@@ -117,11 +120,11 @@ function updateQualification(updatedQualification) {
 				else {
 					return Promise.reject({
 						statusCode:404,
-						message: 'New qualification exactly the same wit the old one'
+						message: 'Strange behavior. No row updated or multiple rows updated'
 					})
 				}
 			})
-			.catch(function(err){ //if the updated qualification already exists, jump here
+			.catch(function(err){ //if the updated qualification already exists (including being the same with the old qualification, because the old already exists)
 				return Promise.reject({
 					statusCode:404,
 					message: 'Updated qualification already exists'
@@ -135,10 +138,7 @@ function updateQualification(updatedQualification) {
 			})
 		}
 	})
-	.catch(function(err){ //if the old qualification not found
-		return Promise.reject({
-			statusCode:404,
-			message: 'Old qualification not found'
-		});
+	.catch(function(err){ //this blocks basically catches any errors that might happen above: old not found, new exists, or new exactly the same with old
+		return Promise.reject(err);
 	})
 }

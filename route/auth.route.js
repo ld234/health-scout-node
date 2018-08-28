@@ -1,4 +1,5 @@
-var User = require('../model/user.model');
+const db = require('../utils/create.db');
+const User=db.User;
 var router = require('express').Router();
 var authController = require('../controller/auth.controller');
 const jwt = require('../utils/jwt');
@@ -22,6 +23,7 @@ function login (req, res, next) {
     console.log('Logging in');
     passport.authenticate('local', {session: false}, (err, user, info) => {
         if (err) {
+			console.log(err);
             return res.status(400).json({
                 message: err.message,
                 user: user
@@ -41,38 +43,14 @@ function login (req, res, next) {
             jwt.sign({username: user.username}, (err,token)=>{
                     if (!err)
                         return res.json({user, token});
-                    else 
+                    else {
+						console.log(err);
                         next(err);
+					}
             });
         });
     })(req, res);
 }
-
-/*
-function login(req, res, next) {
-    var username = req.body.username;
-    var password = req.body.password;
-
-    if (!username) {
-        next({
-            statusCode: 400,
-            message: "Username is required"
-        })
-    } else if (!password) {
-        next({
-            statusCode: 400,
-            message: "Password is required"
-        })
-    } else {
-        authController.login(username, password)
-            .then(function (token) {
-                res.send(token)
-            })
-            .catch(function (err) {
-                next(err);
-            })
-    }
-}*/
 
 
 function verifyEmail(req, res, next) {

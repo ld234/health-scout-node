@@ -8,17 +8,19 @@ var fs = require('fs');
 
 const storage = multer.diskStorage({
 	destination: function (req, file, callback){
-		var dir = 'public/profilePics/'+req.user+'/';
+		var dir = 'public/profilePics/'+req.body.username+'/';
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir);
-		}	
-		callback(null, dir);
+			callback(null, dir);
+		}
+		else {
+			callback(new Error('Existing folder implies username already exists'),false);
+		}
 	},
 	filename: function (req, file, callback){
 		let fileNames = file.originalname.split('.');
 		let ext = fileNames[fileNames.length-1];
-		//let filename = req.file.filename;
-		callback(null, req.body.username + '-' + Date.now() +'.' +ext);
+		callback(null, req.body.username + '-' + Date.now() +'.' +ext); //date is not needed here because we only want to store one profile pic for each user.
 	}
 });
 
@@ -35,7 +37,8 @@ const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, 
 
 
 router.get('/', auth.auth(), getUser);
-router.post('/', upload.single('profilePic'), createUser);
+router.post('/', upload.single('profilePic'), createUser); //this is done for general user who only wants to register as a patient.
+router.post('/prac',upload.single('profilePic'),createPractitioner); //this is done after the createUser() one, if the user wants to register as a practitioner as well
 router.post('/checkUserDetails', checkUserDetails);
 router.post('/checkPracDetails', checkPractitionerDetails);
 router.put('/', auth.auth(), updateUser);
@@ -77,9 +80,9 @@ function checkUserDetails(req, res, next) {
 }
 
 function checkPractitionerDetails(req, res, next) {
-    const abn = req.body.abn;
+    const business = {abn: req.body.ABN, name: req.body.businessName, address:req.body.businessAddress};
     const medicalProviderNumber =req.body.medicalProviderNum;
-    userController.checkPractitionerDetails(abn, medicalProviderNumber)
+    userController.checkPractitionerDetails(business, medicalProviderNumber)
         .then(function (user) {
             res.send(user);
         })
@@ -113,7 +116,73 @@ function createUser(req, res, next) {
 				console.log('user created', user);
                 res.status(201).send(user);
             })
-            .catch(function (err) {
+            .catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
+				var uploadDir='public/profilePics/'+req.body.username;
+				fs.readdir(uploadDir,function(err,files){
+					if (err) throw err;
+					files.forEach(function(file,index){
+						var curPath=uploadDir+"/"+file;
+						fs.unlink(curPath,function(err){
+							if (err) throw err;
+							console.log('successfully deleted '+curPath);
+							if (index==files.length-1) {
+								fs.rmdir(uploadDir,(err)=>{
+									if (err) throw err;
+									console.log('successfully deleted '+uploadDir);
+								})
+							}
+						});
+					});
+				});
+                next(err);
+            })
+    }
+}
+
+function createPractitioner(req,res,next) {
+	var newPrac = req.body;
+	if (req.file)
+	    newPrac['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
+    if (!newPrac.username) {
+        next({
+            statusCode: 400,
+            message: "Username is required"
+        })
+    } else if (!newPrac.password) {
+        next({
+            statusCode: 400,
+            message: "Password is required"
+        })
+    } else if (!newPrac.email) {
+        next({
+            statusCode: 400,
+            message: "Email is required"
+        })
+    } 
+	else {
+        userController.createPractitioner(newPrac)
+            .then(function (practitioner) {
+				console.log('Practitioner created', practitioner);
+                res.status(201).send(practitioner);
+            })
+            .catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
+				var uploadDir='public/profilePics/'+req.body.username;
+				fs.readdir(uploadDir,function(err,files){
+					if (err) throw err;
+					files.forEach(function(file,index){
+						var curPath=uploadDir+"/"+file;
+						fs.unlink(curPath,function(err){
+							if (err) throw err;
+							console.log('successfully deleted '+curPath);
+							if (index==files.length-1) {
+								fs.rmdir(uploadDir,(err)=>{
+									if (err) throw err;
+									console.log('successfully deleted '+uploadDir);
+								})
+							}
+						});
+					});
+				});
                 next(err);
             })
     }

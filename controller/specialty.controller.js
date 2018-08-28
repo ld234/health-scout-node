@@ -1,8 +1,10 @@
-var Specialty = require('../model/specialty.model');
+const db = require('../utils/create.db');
+const Specialty = db.Specialty;
+const Practitioner=db.Practitioner;
+const PracTypeSpecialty=db.PracTypeSpecialty;
+
 var Op = require('sequelize').Op;
 var authController = require('./auth.controller');
-var Practitioner = require('../model/practitioner.model');
-var PracTypeSpecialty = require('../model/practype.specialty.model');
 
 module.exports= {
 	createSpecialty,

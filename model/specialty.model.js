@@ -1,22 +1,24 @@
 const Sequelize = require('sequelize');
-const connection = require('../db/sql-connection')
-var Practitioner = require('./practitioner.model');
-var Specialty = connection.define('Specialty',{
-	pracUsername: {
-		type: Sequelize.STRING,
-		primaryKey: true,
-		validate: {
-			isAlphanumeric: true
-		},
-	},
-	specialty: {
-		type:Sequelize.STRING,
-		primaryKey: true
-	}
-},{
-	timestamps: false,
-	freezeTableName: true
-});
+//const connection = require('../db/sql-connection')
+//var Practitioner = require('./practitioner.model');
 
-Practitioner.hasMany(Specialty,{foreignKey: 'pracUsername'});
-module.exports = Specialty;
+module.exports = (connection) => {
+	return connection.define('Specialty',{
+		pracUsername: {
+			type: Sequelize.STRING,
+			primaryKey: true,
+			validate: {
+				isAlphanumeric: true
+			},
+		},
+		specialty: {
+			type:Sequelize.STRING,
+			primaryKey: true
+		}
+	},{
+		timestamps: false,
+		freezeTableName: true
+	});
+}
+
+//Practitioner.hasMany(Specialty,{foreignKey: 'pracUsername'});

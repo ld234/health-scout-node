@@ -1,8 +1,9 @@
-var User = require('../model/user.model');
-var Practitioner = require('../model/practitioner.model');
-var Patient = require('../model/patient.model');
-var Consultation = require ('../model/consultation.model');
-var PatientDoctorRelation = require ('../model/patient.doctor.relation.model');
+const db = require('../utils/create.db');
+const User = db.User;
+const Practitioner = db.Practitioner;
+const Patient = db.Patient;
+const Consultation=db.Consultation;
+const PatientDoctorRelation=db.PatientDoctorRelation;
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
@@ -19,6 +20,11 @@ module.exports = {
 } 
 
 function getClients(username) {
+	/*
+		we need to do a LEFT OUTER JOIN with Consultation because it might happen that patientUsername and pracUsername appears in PatientDoctorRelation,
+		their relationship is "seen=true", but they don't have any consultations yet, but we still want to show that patient as an existing patient, because
+		the practitioner has clicked on that patient's profile
+	*/
 	var sql = `SELECT PatientDoctorRelation.pracUsername AS pracUsername, 
 				PatientDoctorRelation.patientUsername AS patientUsername, PatientDoctorRelation.seen AS seen,
 				PatientDoctorRelation.goal AS goal, PatientDoctorRelation.conditions AS conditions,

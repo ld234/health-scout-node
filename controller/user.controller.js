@@ -1,7 +1,7 @@
-const User = require('../model/user.model');
-const Practitioner = require('../model/practitioner.model');
-const Qualification = require('../model/qualification.model');
-const RegisteredBusiness = require('../model/registered.business.model');
+const db = require('../utils/create.db');
+const User=db.User;
+const Practitioner = db.Practitioner;
+const RegisteredBusiness=db.RegisteredBusiness;
 const Op = require('sequelize').Op;
 const nodemailer = require("nodemailer");
 const crypto = require('crypto');
@@ -18,7 +18,8 @@ module.exports = {
     getUser: getUser,
     createUser: createUser,
     checkUserDetails: checkUserDetails,
-    checkPractitionerDetails
+    checkPractitionerDetails,
+	createPractitioner
     // updateUser: updateUser
 } 
 
@@ -61,31 +62,108 @@ function checkUserDetails(newUser){
         
 }
 
-function checkPractitionerDetails(abn,medicalProviderNumber) { 
+function checkPractitionerDetails(business,medicalProviderNumber) { 
     var invalidFields = [];
-    return RegisteredBusiness.findOne({ attribute:['ABN'], where : {ABN: abn}})
+	console.log(business);
+    return RegisteredBusiness.findOne({ attribute:['ABN'], where : {ABN: business.abn}})
     .then(foundABN => {
-        if (!foundABN){
+        if (!foundABN){ //if abn cannot be found among those in RegisteredBusiness, that means an error
             invalidFields.push('ABN');
         }
-        return Practitioner.findOne({attribute: ['medicalProviderNum'], where : {medicalProviderNum: medicalProviderNumber}})
-        .then (foundMedProviderNum => {
-            if(foundMedProviderNum){
-                invalidFields.push('medicalProviderNumber');
-            }
-            return Promise.resolve(invalidFields);
-        })
-        .catch(err => {return Promise.reject(err)});
+		else {
+			if (foundABN.businessName!==business.name) {
+				invalidFields.push('businessName');
+			}
+			if (foundABN.businessAddress!==business.address) {
+				invalidFields.push('businessAddress');
+			}
+		}
+		return Practitioner.findOne({attribute: ['medicalProviderNum'], where : {medicalProviderNum: medicalProviderNumber}})
+		.then (foundMedProviderNum => {
+			if(foundMedProviderNum){ //if another medical provider number already registers with the same num, must be an error
+				invalidFields.push('medicalProviderNum');
+			}
+			return Promise.resolve(invalidFields);
+		})
+		.catch(err => {return Promise.reject(err)});
     })
     .catch (err => {return Promise.reject(err)});
 }
 
-// Add new user
-function createUser(newUser){
-    /*var salt = crypto.randomBytes(2).toString('hex');
-    var hash = crypto.createHmac('sha256', secret)
-        .update(newUser.password.concat(salt))
-        .digest('hex');*/
+// create a new user. call saveUser(newUser)
+function createUser(newUser) { //after saving the user to database, we send a verification email to finish the registration process
+	return saveUser(newUser)
+	.then(savedUser=> {
+		delete savedUser.dataValues.password; //we don't want to send back the password to front end
+		return authController.sendEmail(savedUser)
+		.then( (data) => {
+			return Promise.resolve(savedUser);
+		})
+		.catch( err => {console.log('cannot insert to verification table'); return Promise.reject(err); }); //if email cannot be sent, only logging the error to console
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	})
+}
+
+//create a new Practitioner. Also call saveUser(newPrac), and then savePractitioner.
+function createPractitioner(newPrac) {
+	return saveUser(newPrac)
+	.then (savedUser=> {
+		return paymentController.subscribe(newPrac.username, newPrac.email)
+		.then(data=> {
+			newPrac.customerID=data.customer;
+			console.log('Successfully subscribe practitioner '+newPrac.username+' with customerID: '+newPrac.customerID);
+			let hasBundle = false;
+			if (newPrac.bundle=== 'standard') {
+				newPrac.availableConnections =  STANDARD_CONN;
+                hasBundle = true;
+			}
+			else if(newPrac.bundle=== 'premium') {
+				newPrac.availableConnections =  PREMIUM_CONN;
+                hasBundle = true;
+			}
+			else if (newPrac.bundle==='platinum') {
+				newPrac.availableConnections =  PLATINUM_CONN;
+                hasBundle = true;
+			}
+			else {
+				newPrac.availableConnections=0;
+			}
+			if (hasBundle) {
+				console.log('Customer '+newPrac.customerID+' wants bundle ' + newPrac.bundle);
+			}
+			else {
+				console.log('Customer '+newPrac.customerID+' does not want a bundle');
+			}
+			return paymentController.charge(newPrac.username, newPrac.stripeToken, newPrac.bundle)
+			.then( charge => { //this can be no charge if the practitioner does not select a bundle
+				return savePractitioner(newPrac)
+				.then ( savedPrac => {
+					return Promise.resolve(savedPrac);
+				})
+				.catch( err => {
+					User.destroy({ //if the registration process is not successful, we want to remove the user out of the database as well
+						where: {username: newPrac.username}
+					});
+					return Promise.reject(err)
+				});
+			})
+			.catch(err=>{
+				User.destroy({ //if the registration process is not successful, we want to remove the user out of the database as well
+					where: {username: newPrac.username}
+				});
+				return Promise.reject(err)
+			})
+		})
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	})
+}
+
+// Save the user to the database.
+function saveUser(newUser){
     return User.findAll({ attributes:['username','password','email'], 
         where:{
             [Op.or]: [
@@ -119,52 +197,12 @@ function createUser(newUser){
             const saltRounds = 10;
             return bcrypt.hash(newUser.password, saltRounds)
             .then( (hash) =>{
-                // Store hash in your password DB.
+                // Store hash in your password DB instead of the plaintext password
                 newUser.password = hash;
-                
-                return paymentController.subscribe(newUser.username, newUser.email)
-                .then (data => {
-                    newUser.customerID = data.customer;
-                    console.log('successful payment');
-                    return User.create(newUser)
-                    .then( savedUser => {
-                        let hasBundle = false;
-                        if (newUser.bundle === 'standard') {
-                            newUser.availableConnections =  STANDARD_CONN;
-                            hasBundle = true;
-                        }
-                        else if (newUser.bundle === 'premium'){
-                            newUser.availableConnections =  PREMIUM_CONN;
-                            hasBundle = true;
-                        }
-                        else if (newUser.bundle === 'platinum'){
-                            newUser.availableConnections =  PLATINUM_CONN;
-                            hasBundle = true;
-                        }
-                        if (hasBundle){
-                            console.log('has bundle');
-                            return paymentController.charge(newUser.username, newUser.stripeToken, newUser.bundle)
-                            .then( charge => {
-                                return savePractitioner(newUser)
-                                .then ( savedPrac => {
-                                    return Promise.resolve(savedUser);
-                                })
-                                .catch( err => {
-                                    User.destroy({where: { username: newUser.username}})
-                                    return Promise.reject(err)
-                                });
-                            })
-                        }
-                        else{
-                            return savePractitioner(newUser)
-                            .then ( savedPrac => {
-                                return Promise.resolve(savedPrac);
-                            })
-                            .catch( err => {return Promise.reject(err)});
-                        }
-                    })
-                    .catch( err => {return Promise.reject(err)});
-                })
+                return User.create(newUser)
+				.then(savedUser=> {
+					return Promise.resolve(savedUser);
+				})
             })
             .catch(function (err) {
                 return Promise.reject(err);
@@ -174,16 +212,21 @@ function createUser(newUser){
     .catch (err => { return Promise.reject(err) });
 }
 
-function savePractitioner(newUser){
-    console.log('saving prac')
-    newUser.pracUsername = newUser.username;
-    return Practitioner.create(newUser)
-    .then( data => {
-        return authController.sendEmail(newUser)
+//actually saving the practitioner to the database and send verification email to complete the process.
+function savePractitioner(newPrac){
+    console.log('saving practitioner '+ newPrac.username);
+    newPrac.pracUsername = newPrac.username;
+    return Practitioner.create(newPrac)
+    .then( savedPrac => {
+        return authController.sendEmail(newPrac) //have to use newPrac here because we need the username attribute, savedPrac don't have this.
         .then( (data) => {
-            return Promise.resolve(newUser);
+            return Promise.resolve(savedPrac);
         })
-        .catch( err => {console.log('sending email err'); return Promise.reject(err); });
+        .catch( err => {
+			console.log('sending email err'); return Promise.reject(err); 
+		});
     })
-    .catch(err => { console.log('create prac err', err); return Promise.reject(err);})
+    .catch(err => {
+		console.log('create prac err', err); return Promise.reject(err);
+	})
 }

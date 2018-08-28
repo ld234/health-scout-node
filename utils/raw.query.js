@@ -9,11 +9,12 @@ module.exports = {
 function init(){
 	const fileContent = fs.readFileSync(__dirname+'/../db/sqlScripts/init.sql','utf8').split(';');
 	fileContent.forEach( (line, idx) => {
+		console.log(line);
 		sequelize.query(line, { type: sequelize.QueryTypes.INSERT})
-		.then(res => {
-			console.log(res)
+		.then((res,meta) => {
+			console.log(res);
 		})
-		.catch( () => {} );
+		.catch( (err) => {console.log(err)} );
 	})
 	
 }

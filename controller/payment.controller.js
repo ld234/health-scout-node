@@ -1,12 +1,13 @@
 var stripe = require('stripe')(process.env.STRIPE_KEY);
-var User =require('../model/user.model');
+const db = require('../utils/create.db');
+const User=db.User;
 
 module.exports = {
     charge,
     subscribe
 }
 
-function charge(username, stripeToken, bundle) {
+function charge(username, stripeToken, bundle) { //charge after registration
     var amount = 0;
     if (bundle === 'standard'){
         amount = 1999;
@@ -17,36 +18,35 @@ function charge(username, stripeToken, bundle) {
     else if (bundle === 'platinum'){
         amount = 4999;
     }
-    return User.findOne({
-        attributes:['email','customerID'],
-        where: {
-            username : username
-        }
-    })
-    .then ( (user) => {
-        if (amount !== 0)
-            return stripe.charges.create({
-                card: stripeToken,
-                currency: 'aud',
-                amount: amount,
-                receipt_email: user.email,
-                customer: user.customerID,
-                description: `Payment by ${username} for ${bundle} bundle.`
-            })
-            .then(charge => {
-                console.log('Charged');
-                return Promise.resolve(charge);
-            })
-            .catch(err => {
-                console.log('failed charge')
-                return Promise.reject({statusCode:400, message:"Invalid card."})
-            });
-        else{
-            return Promise.resolve({message: 'No bundle purchased.'});
-        }
-    })
-    .catch( err => Promise.reject(err));
-    
+	if (amount!==0) {
+		return User.findAll({
+			attributes:['email'],
+			where: {username: username}
+		})
+		.then(users=> {
+			return stripe.charges.create({
+				source: stripeToken,
+				currency: 'aud',
+				amount: amount,
+				receipt_email: users[0].email,
+				description: `Payment by ${username} for ${bundle} bundle.`
+			})
+			.then(charge => {
+				console.log('Charged');
+				return Promise.resolve(charge);
+			})
+			.catch(err => {
+				console.log('failed charge')
+				return Promise.reject({statusCode:400, message:"Invalid card."})
+			});
+		})
+		.catch(err=> {
+			return Promise.reject(err);
+		})
+	}
+	else {
+		return Promise.resolve({message: 'No bundle purchased.'});
+	}
 }
 
 function createCustomer(username,email){
@@ -60,7 +60,7 @@ function createCustomer(username,email){
     .catch(err => { return Promise.reject(err)} );
 }
 
-function subscribe(username,email){
+function subscribe(username,email){ //for a practitioner to subscribe to one of the plans (bundles)
     return createCustomer (username,email)
     .then (customer => {
         return stripe.subscriptions.create({

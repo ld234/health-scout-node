@@ -3,15 +3,15 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var specialtyController = require('../controller/specialty.controller');
 
-router.post('/',auth.auth(),addSpecialty);
-router.get('/',auth.auth(), getSpecialties);
-router.get('/:pracType', auth.auth(), getAvailableSpecialties);
-router.delete('/',auth.auth(),deleteSpecialty);
+router.get('/:pracType', auth.auth(), auth.pracAuth(),getAvailableSpecialties);
+router.post('/',auth.auth(),auth.pracAuth(),addSpecialty);
+router.get('/',auth.auth(), auth.pracAuth(),getSpecialties);
+router.delete('/',auth.auth(),auth.pracAuth(),deleteSpecialty);
 
 module.exports=router;
 
 function getAvailableSpecialties (req,res,next){
-	var pracType = req.param('pracType');
+	var pracType = req.param('pracType'); //':pracType' on URL is a placeholder for the actual pracType in params (example: Dietitian, request becomes GET specialty/Dietitian)
 	if (pracType){
 		specialtyController.getAvailableSpecialties (pracType) 
 		.then( (specialtyList) => {

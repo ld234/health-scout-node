@@ -33,11 +33,23 @@ const fileFilter = (req, file, callback) => {
 
 const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, fileFilter : fileFilter});
 
+router.get('/', auth.auth(), auth.pracAuth(), getDocuments);
 router.post('/',auth.auth(),auth.pracAuth(),upload.single('file'),addDocument);
 router.delete('/',auth.auth(),auth.pracAuth(),deleteDocument);
 router.put('/',auth.auth(),auth.pracAuth(),upload.single('file'),updateDocument);
 
 module.exports = router;
+
+function getDocuments(req,res,next) {
+	var pracUsername=req.user;
+	documentController.getDocuments(pracUsername)
+	.then(documents=> {
+		res.status(200).send(documents);
+	})
+	.catch(err=> {
+		next(err);
+	})
+}
 
 function addDocument(req,res,next) {
 	var newDocument=req.body;
