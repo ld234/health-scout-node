@@ -7,15 +7,27 @@ var fs = require('fs');
 
 const storage = multer.diskStorage({
 	destination: function (req, file, callback){
-		var tmpDir = 'public/tmp/'+req.user+'/';
-		var finalDir = 'public/documents/'+req.user+'/';
-		if (!fs.existsSync(tmpDir)) {
-			fs.mkdirSync(tmpDir);
+		var tmpDir = './public/tmp/'+req.user+'/';
+		var finalDir = './public/documents/'+req.user+'/';
+		if (!fs.existsSync(finalDir)) {
+			fs.mkdir(finalDir,(err)=>{
+				if (err) callback(new Error('cannot create final directory'));
+				else {
+					console.log('final directory created');
+				}
+			})
 		}
-		if(!fs.existsSync(finalDir)) {
-			fs.mkdirSync(finalDir);
-		}		
-		callback(null, tmpDir);
+		if (!fs.existsSync(tmpDir)) {
+			fs.mkdir(tmpDir,function(err){
+				if (err) {
+					callback(new Error('cannot create tmp directory'));
+				}
+				else {callback(null,tmpDir)};
+			})
+		}
+		else {
+			callback(null,tmpDir);
+		}
 	},
 	filename: function (req, file, callback){
 		callback(null, file.originalname);

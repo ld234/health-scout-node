@@ -23,7 +23,7 @@ app.use(express.static('./public'));
 
 //test pdf download at client
 /*var fs=require('fs');
-var qpdf=require('node-pdf');
+var qpdf=require('node-qpdf');
 app.get('/pdfDownload',function(req,res,next){
 	var options = {
 		keyLength: 128,
