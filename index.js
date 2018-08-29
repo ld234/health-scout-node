@@ -21,6 +21,38 @@ app.use(bodyParser.json());
 
 app.use(express.static('./public'));
 
+//test pdf download at client
+/*var fs=require('fs');
+var qpdf=require('node-pdf');
+app.get('/pdfDownload',function(req,res,next){
+	var options = {
+		keyLength: 128,
+		password: 'test',
+		outputFile: './public/clientDocuments/encrypted.pdf'
+	}
+
+	return qpdf.encrypt('./documents/main.pdf', options)
+	.then(filePath=>{
+		console.log(filePath);
+	})
+	.catch(err=>{
+		console.log(err);
+	})
+	
+	//this will also allow you to view the file, and download it with whatever name you like, for example food frequency.pdf
+	var stream = fs.createReadStream('./public/documents/hqh719/main.pdf');
+	var filename = "FoodFrequency.pdf"; 
+	
+	// Ideally this should strip special characters
+	filename = encodeURIComponent(filename);
+	
+
+	res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
+	res.setHeader('Content-type', 'application/pdf');
+
+	stream.pipe(res);
+})*/
+
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/charge', paymentRouter);

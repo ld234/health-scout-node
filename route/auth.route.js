@@ -1,13 +1,14 @@
 const db = require('../utils/create.db');
 const User=db.User;
 var router = require('express').Router();
+
 var authController = require('../controller/auth.controller');
 const jwt = require('../utils/jwt');
 const passport = require('passport');
 const auth = require('../middleware/auth');
 
-router.post('/login', login );
-router.post('/checkAuth', auth.auth(),checkIfAuthenticated);
+router.post('/login', login ); //thid does not go through to authController, but handle directly in middleware router auth.route
+router.post('/checkAuth', auth.auth(),checkIfAuthenticated); //simply put the user through middleware auth.auth() to verify if the token attached is correct.
 router.put('/verifyEmail',verifyEmail);
 router.put('/forgetPassword',requestPasswordReset)
 router.put('/resetPassword',resetPassword)
@@ -21,35 +22,37 @@ function checkIfAuthenticated(req, res, next) {
 /* POST login. */
 function login (req, res, next) {
     console.log('Logging in');
-    passport.authenticate('local', {session: false}, (err, user, info) => {
-        if (err) {
+	//'local' means passport will use the passport-local strategy to authenticate, defined in utils/passport.js
+    passport.authenticate('local', {session: false}, (err, user, info) => { //if authentication fail, user will be set to FALSE. If exception, err will be set to TRUE
+        if (err) { //server exception
 			console.log(err);
             return res.status(400).json({
                 message: err.message,
                 user: user
             });
         }
-        if (!user){
+        if (!user){ //user=false means failed authentication. Need to give a reason why through info.message
             return res.status(400).json({
-                message: err.message,
+				//message:err.message
+				message:info.message,
                 user: user
             });
         }
-        req.login(user, {session: false}, (err) => {
+        req.login(user, {session: false}, (err) => { //if passport authentication is successful, we want the server to generate a token for user to use later in other requests.
             if (err) {
                 res.send(err);
             }
-            // generate a signed json web token with the contents of user object and return it in the response
+            // generate a signed json web token with object being the username of user and return it in the response
             jwt.sign({username: user.username}, (err,token)=>{
                     if (!err)
-                        return res.json({user, token});
+                        return res.json({user, token}); //log in successfully will come here
                     else {
 						console.log(err);
                         next(err);
 					}
             });
         });
-    })(req, res);
+    })(req, res,next);
 }
 
 

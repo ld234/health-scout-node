@@ -2,7 +2,7 @@ var jwt = require('./../utils/jwt');
 var path = require('path');
 var authController = require('../controller/auth.controller');
 
-// Check if a token is valid for a user in general
+// Check if a token is valid for a user in general. This uses the token generated after login
 module.exports.auth = function () {
     return function (req, res, next) {
         var token = req.headers['x-access-token'];

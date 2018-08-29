@@ -129,7 +129,7 @@ function sendEmail(user,callback){
 	});
 }
 
-// Check whether username exists
+// Check whether username exists. Called by middleware auth.auth()
 function checkAuth(user) {
     return User.findOne( {attributes:['username'],where: { username : user.username}})
         .then(function (foundUser) {
@@ -146,7 +146,7 @@ function checkAuth(user) {
         })
 }
 
-//check whether a practitioner username exists
+//check whether a practitioner username exists. Called by middleware auth.pracAuth()
 function checkPracAuth(user) {
     return Practitioner.findOne( { attributes:['pracUsername'] ,where: { pracUsername : user.username}})
         .then(function (foundPractitioner) {
@@ -259,7 +259,6 @@ function createResetLink(foundUser,cb){
                 }
             });
         }
-        
     }
     else{
         cb({

@@ -30,3 +30,29 @@ module.exports = {
 		return Promise.reject(err);
 	})
 }*/
+
+function getFamilyHistory(patientUsername) {
+	return PatientRelation.findAll({
+		attributes:['familyRelation','familyCondition'],
+		where: {patientUsername: patientUsername}
+	})
+	.then(families=> {
+		return Promise.resolve(families);
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	})
+}
+
+function getAllergies(patientUsername) {
+	return PatientAllergy.findAll({
+		attributes: ['allergy','symptom'],
+		where: {patientUsername: patientUsername}
+	})
+	.then(allergies=> {
+		return Promise.resolve(allergies);
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	})
+}

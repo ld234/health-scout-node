@@ -7,7 +7,7 @@ const ExtractJWT = passportJWT.ExtractJwt;
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 
-const cert = fs.readFileSync('utils/key/key.pem');
+const cert = fs.readFileSync('utils/key/key.pem'); //read in the private key
 
 passport.use(new LocalStrategy(
     function (username, password, done) {
@@ -24,34 +24,34 @@ passport.use(new LocalStrategy(
 					return bcrypt.compare(password, user.password)
 					.then (res => {
 						if (res == false){
-							return done({message: 'Incorrect username or password.'}, false);
+							return done(null,false,{message: 'Incorrect username or password.'});
 						}
 						else {
 							User.findOne({
 								attributes: {
-									exclude: ['password','customerID']
+									exclude: ['password']
 								},
 								where: {
 									username: username
 								}
 							})
 							.then ((newUser) => {
-								return done(null, newUser, {message: 'Logged In Successfully'});
+								return done(null, newUser);
 							})
 							.catch( err => done(err));
 						}
 					})
 					.catch(err => done(err));
 				}
-				else{
-					return done({message: 'This account has not been activated.'}, false);
+				else{ //if user is not active yet (not verified by email)
+					return done(null,false,{message: 'This account has not been activated.'});
 				}
 			}
 			else{
-				return done({message: "Incorrect username or password."});
+				return done(null,false,{message: "Incorrect username or password."});
 			}
 		})
-		.catch(err => done(err));
+		.catch(err => done(err)); //server exception occurs, set the error to TRUE
 	}
 ));
 

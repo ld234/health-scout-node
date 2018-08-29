@@ -33,7 +33,6 @@ router.get('/familyHistory',auth.auth(),auth.pracAuth(),getFamilyHistory);
 
 function getFamilyHistory(req,res,next) {
 	var patientUsername=req.query.patientUsername;
-	var pracUsename=req.user;
 	if (!patientUsername) {
 		next({
 			statusCode:400,
@@ -41,7 +40,7 @@ function getFamilyHistory(req,res,next) {
 		})
 	}
 	else {
-		medicalHistoryController.getFamilyHistory(pracUsename,patientUsername)
+		medicalHistoryController.getFamilyHistory(patientUsername)
 		.then(familyList => {
 			res.send({
 				statusCode:200,
@@ -56,7 +55,6 @@ function getFamilyHistory(req,res,next) {
 
 function getAllergies(req,res,next) {
 	var patientUsername=req.query.patientUsername;
-	var pracUsename=req.user;
 	if (!patientUsername) {
 		next({
 			statusCode:400,
@@ -64,7 +62,7 @@ function getAllergies(req,res,next) {
 		})
 	}
 	else {
-		medicalHistoryController.getAllergies(pracUsename,patientUsername)
+		medicalHistoryController.getAllergies(patientUsername)
 		.then(allergies => {
 			res.send({
 				statusCode:200,
