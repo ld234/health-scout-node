@@ -52,7 +52,7 @@ module.exports = (connection) => {
 				}
 			},
 			set(val) {
-				this.setDataValue('dob', moment(val,'DD-MM-YYYY').toDate());
+				this.setDataValue('dob', moment.utc(val,'DD-MM-YYYY').toDate());
 			}
 		},
 		gender: {

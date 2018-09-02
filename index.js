@@ -1,5 +1,7 @@
 var express = require('express');
 var app = express();
+var https=require('https');
+var fs = require('fs');
 var bodyParser = require('body-parser');
 var userRouter = require('./route/user.route');
 var authRouter = require('./route/auth.route');
@@ -53,6 +55,11 @@ app.get('/pdfDownload',function(req,res,next){
 	stream.pipe(res);
 })*/
 
+const options= {
+	key: fs.readFileSync("./utils/sslkeys/private-key.pem"),
+	cert: fs.readFileSync("./utils/sslkeys/cert.pem")
+}
+
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/charge', paymentRouter);
@@ -64,6 +71,10 @@ app.use('/document',documentRouter);
 
 app.use(errorHandler.errorHandler());
 
-app.listen(process.env.PORT, function () {
-    console.log(`HealthScout is listening for incoming requests at: http://localhost:${process.env.PORT}`);
+app.listen(process.env.HTTP_PORT, function () {
+    console.log(`HealthScout is listening for incoming requests at: http://localhost:${process.env.HTTP_PORT}`);
+})
+
+https.createServer(options,app).listen(process.env.HTTPS_PORT, function(){
+	console.log(`HealthScout is listening for incoming requests at: https://localhost:${process.env.HTTPS_PORT}`);
 })

@@ -1,8 +1,9 @@
 const db = require('../utils/create.db');
 const Document = db.Document;
 const Practitioner = db.Practitioner;
-
+const moment = require('moment');
 var Op = require('sequelize').Op;
+
 var authController = require('./auth.controller');
 
 module.exports= {
@@ -44,7 +45,9 @@ function addDocument(newDocument) {
 			pathComps[1]= 'documents'; //pathComps[0] is an empty string because the link begins with '/' => 'tmp' is pathComps[1]
 			var fileNames=pathComps[pathComps.length-1].split('.'); //seperate into ['file','pdf']
 			//replace 'file' with the document title, then attach .pdf
-			newDocument.file = pathComps.slice(0,-1).join('/') + '/'+ newDocument.title+ '.'+ fileNames[fileNames.length-1]; 
+			newDocument.file = pathComps.slice(0,-1).join('/') + '/'+ newDocument.title+ '.'+ fileNames[fileNames.length-1];
+			newDocument.lastModified=moment();
+			console.log(newDocument.lastModified);
 			return Document.create(newDocument);
 		}
 	})
@@ -103,14 +106,17 @@ function updateDocument(updatedDocument) {
 	.then(function(foundDocument) {
 		if (foundDocument) {
 			if (updatedDocument.newTitle !== updatedDocument.oldTitle) { //if newTitle different from oldTitle, we need to update the file link to reflect the change
-				var pathComps = foundDocument.file.split('/'); //seperates into ['tmp','hqh719','file.pdf']
+				var pathComps = foundDocument.file.split('/'); //seperates into ['documents','hqh719','file.pdf']
 				var fileNames=pathComps[pathComps.length-1].split('.'); //seperate into ['file','pdf']
 				//replace 'file' with the document new title, then attach .pdf
 				updatedDocument.file = pathComps.slice(0,-1).join('/') + '/'+ updatedDocument.newTitle+ '.'+ fileNames[fileNames.length-1];
+				console.log(updatedDocument.file);
+				updatedDocument.lastModified=moment();
 				return Document.update({
 					title: updatedDocument.newTitle,
 					description: updatedDocument.description,
-					file: updatedDocument.file
+					file: updatedDocument.file,
+					lastModified: updatedDocument.lastModified,
 				},{
 					where: {
 						pracUsername: updatedDocument.pracUsername,
@@ -121,6 +127,7 @@ function updateDocument(updatedDocument) {
 					return Promise.resolve({ 
 						oldFile: foundDocument.file, // return the old file link for unlinking in document.route
 						updated: updatedDocument,
+						lastModified: curDate.toString(),
 						message: 'updated successfully'
 					});
 				})
@@ -141,9 +148,11 @@ function updateDocument(updatedDocument) {
 					});
 				}
 				else {
+					updatedDocument.lastModified=moment();
 					return Document.update({
 						title: updatedDocument.newTitle,
 						description: updatedDocument.description,
+						lastModified: updatedDocument.lastModified,
 					},{
 						where: {
 							pracUsername: updatedDocument.pracUsername,

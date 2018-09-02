@@ -1,6 +1,4 @@
 const Sequelize = require('sequelize');
-//const connection = require('../db/sql-connection')
-//var Patient = require('./patient.model');
 
 module.exports = (connection) => {
 	return connection.define('PatientAllergy',{
@@ -27,5 +25,3 @@ module.exports = (connection) => {
 		freezeTableName: true
 	});
 }
-	
-//Patient.hasMany(PatientAllergy,{foreignKey: 'patientUsername'});
