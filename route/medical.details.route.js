@@ -4,14 +4,13 @@ var auth = require('../middleware/auth');
 var medicalDetailsController = require('../controller/medical.details.controller');
 module.exports = router;
 
-//router.get('/consultHistory',auth.auth(),auth.pracAuth(),getConsultHistory);
+router.get('/consultHistory',auth.auth(),auth.pracAuth(),getConsultHistory); //get all consultations of patient from every practitioner
 router.get('/allergies',auth.auth(),auth.pracAuth(),getAllergies);
 router.get('/familyHistory',auth.auth(),auth.pracAuth(),getFamilyHistory);
 router.get('/medicationHistory',auth.auth(),auth.pracAuth(),getMedicationHistory);
 
-/*function getConsultHistory(req,res,next) {
+function getConsultHistory(req,res,next) {
 	var patientUsername=req.query.patientUsername;
-	var pracUsename=req.user; //we may need to use this if consultation history does not include this practitioner's own consultations
 	if (!patientUsername) {
 		next({
 			statusCode:400,
@@ -19,7 +18,7 @@ router.get('/medicationHistory',auth.auth(),auth.pracAuth(),getMedicationHistory
 		})
 	}
 	else {
-		medicalHistoryController.getConsultHistory(pracUsename,patientUsername)
+		medicalDetailsController.getConsultHistory(patientUsername)
 		.then(consultList => {
 			res.send({
 				statusCode:200,
@@ -30,7 +29,7 @@ router.get('/medicationHistory',auth.auth(),auth.pracAuth(),getMedicationHistory
 			next(err);
 		})
 	}
-}*/
+}
 
 function getFamilyHistory(req,res,next) {
 	var patientUsername=req.query.patientUsername;

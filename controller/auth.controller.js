@@ -1,6 +1,7 @@
 const db = require('../utils/create.db');
 const User=db.User;
 const Practitioner = db.Practitioner;
+const Patient = db.Patient;
 const Verification = db.Verification;
 
 const crypto = require('crypto');
@@ -30,6 +31,7 @@ smtpTransport.use('compile', hbs(handlebarsOptions));
 module.exports = {
     checkAuth,
 	checkPracAuth,
+	checkPatientAuth,
     verifyEmail,
     sendEmail,
     allowPasswordReset,
@@ -151,12 +153,28 @@ function checkPracAuth(user) {
     return Practitioner.findOne( { attributes:['pracUsername'] ,where: { pracUsername : user.username}})
         .then(function (foundPractitioner) {
             if (foundPractitioner) {
-                console.log('found practitioner')
                 return Promise.resolve(foundPractitioner);
             } else {
-                console.log('not found practitioner')
                 return Promise.reject({
                     message: 'Practitioner Not Found'
+                });
+            }
+        })
+        .catch(function (err) {
+            console.log(err);
+            return Promise.reject(err);
+        })
+}
+
+//check whether a patient username exists. Called by middleware auth.patientAuth()
+function checkPatientAuth(user) {
+    return User.findOne( { attributes:['patientUsername'] ,where: { patientUsername : user.username}})
+        .then(function (foundPatient) {
+            if (foundPatient) {
+                return Promise.resolve(foundPractitioner);
+            } else {
+                return Promise.reject({
+                    message: 'Patient Not Found'
                 });
             }
         })
@@ -257,7 +275,7 @@ function createResetLink(foundUser,cb){
                         message: 'Cannot reset password.'
                     })
                 }
-            });
+            },'3d');
         }
     }
     else{

@@ -12,7 +12,7 @@ module.exports = (connection) => {
 		},
 		title: {
 			type: Sequelize.STRING,
-			primaryKey: true
+			primaryKey: true,
 		},
 		description: {
 			type: Sequelize.STRING,

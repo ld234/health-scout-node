@@ -46,6 +46,7 @@ const fileFilter = (req, file, callback) => {
 const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, fileFilter : fileFilter});
 
 router.get('/', auth.auth(), auth.pracAuth(), getDocuments);
+//router.get('/single',auth.auth(),auth.pracAuth(),getDocument); //when practitioner clicks on the document on screen, it pops up with the actual pdf document
 router.post('/',auth.auth(),auth.pracAuth(),upload.single('file'),addDocument);
 router.delete('/',auth.auth(),auth.pracAuth(),deleteDocument);
 router.put('/',auth.auth(),auth.pracAuth(),upload.single('file'),updateDocument);
@@ -62,6 +63,26 @@ function getDocuments(req,res,next) {
 		next(err);
 	})
 }
+
+/*function getDocument(req,res,next) {
+	var pracUsername=req.user;
+	var title = req.query.title;
+	if (!title) {
+		next({
+			statusCode: 400,
+			message: 'Document title is required'
+		})
+	}
+	documentController.getDocument(pracUsername,title)
+	.then (stream=> {
+		res.setHeader('Content-disposition', 'inline; filename="' + title + '"');
+		res.setHeader('Content-type', 'application/pdf');
+		stream.pipe(res);
+	})
+	.catch(err=> {
+		next(err);
+	})
+}*/
 
 function addDocument(req,res,next) {
 	var newDocument=req.body;

@@ -3,11 +3,13 @@ const Document = db.Document;
 const Practitioner = db.Practitioner;
 const moment = require('moment');
 var Op = require('sequelize').Op;
+const fs =require('fs');
 
 var authController = require('./auth.controller');
 
 module.exports= {
 	getDocuments,
+	//getDocument,
 	addDocument,
 	updateDocument,
 	deleteDocument
@@ -24,6 +26,28 @@ function getDocuments(pracUsername) {
 		return Promise.reject(err);
 	})
 }
+
+/*function getDocument(pracUsername, title) {
+	return Document.findOne({
+		attributes: ['file'],
+		where: [
+			{pracUsername: pracUsername},
+			{title: title}
+		]
+	})
+	.then(document=> {
+		if (document) {
+			var stream = fs.createReadStream('./public'+document.file); //./ because the current directory is the one index.js are in
+			return Promise.resolve(stream);
+		}
+		else {
+			return Promise.reject({
+				statusCode: 400,
+				message: 'Cannot find the file with corresponding title'
+			})
+		}
+	})
+}*/
 
 function addDocument(newDocument) {
 	return Document.findAll({

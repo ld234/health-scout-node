@@ -16,6 +16,8 @@ const DocumentModel= require('../model/document.model');
 const PatientRelationModel= require('../model/patient.relation.model');
 const PatientAllergyModel= require('../model/patient.allergy.model');
 const PatientMedicationModel= require('../model/patient.medication.model');
+const PatientDoctorDocumentModel = require('../model/patient.doctor.document.model');
+const ReceivedDocumentModel = require('../model/received.document.model');
 
 //declare the exported objects
 const User = UserModel(connection);
@@ -31,6 +33,8 @@ const Document = DocumentModel(connection);
 const PatientRelation = PatientRelationModel(connection);
 const PatientAllergy = PatientAllergyModel(connection);
 const PatientMedication= PatientMedicationModel(connection);
+const PatientDoctorDocument= PatientDoctorDocumentModel(connection); //cannot add foreign key to Document the normal way, has to use raw query after syncing
+const ReceivedDocument = ReceivedDocumentModel(connection);
 
 //declare associations
 Verification.belongsTo(User,{foreignKey: 'username'});
@@ -45,10 +49,6 @@ const Consultation = connection.define('Consultation',{
 		type: Sequelize.STRING,
 		primaryKey: true,
 		validate: {
-			/*len: {
-				args: [8,30],
-				msg: 'Please enter username with at lease 8 but max 30 characters'
-			},*/
 			isAlphanumeric: true
 		},
 		references: {
@@ -60,10 +60,6 @@ const Consultation = connection.define('Consultation',{
 		type: Sequelize.STRING,
 		primaryKey: true,
 		validate: {
-			/*len: {
-				args: [8,30],
-				msg: 'Please enter username with at lease 8 but max 30 characters'
-			},*/
 			isAlphanumeric: true
 		},
 		references: {
@@ -97,12 +93,17 @@ Practitioner.hasMany(Document,{foreignKey: 'pracUsername'});
 Patient.hasMany(PatientRelation,{foreignKey: 'patientUsername'});
 Patient.hasMany(PatientAllergy,{foreignKey: 'patientUsername'});
 Patient.hasMany(PatientMedication,{foreignKey: 'patientUsername'});
+Patient.hasMany(PatientDoctorDocument,{foreignKey: 'patientUsername'});
+Patient.hasMany(ReceivedDocument,{foreignKey: 'patientUsername'});
 
 connection.sync().then(() => {
 	RawQuery.init();
+	connection.query("ALTER TABLE PatientDoctorDocument ADD FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title);");
+	connection.query("ALTER TABLE ReceivedDocument ADD FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title);");
+	
 	connection.query('DROP TRIGGER IF EXISTS calc_rating; CREATE TRIGGER calc_rating AFTER UPDATE ON PATIENTDOCTORRELATION '
 						+ 'FOR EACH ROW BEGIN '
-							+ 'UPDATE PRACTITIONER SET rating = (SELECT AVG(rating) FROM PATIENTDOCTORRELATION WHERE pracUsername = NEW.pracUsername AND rating <> NULL) '
+							+ 'UPDATE PRACTITIONER SET rating = (SELECT AVG(rating) FROM PATIENTDOCTORRELATION WHERE pracUsername = NEW.pracUsername AND rating IS NOT NULL) '
 							+ 'WHERE pracUsername=NEW.pracUsername;'
 						+ 'END;')
 	.then((res)=> {
@@ -136,6 +137,6 @@ connection.sync().then(() => {
 });
 
 const db = {User, Patient, Practitioner, Verification, PracTypeSpecialty, RegisteredBusiness, PatientDoctorRelation, Consultation, Specialty, Qualification, Document,
-			PatientRelation, PatientAllergy,PatientMedication};
+				PatientRelation, PatientAllergy,PatientMedication, PatientDoctorDocument, ReceivedDocument};
 			
 module.exports=db;

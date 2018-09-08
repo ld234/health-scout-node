@@ -10,7 +10,7 @@ const auth = require('../middleware/auth');
 router.post('/login', login ); //thid does not go through to authController, but handle directly in middleware router auth.route
 router.post('/checkAuth', auth.auth(),checkIfAuthenticated); //simply put the user through middleware auth.auth() to verify if the token attached is correct.
 router.put('/verifyEmail',verifyEmail);
-router.put('/forgetPassword',requestPasswordReset)
+router.put('/forgetPassword',requestPasswordReset);
 router.put('/resetPassword',resetPassword)
 
 module.exports = router;

@@ -58,3 +58,23 @@ module.exports.pracAuth = function() {
 		})
 	}
 }
+
+//check if a token is valid for a practitioner. Continue from auth() above,
+module.exports.patientAuth = function() {
+	return function (req, res, next) {
+		authController.checkPatientAuth({
+			username: req.user,
+		})
+		.then(function(patient){
+			req.user = patient.dataValues.pracUsername;
+			console.log('Patient found');
+			next();
+		})
+		.catch(err => {
+			res.status(401);
+            res.json({
+                message: "Patient Not authorized"
+            });
+		})
+	}
+}

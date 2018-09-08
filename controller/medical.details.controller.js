@@ -12,16 +12,20 @@ const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.
 });
 
 module.exports = {
-    getAllergies,
+	getConsultHistory,
 	getFamilyHistory,
+    getAllergies,
+	getMedicationHistory
 } 
 
-/*function getConsultHistory(pracUsername, patientUsername) {
+function getConsultHistory(patientUsername) {
 	var sql='SELECT Consultation.title as title, Consultation.consultDate as date, Consultation.summary as summary, '
-			+ 'Consultation.intervention as intervention, CONCAT(User.title," ",User.fName," ",User.lName) as "by"'
+			+ 'Consultation.intervention as intervention, CONCAT(User.title," ",User.fName," ",User.lName) as "by",'
+			+ ' Practitioner.businessName as businessName, Practitioner.businessAddress as businessAddress'
 			+ ' FROM Consultation JOIN Practitioner ON Consultation.pracUsername=Practitioner.pracUsername'
 			+ ' JOIN User ON Practitioner.pracUsername=User.username'
-			+ ' WHERE Consultation.patientUsername=:p';
+			+ ' WHERE Consultation.patientUsername=:p'
+			+ ' ORDER BY Consultation.consultDate DESC;';
 	return sequelize.query(sql,{replacements: {p: patientUsername},type: Sequelize.QueryTypes.SELECT})
 	.then(rows=> {
 		console.log(rows);
@@ -30,7 +34,7 @@ module.exports = {
 	.catch(err=> {
 		return Promise.reject(err);
 	})
-}*/
+}
 
 function getFamilyHistory(patientUsername) {
 	return PatientRelation.findAll({

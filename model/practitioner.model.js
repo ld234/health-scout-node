@@ -13,7 +13,8 @@ module.exports = (connection) => {
 		},
 		customerID: {
 			type : Sequelize.STRING,
-			allowNull : false
+			allowNull : false,
+			unique:true,
 		},
 		pracType: {
 			type: Sequelize.ENUM('Physiotherapist','Dietitian','Exercise physiologist'),

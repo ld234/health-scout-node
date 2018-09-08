@@ -1,6 +1,4 @@
 const Sequelize = require('sequelize');
-//const connection = require('../db/sql-connection')
-var User = require('./user.model');
 
 module.exports = (connection) => {
 	return connection.define('Patient',{
@@ -20,5 +18,3 @@ module.exports = (connection) => {
 		freezeTableName: true
 	});
 }
-
-//Patient.belongsTo(User,{foreignKey: 'patientUsername'});
