@@ -55,3 +55,25 @@ In Client profile:
 					}
 				]
 			}
+			
+Send and view document API
+- For practitioner:
+	- Get a list of documents, including documents that are not sent yet and documents that are sent but not received back from patients:
+		- Request: https://localhost:8080/clients/profile/exchangeDocument?patientUsername=... (GET)
+		- Return: {title, description, patientUsername, status} (status is either 'Send' or 'Delivered')
+	- Send a document to patient
+		- https://localhost:8080/clients/profile/exchangeDocument (POST)
+		- Request body; patientUsername, title
+		- Return: {pracUsername, patientUsername, title}
+	- Get new received documents from patient (documents that paractitioners have not seen yet):
+		- Request: https://localhost:8080/clients/profile/exchangeDocument/newReceivedDocuments?patientUsername=... (GET)
+		- Return: ReceivedDocument (see model/receive.document.model.js). status if false if document is not seen, true if seen
+		- new received documents are received in desceding order of date
+	- Get old received documents from patient: exactly the same, change new to old in the request 
+	- See a document that patient sends back:
+		- Request: https://localhost:8080/clients/profile/exchangeDocument/seeDocument (PUT)
+		- Request body: patientUsername,title
+		- Return: the pdf document that patient has filled in (to be viewed in browser and ready to be downnloaded to practitioner's PC)
+		- Note: to test this feature, create a new folder under root named receivedDocuments. Then a sub-folder named after the pracUsername. 
+		Then inside that are multiple sub-folders named after patientUsername, each corresponding with the documents sent back by a patient.
+		
