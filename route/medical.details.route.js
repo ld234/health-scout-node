@@ -1,7 +1,7 @@
 var router = require('express').Router();
 var path = require('path');
 var auth = require('../middleware/auth');
-var medicalDetailsController = require('../controller/medical.details.controller');
+var medicalHistoryController = require('../controller/medical.details.controller');
 module.exports = router;
 
 router.get('/consultHistory',auth.auth(),auth.pracAuth(),getConsultHistory); //get all consultations of patient from every practitioner
@@ -45,6 +45,28 @@ function getFamilyHistory(req,res,next) {
 			res.send({
 				statusCode:200,
 				message: familyList
+			});
+		})
+		.catch(err=> {
+			next(err);
+		})
+	}
+}
+
+function getMedicationHistory(req,res,next) {
+	var patientUsername=req.query.patientUsername;
+	if (!patientUsername) {
+		next({
+			statusCode:400,
+			message: 'Patient username is required'
+		})
+	}
+	else {
+		medicalHistoryController.getMedicationHistory(patientUsername)
+		.then(medicationList => {
+			res.send({
+				statusCode:200,
+				message: medicationList
 			});
 		})
 		.catch(err=> {

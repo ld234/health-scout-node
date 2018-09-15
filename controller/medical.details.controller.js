@@ -2,7 +2,7 @@ const db = require('../utils/create.db');
 const Consultation=db.Consultation;
 const PatientRelation = db.PatientRelation;
 const PatientAllergy = db.PatientAllergy;
-const PatientMedication=db.PatientMedication;
+const Medication=db.Medication;
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
@@ -15,7 +15,7 @@ module.exports = {
 	getConsultHistory,
 	getFamilyHistory,
     getAllergies,
-	getMedicationHistory
+	getMedicationHistory,
 } 
 
 function getConsultHistory(patientUsername) {
@@ -49,6 +49,21 @@ function getFamilyHistory(patientUsername) {
 	})
 }
 
+function getMedicationHistory(patientUsername) {
+	return Medication.findAll({
+		attributes: {
+			excludes: ['patientUsername'],
+		},
+		where: {patientUsername: patientUsername}
+	})
+	.then(medications=> {
+		return Promise.resolve(medications);
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	})
+}
+
 function getAllergies(patientUsername) {
 	return PatientAllergy.findAll({
 		attributes: ['allergy','symptom'],
@@ -58,18 +73,6 @@ function getAllergies(patientUsername) {
 		return Promise.resolve(allergies);
 	})
 	.catch(err=> {
-		return Promise.reject(err);
-	})
-}
-
-function getMedicationHistory(patientUsername) {
-	return PatientMedication.findAll({
-		where: {patientUsername: patientUsername}
-	})
-	.then(medications=>{
-		return Promise.resolve(medications);
-	})
-	.catch(err=>{
 		return Promise.reject(err);
 	})
 }
