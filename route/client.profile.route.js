@@ -9,16 +9,11 @@ module.exports = router;
 
 router.put('/',auth.auth(),auth.pracAuth(),viewClientProfile);
 router.post('/consultation',auth.auth(),auth.pracAuth(),addConsultation);
-<<<<<<< HEAD
 router.get('/consultation',auth.auth(),auth.pracAuth(),getConsultations); //get the consultation history by the me (the current practitioner only)
 router.put('/consultation',auth.auth(),auth.pracAuth(),updateConsultation);
-router.use('/exchangeDocument',exchangeDocumentRouter); //redirect to handle exchange document requests
-router.use('/medicalDetails',medicalDetailsRouter); //redirect medical details to medicalHistoryRouter
-=======
 router.get('/consultation',auth.auth(),auth.pracAuth(),getConsultations); //get all of patient's consultation history
 router.use('/medicalDetails',auth.auth(),auth.pracAuth(),medicalDetailsRouter); //redirect medical history to medicalHistoryRouter
 
->>>>>>> 210ca8cf1fe695a9a518e90ddf85cbabc544d443
 
 function viewClientProfile(req,res,next) { //practitioner click on a client to see his or her profile.Change status seen to true in PatientDoctorRelation (if not already is)
 	var patientUsername= req.body.patientUsername;
