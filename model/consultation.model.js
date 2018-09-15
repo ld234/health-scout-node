@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
-//const connection = require('../db/sql-connection');
-//var PatientDoctorRelation = require('./patient.doctor.relation.model');
+const moment = require('moment');
 
 module.exports = (connection) => {
 	return connection.define('Consultation',{
@@ -36,7 +35,19 @@ module.exports = (connection) => {
 		},
 		consultDate: {
 			type: Sequelize.DATEONLY,
-			primaryKey: true
+			primaryKey: true,
+			get(){
+				let time = this.getDataValue('consultDate');
+				if (moment(time,moment.ISO_8601,true).isValid()){
+					return moment.utc(this.getDataValue('consultDate')).format('DD-MM-YYYY');
+				}
+				else{
+					return time;
+				}
+			},
+			set(val) {
+				this.setDataValue('consultDate', moment.utc(val,'DD-MM-YYYY').toDate());
+			}
 		},
 		title: {
 			type: Sequelize.STRING,

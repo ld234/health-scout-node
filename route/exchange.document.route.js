@@ -2,6 +2,48 @@ var router=require('express').Router();
 var path= require('path');
 var auth = require('../middleware/auth');
 var exchangeDocumentController = require('../controller/exchange.document.controller');
+var multer = require('multer');
+var fs = require('fs');
+
+const storage = multer.diskStorage({
+	destination: function (req, file, callback){
+		var tmpDir = './receivedDocuments/tmp/'+req.user+'/';
+		var patientDir = './receivedDocuments/'+req.user+'/';
+		if (!fs.existsSync(patientDir)) {
+			fs.mkdir(patientDir,function(err){
+				if (err) {
+					callback(new Error('cannot create patient directory'));
+				}
+			})
+		}
+		if (!fs.existsSync(tmpDir)) {
+			fs.mkdir(tmpDir,function(err){
+				if (err) {
+					callback(new Error('cannot create tmp directory'));
+				}
+				else {callback(null,tmpDir)};
+			})
+		}
+		else {
+			callback(null,tmpDir);
+		}
+	},
+	filename: function (req, file, callback){
+		callback(null, file.originalname);
+	}
+});
+
+const fileFilter = (req, file, callback) => {
+	if(file.mimetype === 'application/pdf'){
+		callback(null,true);
+	}
+	else{
+		callback(new Error('Invalid file type.'),false);
+	}
+}
+
+const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, fileFilter : fileFilter});
+
 module.exports=router;
 
 router.get('/', auth.auth(), auth.pracAuth(),getDocumentList);
@@ -10,13 +52,10 @@ router.get('/newReceivedDocuments',auth.auth(),auth.pracAuth(),getNewReceivedDoc
 router.get('/oldReceivedDocuments',auth.auth(),auth.pracAuth(),getOldReceivedDocuments);
 router.put('/seeDocument',auth.auth(),auth.pracAuth(),seeDocument); //can be old or new received document, display pdf on browser(and potentially update status)
 
-/*
- * Begins the request API for patients
-
+//Begins the request API for patients
 router.get('/patient',auth.auth(),auth.patientAuth(),getRequestedDocuments); //for patient, to get a list of all requested documents from prac
-router.get('/download',auth.auth(),auth.patientAuth(),downloadDocument);
-router.post('/upload',auth.auth(),auth.patientAuth(),uploadDocument);
-**/
+//router.get('/download',auth.auth(),auth.patientAuth(),downloadDocument); don't need because documents are in public => can request directly
+router.post('/upload',auth.auth(),auth.patientAuth(),upload.single('file'),uploadDocument);
 
 function getDocumentList(req,res,next) {
 	var pracUsername=req.user;
@@ -132,13 +171,78 @@ function seeDocument(req,res,next) {
 	}
 }
 
-/*function getRequestedDocuments(req,res,next) {
-	var patientUsername-req.user;
+function getRequestedDocuments(req,res,next) {
+	var patientUsername=req.user; //now we get auth from patient instead of practitioner.
+	console.log(patientUsername);
 	exchangeDocumentController.getRequestedDocuments(patientUsername)
 	.then(requestedDocuments=>{
+		//console.log(requestedDocuments);
 		res.status(200).send(requestedDocuments);
 	})
 	.catch(err=>{
 		next(err);
 	})
-}*/
+}
+
+function uploadDocument(req,res,next) {
+	var newDocument=req.body;
+	newDocument.patientUsername=req.user;
+	if (!newDocument.title) {
+		next({
+            statusCode: 400,
+            message: "Document title is required"
+        });
+	}
+	else if (!newDocument.pracUsername) {
+		next({
+            statusCode: 400,
+            message: "Practitioner username is required"
+        });
+	}
+	else if (!req.file) {
+		next({
+            statusCode: 400,
+            message: "Please choose a document"
+        });
+	}
+	else {
+		exchangeDocumentController.uploadDocument(newDocument)
+		.then(document=>{
+			console.log(document);
+			var finalDir='./receivedDocuments/'+document.patientUsername+'/'+document.pracUsername+'/';
+			if (!fs.existsSync(finalDir)) {
+				fs.mkdir(finalDir,function(err){
+					if (err) {
+						throw err;
+					}
+					else {
+						console.log('Final directory created');
+						fs.rename(req.file.path,document.receivedLink,function(err){ //overwrite an existing file with the same title is ok
+							if (err) next(err);
+							else {
+								console.log('File renamed');
+								res.status(200).send(document);
+							}
+						})
+					}
+				})
+			}
+			else {
+				fs.rename(req.file.path,document.receivedLink,function(err){ //overwrite an existing file with the same title is ok
+					if (err) next(err);
+					else {
+						console.log('File renamed');
+						res.status(200).send(document);
+					}
+				})
+			}
+		})
+		.catch(err=>{
+			fs.unlink(req.file.path,function(err){
+				if (err) next(err);
+				console.log('uploaded file is deleted');
+			})
+			next(err);
+		})
+	}
+}

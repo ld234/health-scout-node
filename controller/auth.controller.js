@@ -168,10 +168,10 @@ function checkPracAuth(user) {
 
 //check whether a patient username exists. Called by middleware auth.patientAuth()
 function checkPatientAuth(user) {
-    return User.findOne( { attributes:['patientUsername'] ,where: { patientUsername : user.username}})
+    return Patient.findOne( { attributes:['patientUsername'] ,where: { patientUsername : user.username}})
         .then(function (foundPatient) {
             if (foundPatient) {
-                return Promise.resolve(foundPractitioner);
+                return Promise.resolve(foundPatient);
             } else {
                 return Promise.reject({
                     message: 'Patient Not Found'

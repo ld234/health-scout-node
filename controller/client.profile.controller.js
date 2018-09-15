@@ -1,6 +1,7 @@
 const db = require('../utils/create.db');
 const PatientDoctorRelation = db.PatientDoctorRelation;
 const Consultation= db.Consultation;
+const moment= require('moment');
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
@@ -13,6 +14,7 @@ module.exports = {
 	viewClientProfile,
 	addConsultation,
 	getConsultations,
+	updateConsultation,
 }
 
 function viewClientProfile(patientUsername,pracUsername) {
@@ -137,6 +139,66 @@ function getConsultations(pracUsername, patientUsername) {
 	})
 	.catch(err=> {
 		console.log(err);
+		return Promise.reject(err);
+	})
+}
+
+function updateConsultation(updatedConsultation) {
+	return Consultation.findOne({
+		where: {
+			pracUsername: updatedConsultation.pracUsername,
+			patientUsername: updatedConsultation.patientUsername,
+			consultDate: updatedConsultation.oldConsultDate,
+		}
+	})
+	.then(foundConsultation=>{
+		if (foundConsultation) {
+			return Consultation.update({
+				consultDate: updatedConsultation.newConsultDate,
+				title: updatedConsultation.title,
+				summary: updatedConsultation.summary,
+				intervention: updatedConsultation.intervention
+			},{where:{
+				pracUsername:updatedConsultation.pracUsername,
+				patientUsername:updatedConsultation.patientUsername,
+				consultDate: updatedConsultation.oldConsultDate
+			}})
+			.then(updatedArray=>{
+				if (updatedArray[0]==1) { //exactly one record updated which is what we want
+					let {pracUsername, patientUsername, newConsultDate, title, summary, intervention} = updatedConsultation;
+					return Promise.resolve({
+						consultation: {
+							pracUsername: pracUsername,
+							patientUsername: patientUsername,
+							consultDate: newConsultDate,
+							title: title,
+							summary: summary,
+							intervention: intervention
+						}
+					})
+				}
+				else {
+					return Promise.reject({
+						statusCode:404,
+						message: 'Strange behavior. No row updated or multiple rows updated'
+					})
+				}
+			})
+			.catch(err=>{ //cannot update=> updated consultation may have already exist
+				return Promise.reject({
+					statusCode:404,
+					message: 'Updated consultation already exists'
+				});
+			})
+		}
+		else {
+			return Promise.reject({
+				statusCode:404,
+				message: 'Old consultation not found'
+			})
+		}
+	})
+	.catch(err=>{
 		return Promise.reject(err);
 	})
 }

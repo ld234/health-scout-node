@@ -87,8 +87,8 @@ function updateQualification(updatedQualification) {
 			graduateYear : updatedQualification.oldGraduateYear
 		}
 	})
-	.then(function(foundPractitioners){
-		if (foundPractitioners.length>0) {
+	.then(function(foundQualifications){
+		if (foundQualifications.length>0) {
 			console.log(updatedQualification);
 			return Qualification.update(
 				{
@@ -107,15 +107,14 @@ function updateQualification(updatedQualification) {
 			.then(function(updatedArray){
 				console.log(updatedArray[0]);
 				if (updatedArray[0]==1) { //exactly one row gets updated
-					let { newDegree, newInstitution, newGraduateYear, description, position } = updatedQualification;
+					let { newDegree, newInstitution, newGraduateYear, description} = updatedQualification;
 					return Promise.resolve({ 
 						qualification: {
 							degree: newDegree, 
 							institution: newInstitution, 
 							graduateYear: newGraduateYear, 
 							description: description
-						},
-						position });
+					}});
 				}
 				else {
 					return Promise.reject({
@@ -134,7 +133,7 @@ function updateQualification(updatedQualification) {
 		else {
 			return Promise.reject({
 				statusCode:404,
-				message: 'Practitioner not found'
+				message: 'Qualification not found'
 			})
 		}
 	})

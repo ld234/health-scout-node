@@ -66,7 +66,7 @@ module.exports.patientAuth = function() {
 			username: req.user,
 		})
 		.then(function(patient){
-			req.user = patient.dataValues.pracUsername;
+			req.user = patient.dataValues.patientUsername;
 			console.log('Patient found');
 			next();
 		})
