@@ -15,6 +15,7 @@ const QualificationModel= require('../model/qualification.model');
 const DocumentModel= require('../model/document.model');
 const PatientRelationModel= require('../model/patient.relation.model');
 const PatientAllergyModel= require('../model/patient.allergy.model');
+const MedicationModel= require('../model/medication.model');
 
 //declare the exported objects
 const User = UserModel(connection);
@@ -29,6 +30,7 @@ const Specialty = SpecialtyModel(connection);
 const Document = DocumentModel(connection);
 const PatientRelation = PatientRelationModel(connection);
 const PatientAllergy = PatientAllergyModel(connection);
+const Medication = MedicationModel(connection);
 
 //declare associations
 Verification.belongsTo(User,{foreignKey: 'username'});
@@ -94,13 +96,13 @@ Practitioner.hasMany(Document,{foreignKey: 'pracUsername'});
 
 Patient.hasMany(PatientRelation,{foreignKey: 'patientUsername'});
 Patient.hasMany(PatientAllergy,{foreignKey: 'patientUsername'});
-
+Patient.hasMany(Medication, {foreignKey: 'patientUsername'});
 
 connection.sync().then(() => {
 	RawQuery.init();
 	connection.query('DROP TRIGGER IF EXISTS calc_rating; CREATE TRIGGER calc_rating AFTER UPDATE ON PATIENTDOCTORRELATION '
 						+ 'FOR EACH ROW BEGIN '
-							+ 'UPDATE PRACTITIONER SET rating = (SELECT AVG(rating) FROM PATIENTDOCTORRELATION WHERE pracUsername = NEW.pracUsername AND rating <> NULL) '
+							+ 'UPDATE PRACTITIONER SET rating = (SELECT AVG(rating) FROM PATIENTDOCTORRELATION WHERE pracUsername = NEW.pracUsername AND rating IS NOT NULL) '
 							+ 'WHERE pracUsername=NEW.pracUsername;'
 						+ 'END;')
 	.then((res)=> {
@@ -134,6 +136,6 @@ connection.sync().then(() => {
 });
 
 const db = {User, Patient, Practitioner, Verification, PracTypeSpecialty, RegisteredBusiness, PatientDoctorRelation, Consultation, Specialty, Qualification, Document,
-			PatientRelation, PatientAllergy};
+			PatientRelation, PatientAllergy, Medication};
 			
 module.exports=db;

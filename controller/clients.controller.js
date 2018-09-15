@@ -73,12 +73,14 @@ function seeNewClient(patientUsername,pracUsername) {
 	console.log('see new client');
 	return PatientDoctorRelation.update(
 		{
-			seen:true
+			seen:true,
+			rating: null,
 		},
 		{
 			where: {
 				patientUsername: patientUsername,
 				pracUsername: pracUsername,
+				seen: false
 			}
 		})
 	.then(function(rowsUpdated){

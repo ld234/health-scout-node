@@ -9,7 +9,7 @@ module.exports = router;
 router.put('/',auth.auth(),auth.pracAuth(),viewClientProfile);
 router.post('/consultation',auth.auth(),auth.pracAuth(),addConsultation);
 router.get('/consultation',auth.auth(),auth.pracAuth(),getConsultations); //get all of patient's consultation history
-router.use('/medicalDetais',auth.auth(),auth.pracAuth(),medicalDetailsRouter); //redirect medical history to medicalHistoryRouter
+router.use('/medicalDetails',auth.auth(),auth.pracAuth(),medicalDetailsRouter); //redirect medical history to medicalHistoryRouter
 
 
 function viewClientProfile(req,res,next) { //practitioner click on a client to see his or her profile.Change status seen to true in PatientDoctorRelation (if not already is)

@@ -64,20 +64,12 @@ function checkUserDetails(newUser){
 
 function checkPractitionerDetails(business,medicalProviderNumber) { 
     var invalidFields = [];
-	console.log(business);
-    return RegisteredBusiness.findOne({ attribute:['ABN'], where : {ABN: business.abn}})
+	// console.log(business);
+    return RegisteredBusiness.findOne({ attribute:['ABN',], where : {ABN: business.abn}})
     .then(foundABN => {
         if (!foundABN){ //if abn cannot be found among those in RegisteredBusiness, that means an error
             invalidFields.push('ABN');
         }
-		else {
-			if (foundABN.businessName!==business.name) {
-				invalidFields.push('businessName');
-			}
-			if (foundABN.businessAddress!==business.address) {
-				invalidFields.push('businessAddress');
-			}
-		}
 		return Practitioner.findOne({attribute: ['medicalProviderNum'], where : {medicalProviderNum: medicalProviderNumber}})
 		.then (foundMedProviderNum => {
 			if(foundMedProviderNum){ //if another medical provider number already registers with the same num, must be an error

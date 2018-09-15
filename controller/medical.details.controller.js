@@ -2,6 +2,7 @@ const db = require('../utils/create.db');
 const Consultation=db.Consultation;
 const PatientRelation = db.PatientRelation;
 const PatientAllergy = db.PatientAllergy;
+const Medication = db.Medication;
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
@@ -13,6 +14,7 @@ const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.
 module.exports = {
     getAllergies,
 	getFamilyHistory,
+	getMedicationHistory,
 } 
 
 /*function getConsultHistory(pracUsername, patientUsername) {
@@ -38,6 +40,21 @@ function getFamilyHistory(patientUsername) {
 	})
 	.then(families=> {
 		return Promise.resolve(families);
+	})
+	.catch(err=> {
+		return Promise.reject(err);
+	})
+}
+
+function getMedicationHistory(patientUsername) {
+	return Medication.findAll({
+		attributes: {
+			excludes: ['patientUsername'],
+		},
+		where: {patientUsername: patientUsername}
+	})
+	.then(medications=> {
+		return Promise.resolve(medications);
 	})
 	.catch(err=> {
 		return Promise.reject(err);
