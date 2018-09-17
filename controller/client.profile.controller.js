@@ -1,7 +1,6 @@
 const db = require('../utils/create.db');
 const PatientDoctorRelation = db.PatientDoctorRelation;
 const Consultation= db.Consultation;
-const moment= require('moment');
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{

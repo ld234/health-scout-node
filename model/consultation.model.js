@@ -35,7 +35,7 @@ module.exports = (connection) => {
 		},
 		consultDate: {
 			type: Sequelize.DATEONLY,
-			primaryKey: true,
+			allowNull: false,
 			get(){
 				let time = this.getDataValue('consultDate');
 				if (moment(time,moment.ISO_8601,true).isValid()){

@@ -99,6 +99,12 @@ function updateConsultation(req,res,next) {
 			message: 'New Consult Date is required'
 		})
 	}
+	else if (!updatedConsultation.title) {
+		next({
+			statusCode:400,
+			message: 'Title is required'
+		})
+	}
 	else {
 		clientProfileController.updateConsultation(updatedConsultation)
 		.then(consultation=>{
