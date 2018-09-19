@@ -135,7 +135,8 @@ function updateDocument(updatedDocument) {
 				//replace 'file' with the document new title, then attach .pdf
 				updatedDocument.file = pathComps.slice(0,-1).join('/') + '/'+ updatedDocument.newTitle+ '.'+ fileNames[fileNames.length-1];
 				console.log(updatedDocument.file);
-				updatedDocument.lastModified=moment();
+				var curDate=moment();
+				updatedDocument.lastModified=curDate;
 				return Document.update({
 					title: updatedDocument.newTitle,
 					description: updatedDocument.description,
@@ -156,10 +157,11 @@ function updateDocument(updatedDocument) {
 					});
 				})
 				.catch(err=> {
-					return Promise.reject({
+					/*return Promise.reject({
 						statusCode:400,
 						message: 'Updated document already exists'
-					});
+					});*/
+					return Promise.reject(err);
 				})
 			}
 			else { //if newTitle is just the same as oldTitle, we don't need to update the file link

@@ -98,8 +98,12 @@ Patient.hasMany(Medication, {foreignKey: 'patientUsername'});
 
 connection.sync().then(() => {
 	RawQuery.init();
-	connection.query("ALTER TABLE PatientDoctorDocument ADD FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title);");
-	connection.query("ALTER TABLE ReceivedDocument ADD FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title);");
+	connection.query('ALTER TABLE PatientDoctorDocument DROP FOREIGN KEY FK_Document;');
+	connection.query('ALTER TABLE ReceivedDocument DROP FOREIGN KEY FK_Received_Document;');
+	connection.query('ALTER TABLE PatientDoctorDocument ADD CONSTRAINT FK_Document FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title) '
+					+ 'ON UPDATE CASCADE ON DELETE CASCADE;');
+	connection.query('ALTER TABLE ReceivedDocument ADD CONSTRAINT FK_Received_Document FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title) '
+					+ 'ON UPDATE CASCADE ON DELETE CASCADE;');
 	
 	connection.query('DROP TRIGGER IF EXISTS calc_rating; CREATE TRIGGER calc_rating AFTER UPDATE ON PATIENTDOCTORRELATION '
 						+ 'FOR EACH ROW BEGIN '

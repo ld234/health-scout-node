@@ -190,7 +190,7 @@ function seeDocument(document) {
 				})
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
-						return fs.createReadStream('.'+foundDocument.receivedLink)
+						return fs.createReadStream(foundDocument.receivedLink)
 						.then(stream=>{
 							return Promise.resolve(stream);
 						})
