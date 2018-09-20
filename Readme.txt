@@ -88,5 +88,7 @@ Resend Verification: https://localhost:8080/auth/resendVerification (POST)
 	- body: username, email, fName
 	- return: username, verification
 	
-
+Purchase bundle after registration: https://localhost:8080/charge/ (PUT)
+	- body: bundle (standard, premium, platinum); stripeToken and pracUsername taken from x-access-token
+	- return: nothing because status code is 204 No Content.
 		

@@ -19,7 +19,7 @@ module.exports = {
     createUser: createUser,
     checkUserDetails: checkUserDetails,
     checkPractitionerDetails,
-	createPractitioner
+	createPractitioner,
     // updateUser: updateUser
 } 
 
@@ -128,7 +128,7 @@ function createPractitioner(newPrac) {
 			else {
 				console.log('Customer '+newPrac.customerID+' does not want a bundle');
 			}
-			return paymentController.charge(newPrac.username, newPrac.stripeToken, newPrac.bundle)
+			return paymentController.pracCharge(newPrac.username, newPrac.stripeToken, newPrac.bundle)
 			.then( charge => { //this can be no charge if the practitioner does not select a bundle
 				return savePractitioner(newPrac)
 				.then ( savedPrac => {

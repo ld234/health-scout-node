@@ -202,7 +202,7 @@ function checkAuth(user) {
 //check whether a practitioner username exists. Called by middleware auth.pracAuth()
 function checkPracAuth(user) {
     return Practitioner.findOne( { attributes:['pracUsername'] ,where: { pracUsername : user.username}})
-        .then(function (foundPractitioner) {
+        .then(function (foundPractitioner) { 
             if (foundPractitioner) {
                 return Promise.resolve(foundPractitioner);
             } else {
