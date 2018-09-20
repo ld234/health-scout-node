@@ -77,3 +77,16 @@ Send and view document API
 		- Note: to test this feature, create a new folder under root named receivedDocuments. Then a sub-folder named after the pracUsername. 
 		Then inside that are multiple sub-folders named after patientUsername, each corresponding with the documents sent back by a patient.
 		
+- For patient:
+	- Get a list of requested documents from practitioners: https://localhost:8080/clients/profile/exchangeDocument/patient (GET)
+		- Return: patientUsername, title, pracUsername, description, file (the link to download the file from public/documents), doctorName (Example: Mr Kevin Ha, Dietitian),
+		
+	- Upload a document to send back to practitioner: https://localhost:8080/clients/profile/exchangeDocument/upload (POST)
+		- Body: pracUsername, title (same as the title of the practitioner's document), file (the file to be uploaded)
+		
+Resend Verification: https://localhost:8080/auth/resendVerification (POST)
+	- body: username, email, fName
+	- return: username, verification
+	
+
+		
