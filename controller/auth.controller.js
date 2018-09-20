@@ -98,37 +98,88 @@ function verifyEmail(token){
 
 // Send email to registered user
 function sendEmail(user,callback){
-    var rand = crypto.randomBytes(2).toString('hex');
-    jwt.sign({username: user.username,verification: rand}, function(err,token){
-        var link=`${process.env.ROOT_URL}/verify?id=${token}`;
-        mailOptions={
-            to: user.email, 
-            subject : "Welcome to HealthScout",
-            template : 'registration-verification-email',
-            context: {
-                fName: user.fName,
-                url: link
-            }        
-        }
-        smtpTransport.sendMail(mailOptions)
-		.then( response => {
-			console.log(rand,'email sent successfully');
-		})
-		.catch( err => {
-			console.log(err);
-        });            
-    } ,'3d');
-	var newVerification = {  
-		username: user.username,
-		verification: rand
-	};
-	return Verification.create(newVerification)
-	.then (function (data) {
-		return Promise.resolve(data);
+	return User.findOne({
+		where: {
+			username: user.username,
+			email: user.email,
+			active: false
+		}
 	})
-	.catch(function(err){
+	.then(fUser=>{
+		if (fUser) {
+			var rand = crypto.randomBytes(2).toString('hex');
+			jwt.sign({username: user.username,verification: rand}, function(err,token){
+				var link=`${process.env.ROOT_URL}/verify?id=${token}`;
+				mailOptions={
+					to: user.email, 
+					subject : "Welcome to HealthScout",
+					template : 'registration-verification-email',
+					context: {
+						fName: user.fName,
+						url: link
+					}        
+				}
+				smtpTransport.sendMail(mailOptions)
+				.then( response => {
+					console.log(rand,'email sent successfully');
+				})
+				.catch( err => {
+					console.log(err);
+				});            
+			} ,'3d');
+			var newVerification = {  
+				username: user.username,
+				verification: rand
+			};
+			return Verification.findOne({
+				where: {
+					username: newVerification.username
+				}
+			})
+			.then(foundUser=>{
+				if (foundUser) {
+					return Verification.update({
+						verification: newVerification.verification,
+					},
+					{where: {
+						username: newVerification.username
+					}})
+					.then(numsUpdated=>{
+						if (numsUpdated==1) {
+							return Promise.resolve(newVerification);
+						}
+						else {
+							return Promise.reject({
+								statusCode:400,
+								message: 'Unexpected behavior. Cannot update verification of user'
+							})
+						}
+					})
+				}
+				else {
+					return Verification.create(newVerification)
+					.then (function (data) {
+						return Promise.resolve(data);
+					})
+					.catch(function(err){
+						return Promise.reject(err);
+					});
+				}
+			})
+			.catch(err=>{
+				return Promise.reject(err);
+			})
+		}
+		else {
+			return Promise.reject({
+				statusCode:400,
+				message:'User does not exists or active already/email is incorrect'
+			})
+		}
+	})
+	.catch(err=>{
 		return Promise.reject(err);
-	});
+	})
 }
 
 // Check whether username exists. Called by middleware auth.auth()

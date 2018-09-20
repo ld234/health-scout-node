@@ -11,7 +11,8 @@ router.post('/login', login ); //thid does not go through to authController, but
 router.post('/checkAuth', auth.auth(),checkIfAuthenticated); //simply put the user through middleware auth.auth() to verify if the token attached is correct.
 router.put('/verifyEmail',verifyEmail);
 router.put('/forgetPassword',requestPasswordReset);
-router.put('/resetPassword',resetPassword)
+router.put('/resetPassword',resetPassword);
+router.post('/resendVerification',resendVerification);
 
 module.exports = router;
 
@@ -102,4 +103,35 @@ function resetPassword(req, res, next) {
                 next(err);
             })
     }
+}
+
+function resendVerification(req,res,next) {
+	var user = req.body;
+	if (!user.username) {
+		next({
+            statusCode: 400,
+            message: "username is required"
+        })
+	}
+	else if (!user.email) {
+		next({
+            statusCode: 400,
+            message: "email is required"
+        })
+	}
+	else if (!user.fName) {
+		next({
+            statusCode: 400,
+            message: "First Name is required"
+        })
+	}
+	else {
+		authController.sendEmail(user)
+		.then(data=>{
+			res.status(200).send(data);
+		})
+		.catch(err=>{
+			next(err);
+		})
+	}
 }

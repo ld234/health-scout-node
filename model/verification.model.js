@@ -1,6 +1,4 @@
 const Sequelize = require('sequelize');
-//const connection = require('../db/sql-connection');
-//const User = require('./user.model');
 
 module.exports = (connection) => {
 	return connection.define('verification',{
@@ -11,13 +9,10 @@ module.exports = (connection) => {
 		},
 		verification:{
 			type: Sequelize.STRING(100),
-			allowNull: false,
-			unique: true
+			allowNull: false
 		},
 	}, {
 		timestamps: false,
 		freezeTableName: true
 	});
 }
-
-//Verification.belongsTo(User,{foreignKey: 'username'});
