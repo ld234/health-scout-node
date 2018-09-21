@@ -191,15 +191,6 @@ function seeDocument(document) {
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
 						return fs.createReadStream(foundDocument.receivedLink);
-						/*.then(stream=>{
-							return Promise.resolve(stream);
-						})
-						.catch(err=>{
-							return Promise.reject({
-								statusCode:404,
-								message: 'Cannot find the specified document'
-							})
-						})*/
 					}
 					else {
 						return Promise.reject({
@@ -213,16 +204,7 @@ function seeDocument(document) {
 				})
 			}
 			else { //no need to update
-				return fs.createReadStream(foundDocument.receivedLink)
-				.then(stream=>{
-					return Promise.resolve(stream);
-				})
-				.catch(err=>{
-					return Promise.reject({
-						statusCode:404,
-						message: 'Cannot find the specified document'
-					})
-				})
+				return fs.createReadStream(foundDocument.receivedLink);
 			}
 		}
 		else {
