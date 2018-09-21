@@ -32,8 +32,8 @@ const Specialty = SpecialtyModel(connection);
 const Document = DocumentModel(connection);
 const PatientRelation = PatientRelationModel(connection);
 const PatientAllergy = PatientAllergyModel(connection);
-const PatientDoctorDocument= PatientDoctorDocumentModel(connection); //cannot add foreign key to Document the normal way, has to use raw query after syncing
-const ReceivedDocument = ReceivedDocumentModel(connection);
+const PatientDoctorDocument= PatientDoctorDocumentModel(connection,Document); //cannot add foreign key to Document the normal way, has to use raw query after syncing
+const ReceivedDocument = ReceivedDocumentModel(connection,Document);
 const Medication = MedicationModel(connection);
 
 //declare associations
@@ -98,12 +98,28 @@ Patient.hasMany(Medication, {foreignKey: 'patientUsername'});
 
 connection.sync().then(() => {
 	RawQuery.init();
-	connection.query('ALTER TABLE PatientDoctorDocument DROP FOREIGN KEY FK_Document;');
-	connection.query('ALTER TABLE ReceivedDocument DROP FOREIGN KEY FK_Received_Document;');
-	connection.query('ALTER TABLE PatientDoctorDocument ADD CONSTRAINT FK_Document FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title) '
+	
+	connection.query('SELECT * FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME= "FK_Document";',{type:Sequelize.QueryTypes.SELECT})
+	.then(rows=>{
+		if (rows.length==0) {
+			connection.query('ALTER TABLE PatientDoctorDocument ADD CONSTRAINT FK_Document FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title) '
 					+ 'ON UPDATE CASCADE ON DELETE CASCADE;');
-	connection.query('ALTER TABLE ReceivedDocument ADD CONSTRAINT FK_Received_Document FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title) '
-					+ 'ON UPDATE CASCADE ON DELETE CASCADE;');
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+	})
+	
+	connection.query('SELECT * FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME= "FK_Received_Document";',{type:Sequelize.QueryTypes.SELECT})
+	.then(rows=>{
+		if (rows.length==0) {
+			connection.query('ALTER TABLE ReceivedDocument ADD CONSTRAINT FK_Received_Document FOREIGN KEY (pracUsername,title) REFERENCES Document(pracUsername,title) '
+				+ 'ON UPDATE CASCADE ON DELETE CASCADE;');
+		}
+	})
+	.catch(err=>{
+		console.log(err);
+	})
 	
 	connection.query('DROP TRIGGER IF EXISTS calc_rating; CREATE TRIGGER calc_rating AFTER UPDATE ON PATIENTDOCTORRELATION '
 						+ 'FOR EACH ROW BEGIN '

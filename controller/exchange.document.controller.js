@@ -190,8 +190,8 @@ function seeDocument(document) {
 				})
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
-						return fs.createReadStream(foundDocument.receivedLink)
-						.then(stream=>{
+						return fs.createReadStream(foundDocument.receivedLink);
+						/*.then(stream=>{
 							return Promise.resolve(stream);
 						})
 						.catch(err=>{
@@ -199,7 +199,7 @@ function seeDocument(document) {
 								statusCode:404,
 								message: 'Cannot find the specified document'
 							})
-						})
+						})*/
 					}
 					else {
 						return Promise.reject({
