@@ -1,7 +1,7 @@
 var router = require('express').Router();
 var path = require('path');
 var auth = require('../middleware/auth');
-var medicalHistoryController = require('../controller/medical.details.controller');
+var medicalDetailsController = require('../controller/medical.details.controller');
 module.exports = router;
 
 router.get('/consultHistory',auth.auth(),auth.pracAuth(),getConsultHistory); //get all consultations of patient from every practitioner
@@ -62,7 +62,7 @@ function getMedicationHistory(req,res,next) {
 		})
 	}
 	else {
-		medicalHistoryController.getMedicationHistory(patientUsername)
+		medicalDetailsController.getMedicationHistory(patientUsername)
 		.then(medicationList => {
 			res.send({
 				statusCode:200,
