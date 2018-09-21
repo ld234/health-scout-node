@@ -42,6 +42,7 @@ router.post('/prac',upload.single('profilePic'),createPractitioner); //this is d
 router.post('/checkUserDetails', checkUserDetails);
 router.post('/checkPracDetails', checkPractitionerDetails);
 router.put('/', auth.auth(), updateUser);
+router.put('/changePassword',auth.auth(),changePassword);
 
 module.exports = router;
 
@@ -187,4 +188,42 @@ function createPractitioner(req,res,next) {
                 next(err);
             })
     }
+}
+
+function changePassword(req,res,next) {
+	var passwords = req.body;
+	passwords.username=req.user;
+	if (!passwords.oldPassword) {
+		next({
+			statusCode:400,
+			message: 'Old password is required'
+		})
+	}
+	else if (!passwords.newPassword) {
+		next({
+			statusCode:400,
+			message: 'New password is required'
+		})
+	}
+	else if (!passwords.confirmPassword) {
+		next({
+			statusCode:400,
+			message: 'Please confirm your password'
+		})
+	}
+	else if (passwords.confirmPassword !== passwords.newPassword) {
+		next({
+			statusCode:400,
+			message: 'Confirmed password does not match'
+		})
+	}
+	else {
+		userController.changePassword(passwords)
+		.then(data=>{
+			res.status(204).send(data);
+		})
+		.catch(err=>{
+			next(err);
+		})
+	}
 }
