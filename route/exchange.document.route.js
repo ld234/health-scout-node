@@ -50,7 +50,7 @@ router.get('/', auth.auth(), auth.pracAuth(),getDocumentList);
 router.post('/', auth.auth(), auth.pracAuth(),sendDocument);
 router.get('/newReceivedDocuments',auth.auth(),auth.pracAuth(),getNewReceivedDocuments);
 router.get('/oldReceivedDocuments',auth.auth(),auth.pracAuth(),getOldReceivedDocuments);
-router.put('/seeDocument',auth.auth(),auth.pracAuth(),seeDocument); //can be old or new received document, display pdf on browser(and potentially update status)
+router.get('/seeDocument',auth.auth(),auth.pracAuth(),seeDocument); //can be old or new received document, display pdf on browser(and potentially update status)
 
 //Begins the request API for patients
 router.get('/patient',auth.auth(),auth.patientAuth(),getRequestedDocuments); //for patient, to get a list of all requested documents from prac

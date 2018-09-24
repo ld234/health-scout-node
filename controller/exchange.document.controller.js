@@ -179,7 +179,7 @@ function seeDocument(document) {
 	.then(foundDocument=>{
 		if (foundDocument) {
 			if (!foundDocument.status) { //if this is a new received document (unseen)
-				ReceivedDocument.update({
+				return ReceivedDocument.update({
 					status:true,
 				},{
 					where: {
