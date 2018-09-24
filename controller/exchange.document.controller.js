@@ -5,6 +5,7 @@ const Patient = db.Patient;
 const ReceivedDocument = db.ReceivedDocument;
 const fs = require('fs');
 const moment = require('moment');
+const path = require('path');
 
 module.exports = {
 	getDocumentList,
@@ -13,7 +14,8 @@ module.exports = {
 	getNewReceivedDocuments,
 	seeDocument,
 	getRequestedDocuments,
-	uploadDocument
+	uploadDocument,
+	getSingleDocument
 }
 
 const Sequelize=require('sequelize');
@@ -179,7 +181,7 @@ function seeDocument(document) {
 	.then(foundDocument=>{
 		if (foundDocument) {
 			if (!foundDocument.status) { //if this is a new received document (unseen)
-				ReceivedDocument.update({
+				return ReceivedDocument.update({
 					status:true,
 				},{
 					where: {
@@ -190,7 +192,10 @@ function seeDocument(document) {
 				})
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
-						return fs.createReadStream(foundDocument.receivedLink);
+						console.log(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
+						const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink), );
+						console.log('stream is undefined?', JSON.stringify(stream,0,2));
+						return stream;
 					}
 					else {
 						return Promise.reject({
@@ -204,7 +209,10 @@ function seeDocument(document) {
 				})
 			}
 			else { //no need to update
-				return fs.createReadStream(foundDocument.receivedLink);
+				console.log('in here');
+				const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
+				console.log(JSON.stringify(stream, 0,4 ));
+				return stream;
 			}
 		}
 		else {
@@ -217,6 +225,33 @@ function seeDocument(document) {
 	.catch(err=>{
 		return Promise.reject(err);
 	})
+}
+
+function getSingleDocument(document) {
+	console.log('doc', document);
+	return ReceivedDocument.findOne({
+		where: [
+			{pracUsername: document.pracUsername},
+			{patientUsername: document.patientUsername},
+			{title: document.title}
+		]
+	})
+	.then(foundDocument=>{
+		console.log(foundDocument);
+		if (foundDocument) {
+			const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
+			return stream;
+		} else {
+			return Promise.reject({
+				statusCode:400,
+				message: 'Unexpected behavior. No document updated or multiple documents updated'
+			})
+		}
+	})
+	.catch(err=>{
+		console.log('err',err)
+		return Promise.reject(err);
+	});
 }
 
 function getRequestedDocuments(patientUsername) {
