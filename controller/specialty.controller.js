@@ -36,26 +36,36 @@ function getAvailableSpecialties(pracType){
 }
 
 function createSpecialty(newSpecialty) {
-	return Specialty.findAll({
-		atributes: ['pracUsername','specialty'],
-		where: {[Op.and]:[
-			{pracUsername : newSpecialty.pracUsername},
-			{specialty:newSpecialty.specialty}
-		]
-	}})
-	.then((foundSpecialties) => {
-		if (foundSpecialties.length>0) {
+	return PracTypeSpecialty.findAll( {where: {specialtyName: newSpecialty.specialty} })
+	.then(foundSpecialties => {
+		if (foundSpecialties.length == 0) {
 			return Promise.reject({
 				statusCode: 400,
-				message: 'Specialty already existed'
+				message: 'Specialty does not exist'
             });
 		}
 		else {
-			console.log('new specialty', newSpecialty);
-			return Specialty.create(newSpecialty);
+			return Specialty.findAll({
+				atributes: ['pracUsername','specialty'],
+				where: {[Op.and]:[
+					{pracUsername : newSpecialty.pracUsername},
+					{specialty:newSpecialty.specialty}
+				]
+			}})
+			.then((foundSpecialties) => {
+				if (foundSpecialties.length>0) {
+					return Promise.reject({
+						statusCode: 400,
+						message: 'Specialty already existed'
+					});
+				}
+				else {
+					console.log('new specialty', newSpecialty);
+					return Specialty.create(newSpecialty);
+				}
+			})
 		}
 	})
-	
 }
 
 function deleteSpecialty(deletedSpecialty) {
