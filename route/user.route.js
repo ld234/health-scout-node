@@ -37,7 +37,7 @@ const upload = multer({storage: storage, limits : {fileSize: 1024 * 1024 * 10}, 
 
 
 router.get('/', auth.auth(), getUser);
-router.post('/', upload.single('profilePic'), createUser); //this is done for general user who only wants to register as a patient.
+router.post('/patient', upload.single('profilePic'), createPatient); //this is done for general user who only wants to register as a patient.
 router.post('/prac',upload.single('profilePic'),createPractitioner); //this is done after the createUser() one, if the user wants to register as a practitioner as well
 router.post('/checkUserDetails', checkUserDetails);
 router.post('/checkPracDetails', checkPractitionerDetails);
@@ -92,30 +92,30 @@ function checkPractitionerDetails(req, res, next) {
         })
 }
 
-function createUser(req, res, next) {
-    var newUser = req.body;
+function createPatient(req, res, next) {
+    var newPatient = req.body;
     if (req.file)
-	    newUser['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
-    if (!newUser.username) {
+	    newPatient['profilePic'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
+    if (!newPatient.username) {
         next({
             statusCode: 400,
             message: "Username is required"
         })
-    } else if (!newUser.password) {
+    } else if (!newPatient.password) {
         next({
             statusCode: 400,
             message: "Password is required"
         })
-    } else if (!newUser.email) {
+    } else if (!newPatient.email) {
         next({
             statusCode: 400,
             message: "Email is required"
         })
     } else {
-        userController.createUser(newUser)
-            .then(function (user) {
-				console.log('user created', user);
-                res.status(201).send(user);
+        userController.createPatient(newPatient)
+            .then(function (patient) {
+				console.log('patient created', patient);
+                res.status(201).send(patient);
             })
             .catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
 				var uploadDir='public/profilePics/'+req.body.username;

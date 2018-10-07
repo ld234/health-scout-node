@@ -49,6 +49,10 @@ module.exports = (connection) => {
 			type: Sequelize.DECIMAL(3,2),
 			allowNull: true, //allow null because otherwise we have trouble with triggers on PatientDoctorRelation
 		},
+		description: {
+			type: Sequelize.STRING(200),
+			allowNull:true,
+		},
 		viewsToday: {
 			type: Sequelize.DECIMAL(4,0),
 			allowNull: false,
