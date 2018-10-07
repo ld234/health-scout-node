@@ -103,8 +103,8 @@ FOR PATIENT
 	
 - SEARCH FOR PRACTITIONERS
 	- SEARCH BY RADIUS
-		- Request: localhost:PORT/search/radius (POST)
-			- Request body: latitude, longitude, radius (latitude and longitude is the patient's current location)
+		- Request: localhost:PORT/search/radius (GET)
+			- Request params: latitude, longitude, radius (km) (latitude and longitude is the patient's current location)
 			- Return: this is an example
 			[
 				{

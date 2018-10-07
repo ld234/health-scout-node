@@ -3,13 +3,18 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var searchController=require('../controller/search.controller');
 
-router.post('/radius',auth.auth(),auth.patientAuth(),getNearbyPractitioners);
+router.get('/radius',auth.auth(),auth.patientAuth(),getNearbyPractitioners);
+router.get('/others',auth.auth(),auth.patientAuth(),getPractitionersByTypeAndSpecialty);
+
 
 module.exports=router;
 
 function getNearbyPractitioners(req,res,next) {
 	//var patientUsername=req.user;
-	var searchConditions = req.body;
+	var searchConditions={};
+	searchConditions.latitude= req.query.latitude;
+	searchConditions.longitude=req.query.longitude;
+	searchConditions.radius=req.query.radius;
 	if (!searchConditions.latitude) {
 		next({
 			statusCode:400,
@@ -38,4 +43,16 @@ function getNearbyPractitioners(req,res,next) {
 			next(err);
 		})
 	}
+}
+
+function getPractitionersByTypeAndSpecialty(req,res,next) {
+	var pracType = req.query.pracType;
+	var specialty=req.query.specialty;
+	searchController.getPractitionersByType(pracType,specialty)
+	.then(pracList=>{
+		res.status(200).send(pracList);
+	})
+	.catch(err=>{
+		next(err);
+	})
 }
