@@ -48,6 +48,7 @@ module.exports=router;
 
 router.get('/', auth.auth(), auth.pracAuth(),getDocumentList);
 router.post('/', auth.auth(), auth.pracAuth(),sendDocument);
+router.get('/single',getSingleDocument);
 router.get('/newReceivedDocuments',auth.auth(),auth.pracAuth(),getNewReceivedDocuments);
 router.get('/oldReceivedDocuments',auth.auth(),auth.pracAuth(),getOldReceivedDocuments);
 router.put('/seeDocument',auth.auth(),auth.pracAuth(),seeDocument); //can be old or new received document, display pdf on browser(and potentially update status)
@@ -56,6 +57,38 @@ router.put('/seeDocument',auth.auth(),auth.pracAuth(),seeDocument); //can be old
 router.get('/patient',auth.auth(),auth.patientAuth(),getRequestedDocuments); //for patient, to get a list of all requested documents from prac
 //router.get('/download',auth.auth(),auth.patientAuth(),downloadDocument); don't need because documents are in public => can request directly
 router.post('/upload',auth.auth(),auth.patientAuth(),upload.single('file'),uploadDocument);
+
+function getSingleDocument(req,res,next) {
+	var title = req.query.title;
+	var patientUsername = req.query.patientUsername;
+	var pracUsername = 'ldt999';
+	if (!patientUsername) {
+		next({
+			statusCode:400,
+			message: 'Patient username is required',
+		})
+	}
+	else if (!title) {
+		next({
+			statusCode:400,
+			message: 'Title is required',
+		})
+	}
+	else {
+		return exchangeDocumentController.getSingleDocument({pracUsername,patientUsername, title})
+		.then(stream=>{
+			var stat = fs.statSync('./public/modules/datacollectors/output.pdf');
+			res.setHeader('Content-Length', stat.size);
+			res.setHeader('Content-disposition', 'inline; filename="' + title + '_' + patientUsername + '"');
+			res.setHeader('Content-type', 'application/pdf');
+			stream.pipe(res);
+		})
+		.catch(err=> {
+			next(err);
+		})
+	}
+
+}
 
 function getDocumentList(req,res,next) {
 	var pracUsername=req.user;

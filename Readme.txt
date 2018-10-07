@@ -91,4 +91,8 @@ Resend Verification: https://localhost:8080/auth/resendVerification (POST)
 Purchase bundle after registration: https://localhost:8080/charge/ (PUT)
 	- body: bundle (standard, premium, platinum); stripeToken and pracUsername taken from x-access-token
 	- return: nothing because status code is 204 No Content.
+	
+-Change password: https://localhost:8080/user/changePassword (PUT)
+	- Body: oldPassword, newPassword, confirmPassword, header is x-access-token to get the username
+	- Return: nothing if successful (204 No Content), else errors
 		
