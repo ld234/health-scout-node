@@ -126,12 +126,12 @@ function addConsultation(consultation) {
 function getConsultations(pracUsername, patientUsername) {
 	var sql='SELECT Consultation.title as title, Consultation.consultDate as date, Consultation.summary as summary, '
 			+ 'Consultation.intervention as intervention, CONCAT(User.title," ",User.fName," ",User.lName) as "by",'
-			+ ' Practitioner.pracType, Practitioner.businessName, Practitioner.businessAddress'
+			+ ' Practitioner.pracType, Practitioner.businessName, Practitioner.businessAddress, Practitioner.pracUsername'
 			+ ' FROM Consultation JOIN Practitioner ON Consultation.pracUsername=Practitioner.pracUsername'
 			+ ' JOIN User ON Practitioner.pracUsername=User.username '
-			+ ' WHERE Consultation.patientUsername=? AND Consultation.pracUsername=?'
+			+ ' WHERE Consultation.patientUsername=?'
 			+ ' ORDER BY Consultation.consultDate DESC;';
-	return sequelize.query(sql,{replacements: [patientUsername,pracUsername],type: Sequelize.QueryTypes.SELECT})
+	return sequelize.query(sql,{replacements: [patientUsername],type: Sequelize.QueryTypes.SELECT})
 	.then(rows=> {
 		console.log(rows);
 		return Promise.resolve(rows);

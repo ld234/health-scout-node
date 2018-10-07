@@ -21,6 +21,7 @@ module.exports = {
     checkPractitionerDetails,
 	createPatient,
 	createPractitioner,
+	changePassword,
     // updateUser: updateUser
 } 
 
@@ -247,5 +248,65 @@ function savePractitioner(newPrac){
     })
     .catch(err => {
 		console.log('create prac err', err); return Promise.reject(err);
+	})
+}
+
+function changePassword(passwords) {
+	return User.findOne({
+		attributes: ['password'],
+		where: {
+			username: passwords.username
+		}
+	})
+	.then(user=>{
+		if (user) {
+			return bcrypt.compare(passwords.oldPassword,user.password)
+			.then(result=>{
+				if (result==false) {
+					return Promise.reject({
+						statusCode:400,
+						message: 'Incorrect old password'
+					})
+				}
+				else {
+					if (passwords.newPassword.length < 8){
+						return Promise.reject({
+							statusCode: 400,
+							message: 'Password must be longer than 8 characters.'
+						});
+					} else if (!passwords.newPassword.match('^(?=.{8,})(?=.*[0-9].*)(?=.*[A-Za-z].*).*$')){
+						return Promise.reject({
+							statusCode: 400,
+							message: 'Password must contain both letters and digits.'
+						});
+					} else {
+						const saltRounds = 10;
+						return bcrypt.hash(passwords.newPassword, saltRounds)
+						.then( (hash) =>{
+							// Store hash in your password DB instead of the plaintext password
+							user.password = hash;
+							return User.update({
+								password: user.password
+							},{where:{username: passwords.username}});
+						})
+						.catch(err=>{
+							return Promise.reject(err);
+						})
+					}
+				}
+			})
+			.catch(err=>{
+				return Promise.reject(err);
+			})
+		}
+		else {
+			return Promise.reject({
+				statusCode:404,
+				message: 'User not found'
+			})
+		}
+	})
+	.catch(err=>{
+		return Promise.reject(err);
 	})
 }
