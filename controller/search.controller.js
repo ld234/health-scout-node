@@ -1,7 +1,9 @@
 const db = require('../utils/create.db');
 const Practitioner = db.Practitioner;
 const User = db.User;
+const Specialty=db.Specialty;
 const NodeGeocoder = require('node-geocoder');
+const Sequelize = require('sequelize');
 
 var geoOptions={
 	provider: 'google',
@@ -15,6 +17,71 @@ const R = 6371; // km, radius of the earth
 
 module.exports={
 	getNearbyPractitioners,
+	getPractitionersByTypeAndSpecialty,
+}
+
+function getPractitionersByTypeAndSpecialty(pracType,specialties) {
+	console.log(specialties);
+	if (pracType && specialties.length>0) {
+		return Practitioner.findAll({
+			attributes:['pracUsername','pracType','serviceProvided','businessAddress','description','rating'],
+			include:[{
+				model: User,
+				attributes:['title','fName','lName','profilePic'],
+			},{
+				model: Specialty,
+				attributes: ['specialty'],
+				where: {specialty: {[Sequelize.Op.in]:specialties}}
+			}],
+			where: {
+				pracType: pracType,
+				
+			}
+		})
+		.then(foundPracs=>{
+			return Promise.resolve(foundPracs);
+		})
+		.catch(err=>{
+			return Promise.reject(err);
+		})
+	}
+	else if (specialties.length==0) { //no specialty provided with the search
+		return Practitioner.findAll({
+			attributes:['pracUsername','pracType','serviceProvided','businessAddress','description','rating'],
+			include:[{
+				model: User,
+				attributes:['title','fName','lName','profilePic'],
+			}],
+			where: {
+				pracType: pracType
+			}
+		})
+		.then(foundPracs=>{
+			return Promise.resolve(foundPracs);
+		})
+		.catch(err=>{
+			return Promise.reject(err);
+		})
+	}
+	else if (!pracType) { //pracType is not provided with the search
+		return Practitioner.findAll({
+			attributes:['pracUsername','pracType','serviceProvided','businessAddress','description','rating'],
+			include:[{
+				model: User,
+				attributes:['title','fName','lName','profilePic'],
+			},{
+				model: Specialty,
+				attributes: ['specialty'],
+				where: {specialty: {[Sequelize.Op.in]:specialties}}
+			}]
+		})
+		.then(foundPracs=>{
+			return Promise.resolve(foundPracs);
+		})
+		.catch(err=>{
+			return Promise.reject(err);
+		})
+	}
 }
 
 function getNearbyPractitioners(searchConditions) {

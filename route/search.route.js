@@ -47,8 +47,8 @@ function getNearbyPractitioners(req,res,next) {
 
 function getPractitionersByTypeAndSpecialty(req,res,next) {
 	var pracType = req.query.pracType;
-	var specialty=req.query.specialty;
-	searchController.getPractitionersByType(pracType,specialty)
+	var specialties=req.query.specialties;
+	searchController.getPractitionersByTypeAndSpecialty(pracType,specialties)
 	.then(pracList=>{
 		res.status(200).send(pracList);
 	})
