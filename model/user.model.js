@@ -56,7 +56,7 @@ module.exports = (connection) => {
 			}
 		},
 		gender: {
-			type: Sequelize.ENUM('Male','Female'),
+			type: Sequelize.ENUM('Male','Female','Others'),
 			allowNull: false
 		},
 		profilePic: {

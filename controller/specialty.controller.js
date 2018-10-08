@@ -18,7 +18,6 @@ function getSpecialties(username) {
 		where:{pracUsername: username}
 	})
 	.then(foundSpecialties => {
-		console.log(foundSpecialties);
 		return Promise.resolve(foundSpecialties);
 	})
 	.catch( err => Promise.reject(err));
@@ -29,7 +28,6 @@ function getAvailableSpecialties(pracType){
 		where:{pracType: pracType}
 	})
 	.then(foundSpecialties => {
-		console.log(foundSpecialties);
 		return Promise.resolve(foundSpecialties);
 	})
 	.catch( err => Promise.reject(err));
