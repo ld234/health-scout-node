@@ -136,3 +136,11 @@ FOR PATIENT
 					}
 				}
 			]
+			
+	- Search by others
+		- Request: localhost:PORT/search/others?pracType=...&specialties[0]=...&specialties[1]=...&... (GET)
+		- pracType can be null, in this case patient search by specialties only
+		- specialities can be of length 0, in this case patient search by pracType only
+		- If both are present then the results are filtered by both pracType and any practitioners that have one 
+		of the required specialties
+		- Return: the same format as search by radius, plus any Specialty practitioner matches
