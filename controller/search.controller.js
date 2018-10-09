@@ -119,9 +119,10 @@ function filterNearby(prac,nearbyPracs,searchConditions) {
 			let d = calculateDistance(lat, lon,searchConditions.latitude, searchConditions.longitude); //km
 			console.log(d);
 			if (d<=searchConditions.radius) {
+				prac.distance=d;
 				nearbyPracs.push(prac);
 				console.log("Found one!");
-				return Promise.resolve(locations);
+				return Promise.resolve(prac);
 			}
 		}
 		else { //more than one location is returneds, or none returned
