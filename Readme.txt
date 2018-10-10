@@ -96,3 +96,43 @@ Purchase bundle after registration: https://localhost:8080/charge/ (PUT)
 	- Body: oldPassword, newPassword, confirmPassword, header is x-access-token to get the username
 	- Return: nothing if successful (204 No Content), else errors
 		
+FOR PATIENT
+- Create patient:
+	- Request: localhost:PORT/user/patient/ (POST)
+	- return: patientUsername
+	
+- SEARCH FOR PRACTITIONERS
+	- SEARCH BY RADIUS
+		- Request: localhost:PORT/search/radius (GET)
+			- Request params: latitude, longitude, radius (km) (latitude and longitude is the patient's current location)
+			- Return: this is an example
+			[
+				{
+					"pracUsername": "hqh719",
+					"pracType": "Dietitian",
+					"serviceProvided": "consultation",
+					"businessAddress": "93 Albert St Revesby NSW 2212",
+					"description": "I'm awesome",
+					"rating": null,
+					"User": {
+						"title": "Dr.",
+						"fName": "Kevin",
+						"lName": "Ha",
+						"profilePic": "/profilePics/hqh719/hqh719-1538885110085.jpg"
+					}
+				},
+				{
+					"pracUsername": "tnmn817",
+					"pracType": "Exercise physiologist",
+					"serviceProvided": "exercise",
+					"businessAddress": "14 Bligh Street Wollongong NSW 2500",
+					"description": null,
+					"rating": null,
+					"User": {
+						"title": "Dr.",
+						"fName": "Mai",
+						"lName": "Nguyen",
+						"profilePic": "/profilePics/tnmn817/tnmn817-1538885471887.jpg"
+					}
+				}
+			]

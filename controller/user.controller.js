@@ -1,6 +1,7 @@
 const db = require('../utils/create.db');
 const User=db.User;
 const Practitioner = db.Practitioner;
+const Patient = db.Patient;
 const RegisteredBusiness=db.RegisteredBusiness;
 const Op = require('sequelize').Op;
 const nodemailer = require("nodemailer");
@@ -16,9 +17,9 @@ const PLATINUM_CONN = 50;
 
 module.exports = {
     getUser: getUser,
-    createUser: createUser,
     checkUserDetails: checkUserDetails,
     checkPractitionerDetails,
+	createPatient,
 	createPractitioner,
 	changePassword,
     // updateUser: updateUser
@@ -84,15 +85,20 @@ function checkPractitionerDetails(business,medicalProviderNumber) {
 }
 
 // create a new user. call saveUser(newUser)
-function createUser(newUser) { //after saving the user to database, we send a verification email to finish the registration process
-	return saveUser(newUser)
+function createPatient(newPatient) { //after saving the user to database, we send a verification email to finish the registration process
+	return saveUser(newPatient)
 	.then(savedUser=> {
 		delete savedUser.dataValues.password; //we don't want to send back the password to front end
-		return authController.sendEmail(savedUser)
-		.then( (data) => {
-			return Promise.resolve(savedUser);
+		return savePatient(newPatient)
+		.then(savedPatient=>{
+			return Promise.resolve(savedPatient);
 		})
-		.catch( err => {console.log('cannot insert to verification table'); return Promise.reject(err); }); //if email cannot be sent, only logging the error to console
+		.catch(err=>{
+			User.destroy({ //if the registration process is not successful, we want to remove the user out of the database as well
+				where: {username: newPatient.username}
+			});
+			return Promise.reject(err);
+		})
 	})
 	.catch(err=> {
 		return Promise.reject(err);
@@ -203,6 +209,27 @@ function saveUser(newUser){
         }
     })
     .catch (err => { return Promise.reject(err) });
+}
+
+//actually save the patient to the database and send verification email to complete the process
+function savePatient(newPatient) {
+	console.log('saving patient '+newPatient.username);
+	var patientUsername = newPatient.username;
+	return Patient.create({patientUsername})
+	.then(savedPatient =>{
+		return authController.sendEmail(newPatient)
+		.then(data=>{
+			return Promise.resolve(savedPatient);
+		})
+		.catch(err=>{
+			console.log('sending email err');
+			return Promise.reject(err);
+		})
+	})
+	.catch(err=>{
+		console.log('create patient err');
+		return Promise.reject(err);
+	})
 }
 
 //actually saving the practitioner to the database and send verification email to complete the process.

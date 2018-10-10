@@ -7,6 +7,7 @@ var userRouter = require('./route/user.route');
 var authRouter = require('./route/auth.route');
 var paymentRouter = require('./route/payment.route');
 var documentRouter = require('./route/document.route');
+var searchRouter = require('./route/search.route');
 
 var specialtyRouter = require('./route/specialty.route');
 var qualificationRouter = require('./route/qualification.route');
@@ -23,38 +24,6 @@ app.use(bodyParser.json());
 
 app.use(express.static('./public'));
 
-//test pdf download at client
-/*var fs=require('fs');
-var qpdf=require('node-qpdf');
-app.get('/pdfDownload',function(req,res,next){
-	var options = {
-		keyLength: 128,
-		password: 'test',
-		outputFile: './public/clientDocuments/encrypted.pdf'
-	}
-
-	return qpdf.encrypt('./documents/main.pdf', options)
-	.then(filePath=>{
-		console.log(filePath);
-	})
-	.catch(err=>{
-		console.log(err);
-	})
-	
-	//this will also allow you to view the file, and download it with whatever name you like, for example food frequency.pdf
-	var stream = fs.createReadStream('./public/documents/hqh719/main.pdf');
-	var filename = "FoodFrequency.pdf"; 
-	
-	// Ideally this should strip special characters
-	filename = encodeURIComponent(filename);
-	
-
-	res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
-	res.setHeader('Content-type', 'application/pdf');
-
-	stream.pipe(res);
-})*/
-
 const options= {
 	key: fs.readFileSync("./utils/sslkeys/private-key.pem"),
 	cert: fs.readFileSync("./utils/sslkeys/cert.pem")
@@ -68,6 +37,23 @@ app.use('/specialty',specialtyRouter);
 app.use('/qualification',qualificationRouter);
 app.use('/clients',clientsRouter);
 app.use('/document',documentRouter);
+
+//for patients
+app.use('/search',searchRouter);
+
+//test geocoder 
+/*var NodeGeocoder = require('node-geocoder');
+var geoOptions={
+	provider: 'google',
+	httpAdapter: 'https',
+	formatter:null,
+	apiKey:'AIzaSyDQEvjV-rvP7DHgpf0IhYBGOrduZkxluNc'
+}
+
+var geocoder=NodeGeocoder(geoOptions);
+geocoder.geocode('93 Albert St Revesby NSW 2212 Australia', function(err, res) {
+  console.log(res);
+});*/
 
 app.use(errorHandler.errorHandler());
 
