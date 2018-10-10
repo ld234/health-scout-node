@@ -3,7 +3,7 @@ var path = require('path');
 var auth = require('../middleware/auth');
 var specialtyController = require('../controller/specialty.controller');
 
-router.get('/:pracType', auth.auth(), auth.pracAuth(),getAvailableSpecialties);
+router.get('/:pracType', auth.auth(), getAvailableSpecialties);
 router.post('/',auth.auth(),auth.pracAuth(),addSpecialty);
 router.get('/',auth.auth(), auth.pracAuth(),getSpecialties);
 router.delete('/',auth.auth(),auth.pracAuth(),deleteSpecialty);

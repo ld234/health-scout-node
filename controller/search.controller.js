@@ -1,6 +1,7 @@
 const db = require('../utils/create.db');
 const Practitioner = db.Practitioner;
 const User = db.User;
+const Specialty = db.Specialty;
 const NodeGeocoder = require('node-geocoder');
 
 var geoOptions={
@@ -24,6 +25,9 @@ function getNearbyPractitioners(searchConditions) {
 			model: User,
 			attributes:['title','fName','lName','profilePic'],
 			//where: {active: 1}
+		},{
+			model: Specialty,
+			attributes: ['specialty'],
 		}],
 	})
 	.then(foundPracs =>{
