@@ -36,7 +36,6 @@ function getNearbyPractitioners(req,res,next) {
 	else {
 		searchController.getNearbyPractitioners(searchConditions)
 		.then (pracList =>{
-			console.log(pracList);
 			res.status(200).send(pracList);
 		})
 		.catch(err=>{

@@ -31,7 +31,6 @@ function getNearbyPractitioners(searchConditions) {
 		}],
 	})
 	.then(foundPracs =>{
-		console.log(foundPracs);
 		var nearbyPracs=[];
 		return Promise.all(foundPracs.map(function(prac) {
 			return filterNearby(prac,nearbyPracs,searchConditions);
@@ -56,9 +55,10 @@ function filterNearby(prac,nearbyPracs,searchConditions) {
 			let d = calculateDistance(lat, lon,searchConditions.latitude, searchConditions.longitude); //km
 			console.log(d);
 			if (d<=searchConditions.radius) {
+				prac.dataValues.distance=d;
 				nearbyPracs.push(prac);
 				console.log("Found one!");
-				return Promise.resolve(locations);
+				return Promise.resolve(prac);
 			}
 		}
 		else { //more than one location is returneds, or none returned
