@@ -97,7 +97,7 @@ function getAllergies(req,res,next) {
 	}
 }
 
-function getMedicationHistory(req,res,next) {
+/*function getMedicationHistory(req,res,next) {
 	var patientUsername=req.query.patientUsername;
 	if (!patientUsername) {
 		next({
@@ -117,4 +117,4 @@ function getMedicationHistory(req,res,next) {
 			next(err);
 		})
 	}
-}
+}*/

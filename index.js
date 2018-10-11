@@ -12,6 +12,7 @@ var searchRouter = require('./route/search.route');
 var specialtyRouter = require('./route/specialty.route');
 var qualificationRouter = require('./route/qualification.route');
 var clientsRouter = require('./route/clients.route');
+var patientMedicalDetailsRouter = require('./route/patient.medical.details.route');
 
 var errorHandler = require('./middleware/error-handler');
 
@@ -40,6 +41,7 @@ app.use('/document',documentRouter);
 
 //for patients
 app.use('/search',searchRouter);
+app.use('/patient/medicalDetails',patientMedicalDetailsRouter)
 
 //test geocoder 
 /*var NodeGeocoder = require('node-geocoder');
