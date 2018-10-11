@@ -136,3 +136,25 @@ FOR PATIENT
 					}
 				}
 			]
+			
+			
+- ADD/DELETE/GET MEDICATION, ALLERGY, FAMILY HISTORY: localhots:PORT/patient/medicalDetails
+    - Add (POST)
+        - Allergy: /allergy (Request body: allergy=...is required, symptom=...)
+        - Family History: /familyHistory (Request body: familyRelation=...is required, familyCondition=...)
+        - Medication: /medication (Request body: fillDate=...is required, medication=...is required, for others please check the model)
+        - Return value: the just added allergy/family history/medication record
+    - Delete (DELETE)
+        - Same route as Add.
+        - Return value: message 'allergy/Family history/medication deleted successfully'
+    - Get (GET)
+        - Same route as Add
+        - Return value: a list of allergy/family history/medication with all attributes taken from the corresponding models
+        - Same route as Add
+        
+- GET Consultation for patient
+    - Request: localhost:PORT/patient/medicalDetails/consultation
+    - Return value: a list of consultation list relating to the patient, including:
+        - All attributes from the Consultation model
+        - pracType from Practitioner
+        - title, fName, lName from User
