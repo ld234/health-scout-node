@@ -158,3 +158,9 @@ FOR PATIENT
         - All attributes from the Consultation model
         - pracType from Practitioner
         - title, fName, lName from User
+		
+		
+- CONNECT with practitioner
+	- Request: localhost:PORT/patient/connect/ (POST)
+		- Request body: pracUsername(required), stripeToken(required), goal, conditions, message,...(see model)
+		- Return: the newly created record in PatientDoctorRelation
