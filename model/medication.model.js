@@ -35,19 +35,19 @@ module.exports = (connection) => {
 		medication: {
             type: Sequelize.STRING,
             primaryKey: true,
-			allowNull:false,
+			allowNull: true,
 		},
 		strength: { 
 			type: Sequelize.STRING,
-			allowNull:false,
+			allowNull: true,
         },
         dosageForm: {
             type: Sequelize.STRING,
-			allowNull:false,
+			allowNull: true,
         },
         quantity: {
-			type: Sequelize.STRING,
-			allowNull:false,
+			type: Sequelize.INTEGER,
+			allowNull: true,
 		}
 	},{
 		timestamps:false,
