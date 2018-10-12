@@ -4,7 +4,7 @@ var auth = require('../middleware/auth');
 var qualificationController = require('../controller/qualification.controller');
 
 
-router.get('/',auth.auth(),auth.pracAuth(),getQualifications);
+router.get('/',auth.auth(),getQualifications);
 router.post('/',auth.auth(),auth.pracAuth(),addQualification);
 router.put('/',auth.auth(),auth.pracAuth(),updateQualification);
 router.delete('/',auth.auth(),auth.pracAuth(),deleteQualification);

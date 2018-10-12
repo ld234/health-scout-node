@@ -5,7 +5,7 @@ var specialtyController = require('../controller/specialty.controller');
 
 router.get('/:pracType', auth.auth(), getAvailableSpecialties);
 router.post('/',auth.auth(),auth.pracAuth(),addSpecialty);
-router.get('/',auth.auth(), auth.pracAuth(),getSpecialties);
+router.get('/',auth.auth(), getSpecialties);
 router.delete('/',auth.auth(),auth.pracAuth(),deleteSpecialty);
 
 module.exports=router;
