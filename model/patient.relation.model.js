@@ -8,10 +8,10 @@ module.exports = (connection) => {
 			type: Sequelize.STRING,
 			primaryKey: true,
 			validate: {
-				len: {
+				/*len: {
 					args: [8,30],
 					msg: 'Please enter username with at lease 8 but max 30 characters'
-				},
+				},*/
 				isAlphanumeric: true
 			},
 		},

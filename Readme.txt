@@ -164,3 +164,7 @@ FOR PATIENT
 	- Request: localhost:PORT/patient/connect/ (POST)
 		- Request body: pracUsername(required), stripeToken(required), goal, conditions, message,...(see model)
 		- Return: the newly created record in PatientDoctorRelation
+
+		
+NOTE NOTE NOTE: for all Date values sent from front end, make sure the format is YYYY-MM-DD, otherwise
+the backend will not handle it correctly.

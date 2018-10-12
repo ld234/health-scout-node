@@ -66,7 +66,7 @@ function addFamilyHistory(patientRelation) {
 function addMedication(patientMedication) {
 	return Medication.findOne({
 		where: [
-			{fillDate: patientMedication.familyRelation},
+			{fillDate: patientMedication.fillDate},
 			{medication: patientMedication.medication},
 			{patientUsername: patientMedication.patientUsername},
 		]
