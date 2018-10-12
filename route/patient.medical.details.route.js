@@ -190,7 +190,7 @@ function getMedication(req,res,next) {
 	})
 }
 
-function getAllery(req,res,next) {
+function getAllergy(req,res,next) {
 	var patientUsername=req.user;
 	patientMedicalDetailsController.getAllergy(patientUsername)
 	.then(allergyList => {
