@@ -38,16 +38,16 @@ module.exports = (connection) => {
 			allowNull:false,
 		},
 		strength: { 
-			type: Sequelize.STRING,
-			allowNull:false,
+			type: Sequelize.INTEGER,
+			allowNull:true,
         },
         dosageForm: {
             type: Sequelize.STRING,
-			allowNull:false,
+			allowNull:true,
         },
         quantity: {
-			type: Sequelize.STRING,
-			allowNull:false,
+			type: Sequelize.INTEGER,
+			allowNull:true,
 		}
 	},{
 		timestamps:false,
