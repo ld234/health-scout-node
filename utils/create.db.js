@@ -99,6 +99,16 @@ Patient.hasMany(Medication, {foreignKey: 'patientUsername'});
 connection.sync().then(() => {
 	RawQuery.init();
 	
+	//automate the update viewsToday back to 0 after every day
+	connection.query('SET GLOBAL event_scheduler=ON;');
+	connection.query('DROP EVENT IF EXISTS update_viewsToday;');
+	connection.query('CREATE EVENT IF NOT EXISTS update_viewsToday '
+					+'ON SCHEDULE EVERY 1 DAY '
+					+'STARTS CURRENT_TIMESTAMP '
+					+'DO '
+					+'UPDATE Practitioner SET viewsToday=0;');
+
+	
 	connection.query('SELECT * FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_NAME= "FK_Document";',{type:Sequelize.QueryTypes.SELECT})
 	.then(rows=>{
 		if (rows.length==0) {
