@@ -164,6 +164,39 @@ FOR PATIENT
 	- Request: localhost:PORT/patient/connect/ (POST)
 		- Request body: pracUsername(required), stripeToken(required), goal, conditions, message,...(see model)
 		- Return: the newly created record in PatientDoctorRelation
+		
+- VIEW PRACTITIONER Profile
+	- Base request: localhost:PORT/patient/pracProfile/
+	- View prac profile: when patient clicks to view prac profile, update viewsToday of prac to viewsToday+1
+		- Request: same as base (PUT)
+		- Require: pracUsername
+		- Return: pracUsername, viewsToday(updated)
+	- Get General Info
+		- request: same as base (GET)
+		- require: pracUsername
+		- return: pracUsername,pracType,serviceProvided,rating, description,viewsToday,User.title,fName,lName
+	- Get Specialty/Qualification:
+		- request: base+/specialty or /qualification
+		- require: pracUsername
+		- return: list of specialties/qualifications
+	- Get Testimonial
+		- request: base+/testimonial
+		- require: pracUsername
+		- return: only returns the testimonials that has a rating != null
+			[
+				{
+					"title": "Mr.",
+					"fName": "Quan",
+					"lName": "Ha",
+					"patientUsername": "hqh147",
+					"testimonial": "good",
+					"rating": "5"
+				}
+			]
+	- Add Testimonial: only possible if there's a relation between patient and prac
+		- Request: base+/testimonial
+		- Require: pracUsername
+		- Return: testimonial: {pracUsername,by,testimonial,rating} (by is the patientUsername)
 
 		
 NOTE NOTE NOTE: for all Date values sent from front end, make sure the format is YYYY-MM-DD, otherwise
