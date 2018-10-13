@@ -10,11 +10,11 @@ router.get('/others',auth.auth(),auth.patientAuth(),getPractitionersByTypeAndSpe
 module.exports=router;
 
 function getNearbyPractitioners(req,res,next) {
-	//var patientUsername=req.user;
 	var searchConditions={};
 	searchConditions.latitude= req.query.latitude;
 	searchConditions.longitude=req.query.longitude;
 	searchConditions.radius=req.query.radius;
+	searchConditions.patientUsername=req.user;
 	if (!searchConditions.latitude) {
 		next({
 			statusCode:400,
@@ -48,7 +48,8 @@ function getNearbyPractitioners(req,res,next) {
 function getPractitionersByTypeAndSpecialty(req,res,next) {
 	var pracType = req.query.pracType;
 	var specialties=req.query.specialties;
-	searchController.getPractitionersByTypeAndSpecialty(pracType,specialties)
+	var patientUsername=req.user;
+	searchController.getPractitionersByTypeAndSpecialty(pracType,specialties,patientUsername)
 	.then(pracList=>{
 		res.status(200).send(pracList);
 	})

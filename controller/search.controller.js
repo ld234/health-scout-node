@@ -3,7 +3,13 @@ const Practitioner = db.Practitioner;
 const User = db.User;
 const Specialty=db.Specialty;
 const NodeGeocoder = require('node-geocoder');
-const Sequelize = require('sequelize');
+
+const Sequelize=require('sequelize');
+const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
+    dialect: 'mysql',
+    operatorsAliases: false,
+    logging: true,
+});
 
 var geoOptions={
 	provider: 'google',
@@ -20,24 +26,17 @@ module.exports={
 	getPractitionersByTypeAndSpecialty,
 }
 
-function getPractitionersByTypeAndSpecialty(pracType,specialties) {
+function getPractitionersByTypeAndSpecialty(pracType,specialties,patientUsername) {
 	console.log(specialties);
 	if (pracType && specialties.length>0) {
-		return Practitioner.findAll({
-			attributes:['pracUsername','pracType','serviceProvided','businessAddress','description','rating'],
-			include:[{
-				model: User,
-				attributes:['title','fName','lName','profilePic'],
-			},{
-				model: Specialty,
-				attributes: ['specialty'],
-				where: {specialty: {[Sequelize.Op.in]:specialties}}
-			}],
-			where: {
-				pracType: pracType,
-				
-			}
-		})
+		var sql = 'select p.pracUsername,p.pracType,p.serviceProvided,p.businessAddress,p.description,p.rating,'
+				+ 'u.title,u.fName,u.lName,u.profilePic,s.specialty '
+				+ 'from Practitioner p join User u on p.pracUsername=u.username '
+				+ 'join Specialty s on p.pracUsername=s.pracUsername '
+				+ 'where p.pracType=? and s.specialty in (?) '
+				+ 'and p.pracUsername not in '
+				+ '(select pracUsername from PatientDoctorRelation where patientUsername=?);';
+		return sequelize.query(sql,{replacements:[pracType,specialties,patientUsername],type:Sequelize.QueryTypes.SELECT})
 		.then(foundPracs=>{
 			return Promise.resolve(foundPracs);
 		})
@@ -46,16 +45,14 @@ function getPractitionersByTypeAndSpecialty(pracType,specialties) {
 		})
 	}
 	else if (specialties.length==0) { //no specialty provided with the search
-		return Practitioner.findAll({
-			attributes:['pracUsername','pracType','serviceProvided','businessAddress','description','rating'],
-			include:[{
-				model: User,
-				attributes:['title','fName','lName','profilePic'],
-			}],
-			where: {
-				pracType: pracType
-			}
-		})
+		var sql = 'select p.pracUsername,p.pracType,p.serviceProvided,p.businessAddress,p.description,p.rating,'
+				+ 'u.title,u.fName,u.lName,u.profilePic,s.specialty '
+				+ 'from Practitioner p join User u on p.pracUsername=u.username '
+				+ 'join Specialty s on p.pracUsername=s.pracUsername '
+				+ 'where p.pracType=? '
+				+ 'and p.pracUsername not in '
+				+ '(select pracUsername from PatientDoctorRelation where patientUsername=?);';
+		return sequelize.query(sql,{replacements:[pracType,patientUsername],type:Sequelize.QueryTypes.SELECT})
 		.then(foundPracs=>{
 			return Promise.resolve(foundPracs);
 		})
@@ -64,17 +61,14 @@ function getPractitionersByTypeAndSpecialty(pracType,specialties) {
 		})
 	}
 	else if (!pracType) { //pracType is not provided with the search
-		return Practitioner.findAll({
-			attributes:['pracUsername','pracType','serviceProvided','businessAddress','description','rating'],
-			include:[{
-				model: User,
-				attributes:['title','fName','lName','profilePic'],
-			},{
-				model: Specialty,
-				attributes: ['specialty'],
-				where: {specialty: {[Sequelize.Op.in]:specialties}}
-			}]
-		})
+		var sql = 'select p.pracUsername,p.pracType,p.serviceProvided,p.businessAddress,p.description,p.rating,'
+				+ 'u.title,u.fName,u.lName,u.profilePic,s.specialty '
+				+ 'from Practitioner p join User u on p.pracUsername=u.username '
+				+ 'join Specialty s on p.pracUsername=s.pracUsername '
+				+ 'where p.specialty in (?) '
+				+ 'and p.pracUsername not in '
+				+ '(select pracUsername from PatientDoctorRelation where patientUsername=?);';
+		return sequelize.query(sql,{replacements:[specialties,patientUsername],type:Sequelize.QueryTypes.SELECT})
 		.then(foundPracs=>{
 			return Promise.resolve(foundPracs);
 		})
@@ -85,14 +79,12 @@ function getPractitionersByTypeAndSpecialty(pracType,specialties) {
 }
 
 function getNearbyPractitioners(searchConditions) {
-	return Practitioner.findAll({
-		attributes:['pracUsername','pracType','serviceProvided','businessAddress','description','rating'],
-		include:[{
-			model: User,
-			attributes:['title','fName','lName','profilePic'],
-			//where: {active: 1}
-		}],
-	})
+	var sql = 'select p.pracUsername,p.pracType,p.serviceProvided,p.businessAddress,p.description,p.rating,'
+				+ 'u.title,u.fName,u.lName,u.profilePic '
+				+ 'from Practitioner p join User u on p.pracUsername=u.username '
+				+ 'where p.pracUsername not in '
+				+ '(select pracUsername from PatientDoctorRelation where patientUsername=?);';
+	return sequelize.query(sql,{replacements:[searchConditions.patientUsername],type:Sequelize.QueryTypes.SELECT})
 	.then(foundPracs =>{
 		console.log(foundPracs);
 		var nearbyPracs=[];
@@ -109,7 +101,7 @@ function getNearbyPractitioners(searchConditions) {
 }
 
 function filterNearby(prac,nearbyPracs,searchConditions) {
-	return geocoder.geocode(prac.dataValues.businessAddress,function(err,locations){
+	return geocoder.geocode(prac.businessAddress,function(err,locations){
 		if (err) {console.log(err);}
 		if (locations.length==1) {
 			let lat=locations[0].latitude;
