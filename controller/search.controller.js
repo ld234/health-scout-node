@@ -23,7 +23,6 @@ function getNearbyPractitioners(searchConditions) {
 		include:[{
 			model: User,
 			attributes:['title','fName','lName','profilePic'],
-			//where: {active: 1}
 		}],
 	})
 	.then(foundPracs =>{

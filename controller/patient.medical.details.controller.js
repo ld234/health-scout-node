@@ -4,6 +4,15 @@ const PatientRelation = db.PatientRelation;
 const PatientAllergy = db.PatientAllergy;
 const Medication=db.Medication;
 const Consultation = db.Consultation;
+const Practitioner= db.Practitioner;
+const User = db.User;
+
+const Sequelize=require('sequelize');
+const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
+    dialect: 'mysql',
+    operatorsAliases: false,
+    logging: false
+});
 
 module.exports={
 	addAllergy,
@@ -200,20 +209,12 @@ function getAllergy(patientUsername) {
 }
 
 function getConsultation(patientUsername) {
-	return Consultation.findAll({
-		//attributes: ['','','',],
-		include: [{
-			model: Practitioner,
-			attributes: ['pracType'],
-			//where: [{},{}],
-			include: [{
-				model:User,
-				attributes: ['title','fName','lName'],
-				//where:[{},{}],
-			}]
-		}],
-		where: [{patientUsername: patientUsername}]
-	})
+	var sql = 'select c.*,u.title,u.fName,u.lName,p.pracType '
+			+ 'from Consultation c join Practitioner p on c.pracUsername=p.pracUsername '
+			+ 'join User u on p.pracUsername=u.username '
+			+ 'where c.patientUsername=? '
+			+ 'order by c.consultDate DESC;';		
+	return sequelize.query(sql,{replacements:[patientUsername],type:Sequelize.QueryTypes.SELECT})
 	.then(consultList=>{
 		return Promise.resolve(consultList);
 	})
