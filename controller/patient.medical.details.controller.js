@@ -3,6 +3,7 @@ const Patient = db.Patient;
 const PatientRelation = db.PatientRelation;
 const PatientAllergy = db.PatientAllergy;
 const Medication=db.Medication;
+const Consultation = db.Consultation;
 
 module.exports={
 	addAllergy,

@@ -20,7 +20,7 @@ function getSpecialty(req,res,next) {
 		})
 	}
 	else {
-		patientPracProfileController.getSpecialty(pracUsername);
+		patientPracProfileController.getSpecialty(pracUsername)
 		.then(specialtyList=>{
 			res.status(200).send(specialtyList);
 		})
