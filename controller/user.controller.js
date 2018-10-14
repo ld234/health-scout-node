@@ -163,7 +163,7 @@ function createPractitioner(newPrac) {
 
 // Save the user to the database.
 function saveUser(newUser){
-    return User.findAll({ attributes:['username','password','email'], 
+    return User.findOne({ attributes:['username','password','email'], 
         where:{
             [Op.or]: [
                 {username:newUser.username},
@@ -171,13 +171,20 @@ function saveUser(newUser){
             ]
         }
     })
-    .then( (foundUsers) => {
-        if (foundUsers.length > 0) {
+    .then( (foundUser) => {
+        if (foundUser.username==newUser.username) {
             return Promise.reject({
                 statusCode: 400,
-                message: 'Email or username existed'
+                message: 'username existed'
             });
-        } else if(newUser.username.length < 6){
+        }
+		else if (foundUser.email==newUser.email) {
+			return Promise.reject({
+                statusCode: 400,
+                message: 'email existed'
+            });
+		}
+		else if(newUser.username.length < 6){
             return Promise.reject({
                 statusCode: 400,
                 message: 'Username must contain more than 6 characters.'

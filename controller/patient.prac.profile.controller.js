@@ -14,12 +14,28 @@ const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.
 });
 
 module.exports= {
+	getConnectedPracs,
 	getSpecialty,
 	getQualification,
 	getGeneralInfo,
 	getTestimonial,
 	addTestimonial,
 	viewPracProfile,
+}
+
+function getConnectedPracs(patientUsername) {
+	var sql = 'select pdr.pracUsername,max(c.consultDate) as lastVisited,p.pracType,u.title,u.fName,u.lName '
+			+ 'from PatientDoctorRelation pdr join Practitioner p on pdr.pracUsername=p.pracUsername '
+			+ 'join User u on pdr.pracUsername=u.username '
+			+ 'left outer join Consultation c on pdr.pracUsername=c.pracUsername '
+			+ 'where pdr.patientUsername=?';
+	return sequelize.query(sql,{replacements:[patientUsername],type:Sequelize.QueryTypes.SELECT})
+	.then(pracList=>{
+		return Promise.resolve(pracList);
+	})
+	.catch(err=>{
+		return Promise.reject(err);
+	})
 }
 
 function getSpecialty(pracUsername) {
