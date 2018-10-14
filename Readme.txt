@@ -197,7 +197,9 @@ FOR PATIENT
 		- Request: base+/testimonial
 		- Require: pracUsername
 		- Return: testimonial: {pracUsername,by,testimonial,rating} (by is the patientUsername)
-
+	- GET CONNECTED PRACS
+		- Request: base+/all
+		- Return: pracUsername,pracType, lastVisited (last consultDate visited),title,fName,lName
 		
 NOTE NOTE NOTE: for all Date values sent from front end, make sure the format is YYYY-MM-DD, otherwise
 the backend will not handle it correctly.
