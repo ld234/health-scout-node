@@ -24,7 +24,7 @@ module.exports= {
 }
 
 function getConnectedPracs(patientUsername) {
-	var sql = 'select pdr.pracUsername,max(c.consultDate) as lastVisited,p.pracType,u.title,u.fName,u.lName '
+	var sql = 'select pdr.pracUsername,max(c.consultDate) as lastVisited,p.pracType,u.title,u.fName,u.lName,u.profilePic '
 			+ 'from PatientDoctorRelation pdr join Practitioner p on pdr.pracUsername=p.pracUsername '
 			+ 'join User u on pdr.pracUsername=u.username '
 			+ 'left outer join Consultation c on pdr.pracUsername=c.pracUsername '
