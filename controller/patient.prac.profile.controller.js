@@ -28,7 +28,8 @@ function getConnectedPracs(patientUsername) {
 			+ 'from PatientDoctorRelation pdr join Practitioner p on pdr.pracUsername=p.pracUsername '
 			+ 'join User u on pdr.pracUsername=u.username '
 			+ 'left outer join Consultation c on pdr.pracUsername=c.pracUsername '
-			+ 'where pdr.patientUsername=?';
+			+ 'where pdr.patientUsername=? '
+			+ 'group by pdr.pracUsername;';
 	return sequelize.query(sql,{replacements:[patientUsername],type:Sequelize.QueryTypes.SELECT})
 	.then(pracList=>{
 		return Promise.resolve(pracList);
