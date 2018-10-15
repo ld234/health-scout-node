@@ -102,10 +102,10 @@ function getGeneralInfo(pracUsername) {
 	.then(foundPrac=>{
 		if (foundPrac) {
 			return Practitioner.findAll({
-				attributes: ['pracUsername','pracType','serviceProvided','rating','description','viewsToday'],
+				attributes: ['pracUsername','pracType','serviceProvided','rating','description','viewsToday', 'businessName', 'businessAddress', 'accBody'],
 				include: [{
 					model: User,
-					attributes: ['title','fName','lName']
+					attributes: ['title','fName','lName', 'profilePic']
 				}],
 				where: {pracUsername:pracUsername}
 			})

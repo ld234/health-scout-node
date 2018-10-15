@@ -209,7 +209,7 @@ function getAllergy(patientUsername) {
 }
 
 function getConsultation(patientUsername) {
-	var sql = 'select c.*,u.title,u.fName,u.lName,p.pracType '
+	var sql = 'select c.*,c.title,u.title as pracTitle, u.fName,u.lName,p.pracType '
 			+ 'from Consultation c join Practitioner p on c.pracUsername=p.pracUsername '
 			+ 'join User u on p.pracUsername=u.username '
 			+ 'where c.patientUsername=? '
