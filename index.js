@@ -55,6 +55,16 @@ geocoder.geocode('93 Albert St Revesby NSW 2212 Australia', function(err, res) {
   console.log(res);
 });*/
 
+//test view document
+/*app.get('/viewDocument',function(req,res,next){
+	var stream =fs.createReadStream("./receivedDocuments/hqh147/hqh719/FF.pdf");
+	var filename="lol";
+	res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
+	res.setHeader('Content-type', 'application/pdf');
+
+	stream.pipe(res);
+})*/
+
 app.use(errorHandler.errorHandler());
 
 app.listen(process.env.HTTP_PORT, function () {

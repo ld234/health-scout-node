@@ -192,8 +192,9 @@ function seeDocument(document) {
 				})
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
-						console.log(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
-						const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink), );
+						console.log(path.resolve(foundDocument.receivedLink));
+						//const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink), );
+						const stream = fs.createReadStream(foundDocument.receivedLink);
 						console.log('stream is undefined?', JSON.stringify(stream,0,2));
 						return stream;
 					}
@@ -210,7 +211,8 @@ function seeDocument(document) {
 			}
 			else { //no need to update
 				console.log('in here');
-				const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
+				//const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
+				const stream = fs.createReadStream(foundDocument.receivedLink);
 				console.log(JSON.stringify(stream, 0,4 ));
 				return stream;
 			}

@@ -51,7 +51,7 @@ router.post('/', auth.auth(), auth.pracAuth(),sendDocument);
 router.get('/single',getSingleDocument);
 router.get('/newReceivedDocuments',auth.auth(),auth.pracAuth(),getNewReceivedDocuments);
 router.get('/oldReceivedDocuments',auth.auth(),auth.pracAuth(),getOldReceivedDocuments);
-router.put('/seeDocument',auth.auth(),auth.pracAuth(),seeDocument); //can be old or new received document, display pdf on browser(and potentially update status)
+router.get('/seeDocument',auth.auth(),auth.pracAuth(),seeDocument); //can be old or new received document, display pdf on browser(and potentially update status)
 
 //Begins the request API for patients
 router.get('/patient',auth.auth(),auth.patientAuth(),getRequestedDocuments); //for patient, to get a list of all requested documents from prac
@@ -177,7 +177,7 @@ function getOldReceivedDocuments(req,res,next) {
 }
 
 function seeDocument(req,res,next) {
-	var document=req.body;
+	var document=req.query;
 	document.pracUsername=req.user;
 	if (!document.title) {
 		next({
@@ -194,8 +194,8 @@ function seeDocument(req,res,next) {
 	else {
 		exchangeDocumentController.seeDocument(document)
 		.then(stream=>{
-			res.setHeader('Content-disposition', 'inline; filename="' + document.title + '_' + document.patientUsername + '"');
 			res.setHeader('Content-type', 'application/pdf');
+			res.setHeader('Content-disposition', 'inline; filename="' + document.title + '_' + document.patientUsername + '"');
 			stream.pipe(res);
 		})
 		.catch(err=>{
