@@ -58,6 +58,7 @@ router.get('/patient',auth.auth(),auth.patientAuth(),getRequestedDocuments); //f
 //router.get('/download',auth.auth(),auth.patientAuth(),downloadDocument); don't need because documents are in public => can request directly
 router.post('/upload',auth.auth(),auth.patientAuth(),upload.single('file'),uploadDocument);
 router.get('/patient/sent',auth.auth(),auth.patientAuth(),getSentDocuments);
+router.get('/patient/viewSentDocument',auth.auth(),auth.patientAuth(),viewSentDocument);
 
 function getSingleDocument(req,res,next) {
 	var title = req.query.title;
@@ -290,4 +291,32 @@ function getSentDocuments(req,res,next) {
 	.catch(err=>{
 		next(err);
 	})
+}
+
+function viewSentDocument(req,res,next) {
+	var document=req.query;
+	document.patientUsername=req.user;
+	if (!document.title) {
+		next({
+			statusCode:400,
+			message: 'Document title is required'
+		})
+	}
+	else if (!document.pracUsername) {
+		next({
+			statusCode:400,
+			message: 'Patient username is required'
+		})
+	}
+	else {
+		exchangeDocumentController.viewSentDocument(document)
+		.then(stream=>{
+			res.setHeader('Content-disposition', 'inline; filename="' + document.title + '_' + document.pracUsername + '"');
+			res.setHeader('Content-type', 'application/pdf');
+			stream.pipe(res);
+		})
+		.catch(err=>{
+			next(err);
+		})
+	}
 }

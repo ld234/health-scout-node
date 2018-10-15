@@ -16,7 +16,8 @@ module.exports = {
 	getRequestedDocuments,
 	uploadDocument,
 	getSingleDocument,
-	getSentDocuments,//for patient to get the documents he has sent to his pracs
+	getSentDocuments,//for patient to get the documents he has sent to his pracs,
+	viewSentDocument, //for patient to view his/her own sent document
 }
 
 const Sequelize=require('sequelize');
@@ -193,8 +194,9 @@ function seeDocument(document) {
 				})
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
-						console.log(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
-						const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink), );
+						console.log(path.resolve(foundDocument.receivedLink));
+						//const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink), );
+						const stream = fs.createReadStream(foundDocument.receivedLink);
 						console.log('stream is undefined?', JSON.stringify(stream,0,2));
 						return stream;
 					}
@@ -211,7 +213,7 @@ function seeDocument(document) {
 			}
 			else { //no need to update
 				console.log('in here');
-				const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
+				const stream = fs.createReadStream(foundDocument.receivedLink);
 				console.log(JSON.stringify(stream, 0,4 ));
 				return stream;
 			}
@@ -334,7 +336,7 @@ function uploadDocument(newDocument) {
 }
 
 function getSentDocuments(patientUsername) {
-	var sql="select rd.*,p.pracType,u.title,u.fName,u.lName,"
+	var sql="select rd.pracUsername,rd.receivedDate,rd.title,rd.status,p.pracType,u.title,u.fName,u.lName,"
 			+"d.description from ReceivedDocument rd join Practitioner p on rd.pracUsername=p.pracUsername "
 			+"join User u on rd.pracUsername=u.username "
 			+"join Document d on rd.pracUsername=d.pracUsername and rd.title=d.title "
@@ -343,6 +345,31 @@ function getSentDocuments(patientUsername) {
 	return sequelize.query(sql,{replacements:[patientUsername],type:Sequelize.QueryTypes.SELECT})
 	.then(sentDocumentList=>{
 		return Promise.resolve(sentDocumentList);
+	})
+	.catch(err=>{
+		return Promise.reject(err);
+	})
+}
+
+function viewSentDocument(document) {
+	return ReceivedDocument.findOne({
+		where: [
+			{pracUsername: document.pracUsername},
+			{patientUsername: document.patientUsername},
+			{title: document.title}
+		]
+	})
+	.then(foundDocument=>{
+		if (foundDocument) {
+			var stream = fs.createReadStream(foundDocument.receivedLink);
+			return stream;
+		}
+		else {
+			return Promise.reject({
+				statusCode:404,
+				message:'Document not found'
+			})
+		}
 	})
 	.catch(err=>{
 		return Promise.reject(err);
