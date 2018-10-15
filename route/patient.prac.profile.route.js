@@ -5,12 +5,24 @@ var patientPracProfileController = require('../controller/patient.prac.profile.c
 
 module.exports=router;
 
+router.get('/all',auth.auth(),auth.patientAuth(),getConnectedPracs)
 router.put('/',auth.auth(),auth.patientAuth(),viewPracProfile);
 router.get('/',auth.auth(),auth.patientAuth(),getGeneralInfo); //including average ratings
 router.get('/specialty',auth.auth(),auth.patientAuth(),getSpecialty);
 router.get('/qualification',auth.auth(),auth.patientAuth(),getQualification);
 router.get('/testimonial',auth.auth(),auth.patientAuth(),getTestimonial); //including individual ratings
 router.post('/testimonial',auth.auth(),auth.patientAuth(),addTestimonial);
+
+function getConnectedPracs(req,res,next) {
+	var patientUsername=req.user;
+	patientPracProfileController.getConnectedPracs(patientUsername)
+	.then(pracList=>{
+		res.status(200).send(pracList);
+	})
+	.catch(err=>{
+		next(err);
+	})
+}
 
 function getSpecialty(req,res,next) {
 	var pracUsername=req.query.pracUsername;
