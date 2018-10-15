@@ -83,6 +83,14 @@ Send and view document API
 		
 	- Upload a document to send back to practitioner: https://localhost:8080/clients/profile/exchangeDocument/upload (POST)
 		- Body: pracUsername, title (same as the title of the practitioner's document), file (the file to be uploaded)
+	- Get a list of documents already sent to prac:
+		- Request: localhost:PORT/clients/profile/exchangeDocument/patient/sent
+			- return: pracUsername,pracType,title,fName,lName,receivedLink,receivedDate(the date the document is sent),
+			status (0 is not seen by prac, 1 is seen),description (taken from prac's document description)
+			- The list is ordered by:
+				- First, by practitioner's fName (ASC)
+				- Then, by status (1:seen is displayed before 0: not seen)
+				- Last, by receivedDate (DESC)
 		
 Resend Verification: https://localhost:8080/auth/resendVerification (POST)
 	- body: username, email, fName
