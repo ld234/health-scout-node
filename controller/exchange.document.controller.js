@@ -337,7 +337,7 @@ function uploadDocument(newDocument) {
 }
 
 function getSentDocuments(patientUsername) {
-	var sql="select rd.pracUsername,rd.receivedDate,rd.title,rd.status,p.pracType,u.title,u.fName,u.lName,"
+	var sql="select rd.pracUsername,rd.receivedDate,rd.title,rd.status,p.pracType,u.title as pracTitle,u.fName,u.lName,"
 			+"d.description from ReceivedDocument rd join Practitioner p on rd.pracUsername=p.pracUsername "
 			+"join User u on rd.pracUsername=u.username "
 			+"join Document d on rd.pracUsername=d.pracUsername and rd.title=d.title "

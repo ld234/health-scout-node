@@ -172,13 +172,13 @@ function saveUser(newUser){
         }
     })
     .then( (foundUser) => {
-        if (foundUser.username==newUser.username) {
+        if (foundUser && foundUser.username==newUser.username) {
             return Promise.reject({
                 statusCode: 400,
                 message: 'username existed'
             });
         }
-		else if (foundUser.email==newUser.email) {
+		else if (foundUser && foundUser.email==newUser.email) {
 			return Promise.reject({
                 statusCode: 400,
                 message: 'email existed'

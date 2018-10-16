@@ -118,9 +118,10 @@ function createPatient(req, res, next) {
 				console.log('patient created', patient);
                 res.status(201).send(patient);
             })
-            .catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
+			.catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
+				console.log('err', err);
 				if (err.message!='username existed') { //we delete the just created tmp only if the error is not username exists
-					var uploadDir='public/profilePics/'+req.body.username;
+					var uploadDir='/public/profilePics/'+req.body.username;
 					fs.readdir(uploadDir,function(error,files){
 						if (error) throw error;
 						files.forEach(function(file,index){
