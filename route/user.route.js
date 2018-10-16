@@ -13,9 +13,9 @@ const storage = multer.diskStorage({
 			fs.mkdirSync(dir);
 			callback(null, dir);
 		}
-		else {
+		/*else {
 			callback(new Error('Existing folder implies username already exists'),false);
-		}
+		}*/
 	},
 	filename: function (req, file, callback){
 		let fileNames = file.originalname.split('.');
@@ -118,24 +118,27 @@ function createPatient(req, res, next) {
 				console.log('patient created', patient);
                 res.status(201).send(patient);
             })
-            .catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
-				var uploadDir='public/profilePics/'+req.body.username;
-				fs.readdir(uploadDir,function(err,files){
-					if (err) throw err;
-					files.forEach(function(file,index){
-						var curPath=uploadDir+"/"+file;
-						fs.unlink(curPath,function(err){
-							if (err) throw err;
-							console.log('successfully deleted '+curPath);
-							if (index==files.length-1) {
-								fs.rmdir(uploadDir,(err)=>{
-									if (err) throw err;
-									console.log('successfully deleted '+uploadDir);
-								})
-							}
+			.catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
+				console.log('err', err);
+				if (err.message!='username existed') { //we delete the just created tmp only if the error is not username exists
+					var uploadDir='/public/profilePics/'+req.body.username;
+					fs.readdir(uploadDir,function(error,files){
+						if (error) throw error;
+						files.forEach(function(file,index){
+							var curPath=uploadDir+"/"+file;
+							fs.unlink(curPath,function(err){
+								if (err) throw err;
+								console.log('successfully deleted '+curPath);
+								if (index==files.length-1) {
+									fs.rmdir(uploadDir,(err)=>{
+										if (err) throw err;
+										console.log('successfully deleted '+uploadDir);
+									})
+								}
+							});
 						});
 					});
-				});
+				}
                 next(err);
             })
     }
@@ -168,24 +171,26 @@ function createPractitioner(req,res,next) {
                 res.status(201).send(practitioner);
             })
             .catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
-				var uploadDir='public/profilePics/'+req.body.username;
-				fs.readdir(uploadDir,function(err,files){
-					if (err) throw err;
-					files.forEach(function(file,index){
-						var curPath=uploadDir+"/"+file;
-						fs.unlink(curPath,function(err){
-							if (err) throw err;
-							console.log('successfully deleted '+curPath);
-							if (index==files.length-1) {
-								fs.rmdir(uploadDir,(err)=>{
-									if (err) throw err;
-									console.log('successfully deleted '+uploadDir);
-								})
-							}
+				if (err.message != 'username existed') {
+					var uploadDir='public/profilePics/'+req.body.username;
+					fs.readdir(uploadDir,function(error,files){
+						if (error) throw error;
+						files.forEach(function(file,index){
+							var curPath=uploadDir+"/"+file;
+							fs.unlink(curPath,function(err){
+								if (err) throw err;
+								console.log('successfully deleted '+curPath);
+								if (index==files.length-1) {
+									fs.rmdir(uploadDir,(err)=>{
+										if (err) throw err;
+										console.log('successfully deleted '+uploadDir);
+									})
+								}
+							});
 						});
 					});
-				});
-                next(err);
+				}
+				next(err);
             })
     }
 }

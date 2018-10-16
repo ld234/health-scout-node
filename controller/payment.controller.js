@@ -9,7 +9,8 @@ const PLATINUM_CONN = 50;
 
 module.exports = {
     pracCharge,
-    subscribe
+    subscribe,
+	patientCharge,
 }
 
 function pracCharge(pracUsername, stripeToken, bundle) { //charge after registration
@@ -115,4 +116,28 @@ function subscribe(username,email){ //for a practitioner to subscribe to one of 
         console.log(err);
         return Promise.reject(err);
     });
+}
+
+function patientCharge(patientUsername, stripeToken) {
+	var amount=199;
+	return User.findOne({
+		attributes: ['email'],
+		where: {username: patientUsername}
+	})
+	.then(user=>{
+		return stripe.charges.create({
+			source: stripeToken,
+			currency: 'aud',
+			amount: amount,
+			receipt_email: user.email,
+			description: `Payment by ${patientUsername} for ${amount} to connect with prac`
+		})
+		.then(charge => {
+			console.log('patient charged',amount);
+			return Promise.resolve(charge);
+		})
+		.catch(err=>{
+			return Promise.reject(err);
+		})
+	})
 }

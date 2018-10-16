@@ -15,14 +15,16 @@ module.exports = {
 	seeDocument,
 	getRequestedDocuments,
 	uploadDocument,
-	getSingleDocument
+	getSingleDocument,
+	getSentDocuments,//for patient to get the documents he has sent to his pracs,
+	viewSentDocument, //for patient to view his/her own sent document
 }
 
 const Sequelize=require('sequelize');
 const sequelize = new Sequelize('healthscout', process.env.DB_USER, process.env.DB_PASSWORD,{
     dialect: 'mysql',
     operatorsAliases: false,
-    logging: false
+    logging: true,
 });
 
 function getDocumentList(pracUsername,patientUsername) {
@@ -193,8 +195,9 @@ function seeDocument(document) {
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
 						console.log(path.resolve(foundDocument.receivedLink));
-						//const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink), );
-						const stream = fs.createReadStream(foundDocument.receivedLink);
+						const stream = fs.createReadStream(path.resolve(foundDocument.receivedLink), {
+							encoding: 'base64'
+						});
 						console.log('stream is undefined?', JSON.stringify(stream,0,2));
 						return stream;
 					}
@@ -211,8 +214,7 @@ function seeDocument(document) {
 			}
 			else { //no need to update
 				console.log('in here');
-				//const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
-				const stream = fs.createReadStream(foundDocument.receivedLink);
+				const stream = fs.createReadStream(path.resolve(foundDocument.receivedLink));
 				console.log(JSON.stringify(stream, 0,4 ));
 				return stream;
 			}
@@ -241,7 +243,7 @@ function getSingleDocument(document) {
 	.then(foundDocument=>{
 		console.log(foundDocument);
 		if (foundDocument) {
-			const stream = fs.createReadStream(path.resolve(__dirname+'/..'+ foundDocument.receivedLink));
+			const stream = fs.createReadStream(path.resolve(foundDocument.receivedLink));
 			return stream;
 		} else {
 			return Promise.reject({
@@ -326,6 +328,47 @@ function uploadDocument(newDocument) {
 			return Promise.reject({
 				statusCode:400,
 				message: 'Pending document not found'
+			})
+		}
+	})
+	.catch(err=>{
+		return Promise.reject(err);
+	})
+}
+
+function getSentDocuments(patientUsername) {
+	var sql="select rd.pracUsername,rd.receivedDate,rd.title,rd.status,p.pracType,u.title as pracTitle,u.fName,u.lName,"
+			+"d.description from ReceivedDocument rd join Practitioner p on rd.pracUsername=p.pracUsername "
+			+"join User u on rd.pracUsername=u.username "
+			+"join Document d on rd.pracUsername=d.pracUsername and rd.title=d.title "
+			+"where rd.patientUsername=? "
+			+"order by u.fName,rd.status DESC,rd.receivedDate DESC";
+	return sequelize.query(sql,{replacements:[patientUsername],type:Sequelize.QueryTypes.SELECT})
+	.then(sentDocumentList=>{
+		return Promise.resolve(sentDocumentList);
+	})
+	.catch(err=>{
+		return Promise.reject(err);
+	})
+}
+
+function viewSentDocument(document) {
+	return ReceivedDocument.findOne({
+		where: [
+			{pracUsername: document.pracUsername},
+			{patientUsername: document.patientUsername},
+			{title: document.title}
+		]
+	})
+	.then(foundDocument=>{
+		if (foundDocument) {
+			var stream = fs.createReadStream(foundDocument.receivedLink);
+			return stream;
+		}
+		else {
+			return Promise.reject({
+				statusCode:404,
+				message:'Document not found'
 			})
 		}
 	})

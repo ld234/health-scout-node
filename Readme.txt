@@ -83,6 +83,14 @@ Send and view document API
 		
 	- Upload a document to send back to practitioner: https://localhost:8080/clients/profile/exchangeDocument/upload (POST)
 		- Body: pracUsername, title (same as the title of the practitioner's document), file (the file to be uploaded)
+	- Get a list of documents already sent to prac:
+		- Request: localhost:PORT/clients/profile/exchangeDocument/patient/sent
+			- return: pracUsername,pracType,title,fName,lName,receivedLink,receivedDate(the date the document is sent),
+			status (0 is not seen by prac, 1 is seen),description (taken from prac's document description)
+			- The list is ordered by:
+				- First, by practitioner's fName (ASC)
+				- Then, by status (1:seen is displayed before 0: not seen)
+				- Last, by receivedDate (DESC)
 		
 Resend Verification: https://localhost:8080/auth/resendVerification (POST)
 	- body: username, email, fName
@@ -136,3 +144,76 @@ FOR PATIENT
 					}
 				}
 			]
+	- Search by others
+		- Request: localhost:PORT/search/others?pracType=...&specialties[0]=...&specialties[1]=...&... (GET)
+		- pracType can be null, in this case patient search by specialties only
+		- specialities can be of length 0, in this case patient search by pracType only
+		- If both are present then the results are filtered by both pracType and any practitioners that have one 
+		of the required specialties
+		- Return: the same format as search by radius, plus any Specialty practitioner matches
+			
+- ADD/DELETE/GET MEDICATION, ALLERGY, FAMILY HISTORY: localhots:PORT/patient/medicalDetails
+    - Add (POST)
+        - Allergy: /allergy (Request body: allergy=...is required, symptom=...)
+        - Family History: /familyHistory (Request body: familyRelation=...is required, familyCondition=...)
+        - Medication: /medication (Request body: fillDate=...is required, medication=...is required, for others please check the model)
+        - Return value: the just added allergy/family history/medication record
+    - Delete (DELETE)
+        - Same route as Add.
+        - Return value: message 'allergy/Family history/medication deleted successfully'
+    - Get (GET)
+        - Same route as Add
+        - Return value: a list of allergy/family history/medication with all attributes taken from the corresponding models
+        - Same route as Add
+        
+- GET Consultation for patient
+    - Request: localhost:PORT/patient/medicalDetails/consultation
+    - Return value: a list of consultation list relating to the patient, including:
+        - All attributes from the Consultation model
+        - pracType from Practitioner
+        - title, fName, lName from User
+		
+		
+- CONNECT with practitioner
+	- Request: localhost:PORT/patient/connect/ (POST)
+		- Request body: pracUsername(required), stripeToken(required), goal, conditions, message,...(see model)
+		- Return: the newly created record in PatientDoctorRelation
+		
+- VIEW PRACTITIONER Profile
+	- Base request: localhost:PORT/patient/pracProfile/
+	- View prac profile: when patient clicks to view prac profile, update viewsToday of prac to viewsToday+1
+		- Request: same as base (PUT)
+		- Require: pracUsername
+		- Return: pracUsername, viewsToday(updated)
+	- Get General Info
+		- request: same as base (GET)
+		- require: pracUsername
+		- return: pracUsername,pracType,serviceProvided,rating, description,viewsToday,User.title,fName,lName
+	- Get Specialty/Qualification:
+		- request: base+/specialty or /qualification
+		- require: pracUsername
+		- return: list of specialties/qualifications
+	- Get Testimonial
+		- request: base+/testimonial
+		- require: pracUsername
+		- return: only returns the testimonials that has a rating != null
+			[
+				{
+					"title": "Mr.",
+					"fName": "Quan",
+					"lName": "Ha",
+					"patientUsername": "hqh147",
+					"testimonial": "good",
+					"rating": "5"
+				}
+			]
+	- Add Testimonial: only possible if there's a relation between patient and prac
+		- Request: base+/testimonial
+		- Require: pracUsername
+		- Return: testimonial: {pracUsername,by,testimonial,rating} (by is the patientUsername)
+	- GET CONNECTED PRACS
+		- Request: base+/all
+		- Return: pracUsername,pracType, lastVisited (last consultDate visited),title,fName,lName
+		
+NOTE NOTE NOTE: for all Date values sent from front end, make sure the format is YYYY-MM-DD, otherwise
+the backend will not handle it correctly.

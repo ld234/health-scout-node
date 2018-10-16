@@ -8,8 +8,8 @@ module.exports= (connection) => {
 			primaryKey: true,
 			validate: {
 				len: {
-					args: [8,30],
-					msg: 'Please enter username with at lease 8 but max 30 characters'
+					args: [6,30],
+					msg: 'Please enter username with at lease 6 but max 30 characters'
 				},
 				isAlphanumeric: true
 			},
