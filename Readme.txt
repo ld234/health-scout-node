@@ -83,6 +83,14 @@ Send and view document API
 		
 	- Upload a document to send back to practitioner: https://localhost:8080/clients/profile/exchangeDocument/upload (POST)
 		- Body: pracUsername, title (same as the title of the practitioner's document), file (the file to be uploaded)
+	- Get a list of documents already sent to prac:
+		- Request: localhost:PORT/clients/profile/exchangeDocument/patient/sent
+			- return: pracUsername,pracType,title,fName,lName,receivedLink,receivedDate(the date the document is sent),
+			status (0 is not seen by prac, 1 is seen),description (taken from prac's document description)
+			- The list is ordered by:
+				- First, by practitioner's fName (ASC)
+				- Then, by status (1:seen is displayed before 0: not seen)
+				- Last, by receivedDate (DESC)
 		
 Resend Verification: https://localhost:8080/auth/resendVerification (POST)
 	- body: username, email, fName
@@ -136,8 +144,13 @@ FOR PATIENT
 					}
 				}
 			]
-			
-<<<<<<< HEAD
+	- Search by others
+		- Request: localhost:PORT/search/others?pracType=...&specialties[0]=...&specialties[1]=...&... (GET)
+		- pracType can be null, in this case patient search by specialties only
+		- specialities can be of length 0, in this case patient search by pracType only
+		- If both are present then the results are filtered by both pracType and any practitioners that have one 
+		of the required specialties
+		- Return: the same format as search by radius, plus any Specialty practitioner matches
 			
 - ADD/DELETE/GET MEDICATION, ALLERGY, FAMILY HISTORY: localhots:PORT/patient/medicalDetails
     - Add (POST)
@@ -204,12 +217,4 @@ FOR PATIENT
 		
 NOTE NOTE NOTE: for all Date values sent from front end, make sure the format is YYYY-MM-DD, otherwise
 the backend will not handle it correctly.
-=======
-	- Search by others
-		- Request: localhost:PORT/search/others?pracType=...&specialties[0]=...&specialties[1]=...&... (GET)
-		- pracType can be null, in this case patient search by specialties only
-		- specialities can be of length 0, in this case patient search by pracType only
-		- If both are present then the results are filtered by both pracType and any practitioners that have one 
-		of the required specialties
-		- Return: the same format as search by radius, plus any Specialty practitioner matches
->>>>>>> 64d1cfb3e5d2b14eb11cdc80555e27176611e37e
+	
