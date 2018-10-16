@@ -307,7 +307,25 @@ function uploadDocument(newDocument) {
 						}
 					})
 					.then(done=>{
-						return ReceivedDocument.create(newDocument);//we dont' care how many got deleted, if successful, we create new one
+						return ReceivedDocument.create(newDocument) //we dont' care how many got deleted, if successful, we create new one
+						.then(document=>{
+							var sql="select rd.*,p.pracType,u.title as pracTitle,u.fName,u.lName,"
+									+"d.description from ReceivedDocument rd join Practitioner p on rd.pracUsername=p.pracUsername "
+									+"join User u on rd.pracUsername=u.username "
+									+"join Document d on rd.pracUsername=d.pracUsername and rd.title=d.title "
+									+"where rd.pracUsername=? and rd.patientUsername=? and rd.title=?;";
+							return sequelize.query(sql,{replacements:[document.pracUsername,document.patientUsername,document.title],
+									type:Sequelize.QueryTypes.SELECT})
+								.then(sentDocuments=>{ //because the query will return an array, but we only need the element
+									return Promise.resolve(sentDocuments[0]);
+								})
+								.catch(err=>{
+									return Promise.reject(err);
+								})
+						})
+						.catch(err=>{
+							return Promise.reject(err);
+						})
 					})
 					.catch(err=>{
 						return Promise.reject(err);
