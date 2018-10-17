@@ -26,7 +26,6 @@ function login (req, res, next) {
 	//'local' means passport will use the passport-local strategy to authenticate, defined in utils/passport.js
     passport.authenticate('local', {session: false}, (err, user, info) => { //if authentication fail, user will be set to FALSE. If exception, err will be set to TRUE
         if (err) { //server exception
-			console.log(err);
             return res.status(400).json({
                 message: err.message,
                 user: user
@@ -48,7 +47,6 @@ function login (req, res, next) {
                     if (!err)
                         return res.json({user, token}); //log in successfully will come here
                     else {
-						console.log(err);
                         next(err);
 					}
             });
@@ -67,7 +65,6 @@ function verifyEmail(req, res, next) {
     } else {
         authController.verifyEmail(token)
             .then(function (data) {
-				console.log('receive', data);
                 res.send(data);
             })
             .catch(function (err) {
@@ -77,7 +74,6 @@ function verifyEmail(req, res, next) {
 }
 
 function requestPasswordReset(req,res,next) {
-    console.log('in auth.route');
     const email = req.body.email;
     const username = req.body.username;
     authController.requestPasswordReset(username, email, function (err, data){

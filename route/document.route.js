@@ -100,16 +100,12 @@ function addDocument(req,res,next) {
         });
 	}
 	else {
-		console.log(req.file.path);
 		newDocument['file'] = req.file.path.replace('public','').replace(new RegExp( '\\' + path.sep,'g'),'/');
-		console.log(newDocument);
 		documentController.addDocument(newDocument)
 			.then(document => {
-				console.log('Document added',document);
 				fs.rename(req.file.path,'public'+document.file, function(err){
 					if (err) next(err);
 					else {
-						console.log('File renamed');
 						res.status(200).send(document);
 					}
 				})
@@ -117,7 +113,6 @@ function addDocument(req,res,next) {
 			.catch(err => {
 				fs.unlink(req.file.path,(err) => {
 					if (err) next(err);
-					console.log('uploaded file is deleted');
 				})
 				next(err);
 			})
@@ -134,14 +129,11 @@ function deleteDocument(req,res,next) {
         })
 	}
 	var deletedDocument = {pracUsername: pracUsername, title: title};
-	console.log(deletedDocument.title);
 	documentController.deleteDocument(deletedDocument)
 		.then(function(file){
-			console.log(file);
 			fs.unlink('public'+file, function(err){
 				if (err) next(err);
 				else {
-					console.log('Document deleted');
 					res.send({
 						statusCode:200,
 						message: 'Deleted successfully'
@@ -160,7 +152,6 @@ function updateDocument(req,res,next) {
 	if (!updatedDocument.description) {
 		updatedDocument.description="";
 	}
-	console.log(updatedDocument);
 	if (!updatedDocument.newTitle) {
 		next({
 			statusCode:400,
@@ -186,7 +177,6 @@ function updateDocument(req,res,next) {
 				fs.rename(req.file.path,'public'+document.updated.file, function(err){ //move uploaded file from tmp folder to correct folder
 					if (err) next(err);
 					else {
-						console.log('New file added');
 						res.status(200).send(document.updated);
 					}
 				})
@@ -196,7 +186,6 @@ function updateDocument(req,res,next) {
 					fs.rename('public'+document.oldFile,'public'+document.updated.file, function(err){
 						if (err) next(err);
 						else {
-							console.log('File renamed');
 							res.status(200).send(document.updated);
 						}
 					})

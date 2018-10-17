@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Get the received docs and send docs, update status of sent docs
+ * Created: 20 Aug 2018
+ * Last modified: 12 Oct 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Document = db.Document;
 const PatientDoctorDocument= db.PatientDoctorDocument;
@@ -59,7 +65,6 @@ function getDocumentList(pracUsername,patientUsername) {
 					rows[i].status="Delivered";
 				}
 			}
-			console.log(rows);
 			return Promise.resolve(rows);
 		})
 		.catch(err=>{
@@ -67,7 +72,6 @@ function getDocumentList(pracUsername,patientUsername) {
 		})
 	})
 	.catch(err=>{
-		console.log(err);
 		return Promise.reject(err);
 	})
 }
@@ -194,11 +198,9 @@ function seeDocument(document) {
 				})
 				.then(rowsUpdated=>{
 					if (rowsUpdated==1) {
-						console.log(path.resolve(foundDocument.receivedLink));
 						const stream = fs.createReadStream(path.resolve(foundDocument.receivedLink), {
 							encoding: 'base64'
 						});
-						console.log('stream is undefined?', JSON.stringify(stream,0,2));
 						return stream;
 					}
 					else {
@@ -213,9 +215,7 @@ function seeDocument(document) {
 				})
 			}
 			else { //no need to update
-				console.log('in here');
 				const stream = fs.createReadStream(path.resolve(foundDocument.receivedLink));
-				console.log(JSON.stringify(stream, 0,4 ));
 				return stream;
 			}
 		}
@@ -232,7 +232,6 @@ function seeDocument(document) {
 }
 
 function getSingleDocument(document) {
-	console.log('doc', document);
 	return ReceivedDocument.findOne({
 		where: [
 			{pracUsername: document.pracUsername},
@@ -241,7 +240,6 @@ function getSingleDocument(document) {
 		]
 	})
 	.then(foundDocument=>{
-		console.log(foundDocument);
 		if (foundDocument) {
 			const stream = fs.createReadStream(path.resolve(foundDocument.receivedLink));
 			return stream;
@@ -253,7 +251,6 @@ function getSingleDocument(document) {
 		}
 	})
 	.catch(err=>{
-		console.log('err',err)
 		return Promise.reject(err);
 	});
 }
@@ -269,7 +266,6 @@ function getRequestedDocuments(patientUsername) {
 			+ 'WHERE PatientDoctorDocument.patientUsername=?';
 	return sequelize.query(sql,{replacements: [patientUsername],type: Sequelize.QueryTypes.SELECT})
 	.then(rows=> {
-		//console.log(rows);
 		return Promise.resolve(rows);
 	})
 	.catch(err=> {

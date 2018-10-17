@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Handles create, get, update, and delete of qualifications
+ * Created: 29 Jul 2018
+ * Last modified: 26 Aug 2018
+ * * * * * * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Qualification= db.Qualification;
 const Practitioner=db.Practitioner;
@@ -31,7 +37,6 @@ function createQualification(newQualification) {
             });
 		}
 		else {
-			console.log('new Qualification', newQualification);
 			return Qualification.create(newQualification);
 		}
 	})
@@ -89,7 +94,6 @@ function updateQualification(updatedQualification) {
 	})
 	.then(function(foundQualifications){
 		if (foundQualifications.length>0) {
-			console.log(updatedQualification);
 			return Qualification.update(
 				{
 					degree: updatedQualification.newDegree,
@@ -105,7 +109,6 @@ function updateQualification(updatedQualification) {
 				}}
 			)
 			.then(function(updatedArray){
-				console.log(updatedArray[0]);
 				if (updatedArray[0]==1) { //exactly one row gets updated
 					let { newDegree, newInstitution, newGraduateYear, description} = updatedQualification;
 					return Promise.resolve({ 

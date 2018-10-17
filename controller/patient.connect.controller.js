@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: allow connection between patient and practitioner
+ * Created: 13 Aug 2018
+ * Last modified: 22 Sep 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Practitioner = db.Practitioner;
 const PatientDoctorRelation = db.PatientDoctorRelation;

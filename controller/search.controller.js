@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Search prac by criteria
+ * Created: 3 Oct 2018
+ * Last modified: 14 Oct 2018
+ * * * * * * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Practitioner = db.Practitioner;
 const User = db.User;
@@ -27,7 +33,6 @@ module.exports={
 }
 
 function getPractitionersByTypeAndSpecialty(pracType,specialties,patientUsername) {
-	console.log(specialties);
 	if (pracType && specialties.length>0) {
 		var sql = 'select p.pracUsername,p.pracType,p.serviceProvided,p.businessAddress,p.description,p.rating,'
 				+ 'u.title,u.fName,u.lName,u.profilePic,s.specialty '
@@ -105,14 +110,10 @@ function filterNearby(prac,nearbyPracs,searchConditions) {
 		if (locations.length==1) {
 			let lat=locations[0].latitude;
 			let lon=locations[0].longitude;
-			console.log(lat);
-			console.log(lon);
 			let d = calculateDistance(lat, lon,searchConditions.latitude, searchConditions.longitude); //km
-			console.log(d);
 			if (d<=searchConditions.radius) {
 				prac.distance=d;
 				nearbyPracs.push(prac);
-				console.log("Found one!");
 				return Promise.resolve(prac);
 			}
 		}

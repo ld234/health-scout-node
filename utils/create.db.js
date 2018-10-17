@@ -137,10 +137,8 @@ connection.sync().then(() => {
 							+ 'WHERE pracUsername=NEW.pracUsername;'
 						+ 'END;')
 	.then((res)=> {
-		// console.log('res',res);
 	})
 	.catch((err)=>{
-		// console.log('create.db err',err);
 	})
 	connection.query('DROP TRIGGER IF EXISTS update_conn; CREATE TRIGGER update_conn BEFORE UPDATE ON PATIENTDOCTORRELATION '
 					+'FOR EACH ROW BEGIN '
@@ -158,10 +156,8 @@ connection.sync().then(() => {
 						+ 'END IF;'
 					+ 'END;')
 	.then((res)=> {
-		// console.log('res',res);
 	})
 	.catch((err)=>{
-		// console.log('err2',err);
 	})
 	console.log('Successfully connected to database');
 });

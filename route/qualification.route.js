@@ -12,7 +12,6 @@ router.delete('/',auth.auth(),auth.pracAuth(),deleteQualification);
 module.exports = router;
 
 function addQualification(req,res,next) {
-	console.log('Adding qualification');
 	var newQualification=req.body;
 	newQualification.pracUsername=req.user;
 	if (!newQualification.degree) {
@@ -33,7 +32,6 @@ function addQualification(req,res,next) {
 	}  else {
 		qualificationController.createQualification(newQualification)
 			.then(function(qualification) {
-				console.log('Qualification added',qualification.dataValues);
 				res.status(201).send(qualification.dataValues);
 			})
 			.catch(function(err) {
@@ -51,7 +49,6 @@ function getQualifications(req,res,next) {
 
 function updateQualification(req,res,next) {
 	var updatedQualification= req.body;
-	console.log(req.body)
 	updatedQualification.pracUsername=req.user;
 	if (!updatedQualification.oldDegree) {
 		next({
@@ -97,10 +94,8 @@ function updateQualification(req,res,next) {
 	}
 	//for description, if the user update it to be an empty string, we put description:"" in updatedQualification
 	else {
-		//console.log(updatedQualification);
 		qualificationController.updateQualification(updatedQualification)
 		.then(function(qualification){
-			console.log('qualification updated');
 			res.send(qualification);
 		})
 		.catch(function(err){
@@ -132,11 +127,9 @@ function deleteQualification(req,res,next) {
             message: "Graduate year is required"
         })
 	}
-	console.log('deletig qualification')
 	var deletedQualification = {pracUsername:pracUsername, degree: degree, institution: institution, graduateYear: graduateYear};
 	qualificationController.deleteQualification(deletedQualification)
 		.then(function(qualification){
-			console.log('qualification deleted');
 			res.send({
 				statusCode:200,
 				message: qualification

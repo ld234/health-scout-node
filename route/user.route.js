@@ -83,7 +83,6 @@ function checkUserDetails(req, res, next) {
 function checkPractitionerDetails(req, res, next) {
     const business = {abn: req.body.ABN, name: req.body.businessName, address:req.body.businessAddress};
     const medicalProviderNumber =req.body.medicalProviderNum;
-    console.log(req.body)
     userController.checkPractitionerDetails(business, medicalProviderNumber)
         .then(function (user) {
             res.send(user);
@@ -115,11 +114,9 @@ function createPatient(req, res, next) {
     } else {
         userController.createPatient(newPatient)
             .then(function (patient) {
-				console.log('patient created', patient);
                 res.status(201).send(patient);
             })
 			.catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
-				console.log('err', err);
 				if (err.message!='username existed') { //we delete the just created tmp only if the error is not username exists
 					var uploadDir='/public/profilePics/'+req.body.username;
 					fs.readdir(uploadDir,function(error,files){
@@ -128,11 +125,9 @@ function createPatient(req, res, next) {
 							var curPath=uploadDir+"/"+file;
 							fs.unlink(curPath,function(err){
 								if (err) throw err;
-								console.log('successfully deleted '+curPath);
 								if (index==files.length-1) {
 									fs.rmdir(uploadDir,(err)=>{
 										if (err) throw err;
-										console.log('successfully deleted '+uploadDir);
 									})
 								}
 							});
@@ -167,7 +162,6 @@ function createPractitioner(req,res,next) {
 	else {
         userController.createPractitioner(newPrac)
             .then(function (practitioner) {
-				console.log('Practitioner created', practitioner);
                 res.status(201).send(practitioner);
             })
             .catch(function (err) { //if err happens, we want to remove the profile Pic directory for the new user we just uploaded
@@ -179,11 +173,9 @@ function createPractitioner(req,res,next) {
 							var curPath=uploadDir+"/"+file;
 							fs.unlink(curPath,function(err){
 								if (err) throw err;
-								console.log('successfully deleted '+curPath);
 								if (index==files.length-1) {
 									fs.rmdir(uploadDir,(err)=>{
 										if (err) throw err;
-										console.log('successfully deleted '+uploadDir);
 									})
 								}
 							});

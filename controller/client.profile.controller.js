@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Client profile controller handling viewing, updating profile of client
+ * Created: 13 Aug 2018
+ * Last modified: 22 Sep 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const PatientDoctorRelation = db.PatientDoctorRelation;
 const Consultation= db.Consultation;
@@ -25,7 +31,6 @@ function viewClientProfile(patientUsername,pracUsername) {
 		]
 	})
 	.then(foundRelation => { //found does not mean it's not null
-		console.log(foundRelation);
 		if (foundRelation) {
 			return PatientDoctorRelation.update( //update seen to true for patientUsername and pracUsername if their current relationship is false
 				{
@@ -39,7 +44,6 @@ function viewClientProfile(patientUsername,pracUsername) {
 			)
 			.then(function(rowsUpdated){
 				if (rowsUpdated==1) { //if rowsUpdated=0, mean the update operation is successful, just no row updated,suggesting seen=true from the beginning
-					console.log('Practitioner have seen the new patient');
 				}
 				var sql='SELECT username, CONCAT(title," ",fName," ",lName) AS name, TIMESTAMPDIFF(YEAR,dob,CURDATE()) AS age FROM User '
 						+ 'JOIN PatientDoctorRelation ON User.username=PatientDoctorRelation.patientUsername '
@@ -103,7 +107,6 @@ function addConsultation(consultation) {
 					})
 				}
 				else {
-					console.log('New Consultation: ', consultation);
 					return Consultation.create(consultation);
 				}
 			})
@@ -133,11 +136,9 @@ function getConsultations(pracUsername, patientUsername) {
 			+ ' ORDER BY Consultation.consultDate DESC;';
 	return sequelize.query(sql,{replacements: [patientUsername],type: Sequelize.QueryTypes.SELECT})
 	.then(rows=> {
-		console.log(rows);
 		return Promise.resolve(rows);
 	})
 	.catch(err=> {
-		console.log(err);
 		return Promise.reject(err);
 	})
 }

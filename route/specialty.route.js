@@ -47,7 +47,6 @@ function getSpecialties (req,res,next){
 function addSpecialty(req,res,next) {
 	var newSpecialty = req.body;
 	newSpecialty.pracUsername=req.user;
-	console.log(newSpecialty);
 	if (!newSpecialty.specialty) {
 		next({
             statusCode: 400,
@@ -56,7 +55,6 @@ function addSpecialty(req,res,next) {
 	} else {
 		specialtyController.createSpecialty(newSpecialty)
 			.then(function(specialty) {
-				console.log('Specialty added',specialty);
 				res.status(201).send(specialty);
 			})
 			.catch(function(err) {
@@ -75,10 +73,8 @@ function deleteSpecialty(req,res,next) {
         })
 	}
 	var deletedSpecialty={specialty: specialty, pracUsername: pracUsername};
-	console.log(deletedSpecialty);
 	specialtyController.deleteSpecialty(deletedSpecialty)
 		.then(function(specialty) {
-			console.log('Specialty deleted');
 			res.send({
 				statusCode:200,
 				message: specialty

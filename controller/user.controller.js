@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Create user, get user details, update user account info
+ * Created: 13 May 2018
+ * Last modified: 15 Oct 2018
+ * * * * * * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const User=db.User;
 const Practitioner = db.Practitioner;
@@ -66,7 +72,6 @@ function checkUserDetails(newUser){
 
 function checkPractitionerDetails(business,medicalProviderNumber) { 
     var invalidFields = [];
-	// console.log(business);
     return RegisteredBusiness.findOne({ attribute:['ABN',], where : {ABN: business.abn}})
     .then(foundABN => {
         if (!foundABN){ //if abn cannot be found among those in RegisteredBusiness, that means an error
@@ -220,7 +225,6 @@ function saveUser(newUser){
 
 //actually save the patient to the database and send verification email to complete the process
 function savePatient(newPatient) {
-	console.log('saving patient '+newPatient.username);
 	var patientUsername = newPatient.username;
 	return Patient.create({patientUsername})
 	.then(savedPatient =>{
@@ -241,7 +245,6 @@ function savePatient(newPatient) {
 
 //actually saving the practitioner to the database and send verification email to complete the process.
 function savePractitioner(newPrac){
-    console.log('saving practitioner '+ newPrac.username);
     newPrac.pracUsername = newPrac.username;
     return Practitioner.create(newPrac)
     .then( savedPrac => {

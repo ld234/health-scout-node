@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Dan
+ * Description: Authentication controller handling authentication logic
+ * Created: 10 May 2018
+ * Last modified: 15 Aug 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const User=db.User;
 const Practitioner = db.Practitioner;
@@ -41,7 +47,6 @@ module.exports = {
 
 // Verify the link from the email
 function verifyEmail(token){
-    console.log(token);
     return jwt.verify (token, function (err, decodedData) {
         if (err) {
             return Promise.reject({
@@ -121,7 +126,6 @@ function sendEmail(user,callback){
 				}
 				smtpTransport.sendMail(mailOptions)
 				.then( response => {
-					console.log(rand,'email sent successfully');
 				})
 				.catch( err => {
 					console.log(err);
@@ -212,7 +216,6 @@ function checkPracAuth(user) {
             }
         })
         .catch(function (err) {
-            console.log(err);
             return Promise.reject(err);
         })
 }
@@ -230,7 +233,6 @@ function checkPatientAuth(user) {
             }
         })
         .catch(function (err) {
-            console.log(err);
             return Promise.reject(err);
         })
 }
@@ -245,7 +247,6 @@ function requestPasswordReset(username, email , cb){
         })
         .then (foundUser => {
             createResetLink(foundUser,function (err, message){
-                console.log( 'create reset link callback');
                 if (err)
                     cb(err);
                 else
@@ -262,7 +263,6 @@ function requestPasswordReset(username, email , cb){
         })
         .then (foundUser => {
             createResetLink(foundUser, function(err,data){
-                console.log( 'create reset link callback');
                 if (err)
                     cb(err);
                 else
@@ -283,7 +283,6 @@ function createResetLink(foundUser,cb){
             })
         }
         else{
-            console.log('found user email', foundUser.email);
             var rand = crypto.randomBytes(10).toString('hex');
             jwt.sign({username: foundUser.username,verification: rand},function(err,token){
                 if (!err){
@@ -308,14 +307,12 @@ function createResetLink(foundUser,cb){
                             })
                         })
                         .catch( err => {
-                            console.log('err2',err)
                             cb({
                                 message: 'Email cannot be sent to your nominated email. Please try again later.'
                             })
                         });
                     })
                     .catch(function(err){
-                        console.log('err1',err)
                         cb({
                             message: 'Email cannot be sent to your nominated email. Please try again later.'
                         })

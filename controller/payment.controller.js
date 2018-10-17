@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Handles all payment
+ * Created: 20 Jul 2018
+ * Last modified: 26 Aug 2018
+ * * * * * * * * * * * * * * * * * * * * * * * * * * */
 var stripe = require('stripe')(process.env.STRIPE_KEY);
 const db = require('../utils/create.db');
 const User=db.User;
@@ -42,12 +48,10 @@ function pracCharge(pracUsername, stripeToken, bundle) { //charge after registra
 				description: `Payment by ${pracUsername} for ${bundle} bundle.`
 			})
 			.then(charge => {
-				console.log('Charged');
 				return Practitioner.findOne({
 					where: {pracUsername:pracUsername}
 				})
 				.then(foundPractitioner=>{
-					console.log(foundPractitioner);
 					if (foundPractitioner) { //this practitioner purchase the bundle after the registration step, so he's already in the system and have access-token => is active
 						return Practitioner.increment({availableConnections: addedConn},{where: {pracUsername: pracUsername} })
 						.then(data=>{
@@ -66,8 +70,6 @@ function pracCharge(pracUsername, stripeToken, bundle) { //charge after registra
 				})
 			})
 			.catch(err => {
-				//console.log('failed charge')
-				//return Promise.reject({statusCode:400, message:"Invalid card."})
 				return Promise.reject(err);
 			});
 		})
@@ -105,15 +107,13 @@ function subscribe(username,email){ //for a practitioner to subscribe to one of 
             billing:'send_invoice'
         })
         .then (subscription => {
-            console.log('subscription created');
             return Promise.resolve(subscription);
         })
         .catch( err =>{
             return Promise.reject(err)
         });
     })
-    .catch( err => { 
-        console.log(err);
+    .catch( err => {
         return Promise.reject(err);
     });
 }
@@ -133,7 +133,6 @@ function patientCharge(patientUsername, stripeToken) {
 			description: `Payment by ${patientUsername} for ${amount} to connect with prac`
 		})
 		.then(charge => {
-			console.log('patient charged',amount);
 			return Promise.resolve(charge);
 		})
 		.catch(err=>{

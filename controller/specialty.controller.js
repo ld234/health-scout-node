@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Handles create, get, update, and delete of specialties
+ * Created: 30 Jul 2018
+ * Last modified: 10 Sep 2018
+ * * * * * * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Specialty = db.Specialty;
 const Practitioner=db.Practitioner;
@@ -58,7 +64,6 @@ function createSpecialty(newSpecialty) {
 					});
 				}
 				else {
-					console.log('new specialty', newSpecialty);
 					return Specialty.create(newSpecialty);
 				}
 			})

@@ -47,7 +47,6 @@ module.exports.pracAuth = function() {
 		})
 		.then(function(practitioner){
 			req.user = practitioner.dataValues.pracUsername;
-			console.log('Practitioner found');
 			next();
 		})
 		.catch(err => {
@@ -67,7 +66,6 @@ module.exports.patientAuth = function() {
 		})
 		.then(function(patient){
 			req.user = patient.dataValues.patientUsername;
-			console.log('Patient found');
 			next();
 		})
 		.catch(err => {

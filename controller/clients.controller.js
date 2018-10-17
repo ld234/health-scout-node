@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Client controller gets lsit of clients old and new and update connection states
+ * Created: 15 Aug 2018
+ * Last modified: 21 Sep 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const User = db.User;
 const Practitioner = db.Practitioner;
@@ -70,7 +76,6 @@ function getNewClients(username) {
 }
 
 function seeNewClient(patientUsername,pracUsername) {
-	console.log('see new client');
 	return PatientDoctorRelation.update(
 		{
 			seen:true,
@@ -84,7 +89,6 @@ function seeNewClient(patientUsername,pracUsername) {
 			}
 		})
 	.then(function(rowsUpdated){
-		console.log('updated');
 		return PatientDoctorRelation.findOne({
 			where: {
 				patientUsername: patientUsername,

@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Document contoller get doc list, add, update, and delete doc
+ * Created: 16 Aug 2018
+ * Last modified: 29 Sep 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Document = db.Document;
 const Practitioner = db.Practitioner;
@@ -71,7 +77,6 @@ function addDocument(newDocument) {
 			//replace 'file' with the document title, then attach .pdf
 			newDocument.file = pathComps.slice(0,-1).join('/') + '/'+ newDocument.title+ '.'+ fileNames[fileNames.length-1];
 			newDocument.lastModified=moment();
-			console.log(newDocument.lastModified);
 			return Document.create(newDocument);
 		}
 	})
@@ -134,7 +139,6 @@ function updateDocument(updatedDocument) {
 				var fileNames=pathComps[pathComps.length-1].split('.'); //seperate into ['file','pdf']
 				//replace 'file' with the document new title, then attach .pdf
 				updatedDocument.file = pathComps.slice(0,-1).join('/') + '/'+ updatedDocument.newTitle+ '.'+ fileNames[fileNames.length-1];
-				console.log(updatedDocument.file);
 				var curDate=moment();
 				updatedDocument.lastModified=curDate;
 				return Document.update({
@@ -157,10 +161,6 @@ function updateDocument(updatedDocument) {
 					});
 				})
 				.catch(err=> {
-					/*return Promise.reject({
-						statusCode:400,
-						message: 'Updated document already exists'
-					});*/
 					return Promise.reject(err);
 				})
 			}

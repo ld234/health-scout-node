@@ -14,7 +14,6 @@ router.use('/profile', clientProfileRouter); //viewClientProfile function is to 
 module.exports = router;
 
 function viewClients(req,res,next) {
-	console.log('in view clients')
 	var pracUsername = req.user;
 	clientsController.getClients(pracUsername)
 		.then(function(clients){
@@ -26,7 +25,6 @@ function viewClients(req,res,next) {
 }
 
 function viewNewClients(req,res,next) {
-	console.log('viewing new clients')
 	var pracUsername=req.user;
 	clientsController.getNewClients(pracUsername)
 		.then(function(clients){

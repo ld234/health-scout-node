@@ -197,8 +197,15 @@ function seeDocument(req,res,next) {
 		exchangeDocumentController.seeDocument(document)
 		.then(stream=>{
 			res.setHeader('Content-type', 'application/pdf');
-			res.setHeader('Content-disposition', 'inline; filename="' + document.title + '_' + document.patientUsername + '"');
+			res.setHeader('Content-disposition', 'attachment; filename="' + document.title + '_' + document.patientUsername + '"');
+			// res.setHeader('Content-Length', data.length);
 			stream.pipe(res);
+			res.on('data', function(chunk){
+				downloaded += chunk.length;
+			})
+			stream.on('finish', function() {
+				file.close();
+			});
 		})
 		.catch(err=>{
 			next(err);
@@ -208,10 +215,8 @@ function seeDocument(req,res,next) {
 
 function getRequestedDocuments(req,res,next) {
 	var patientUsername=req.user; //now we get auth from patient instead of practitioner.
-	console.log(patientUsername);
 	exchangeDocumentController.getRequestedDocuments(patientUsername)
 	.then(requestedDocuments=>{
-		//console.log(requestedDocuments);
 		res.status(200).send(requestedDocuments);
 	})
 	.catch(err=>{
@@ -243,7 +248,6 @@ function uploadDocument(req,res,next) {
 	else {
 		exchangeDocumentController.uploadDocument(newDocument)
 		.then(document=>{
-			console.log(document);
 			var finalDir='./receivedDocuments/'+document.patientUsername+'/'+document.pracUsername+'/';
 			if (!fs.existsSync(finalDir)) {
 				fs.mkdir(finalDir,function(err){
@@ -251,11 +255,9 @@ function uploadDocument(req,res,next) {
 						throw err;
 					}
 					else {
-						console.log('Final directory created');
 						fs.rename(req.file.path,document.receivedLink,function(err){ //overwrite an existing file with the same title is ok
 							if (err) next(err);
 							else {
-								console.log('File renamed');
 								res.status(200).send(document);
 							}
 						})
@@ -266,7 +268,6 @@ function uploadDocument(req,res,next) {
 				fs.rename(req.file.path,document.receivedLink,function(err){ //overwrite an existing file with the same title is ok
 					if (err) next(err);
 					else {
-						console.log('File renamed');
 						res.status(200).send(document);
 					}
 				})
@@ -275,7 +276,6 @@ function uploadDocument(req,res,next) {
 		.catch(err=>{
 			fs.unlink(req.file.path,function(err){
 				if (err) next(err);
-				console.log('uploaded file is deleted');
 			})
 			next(err);
 		})

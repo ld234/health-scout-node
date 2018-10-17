@@ -47,29 +47,6 @@ app.use('/patient/medicalDetails',patientMedicalDetailsRouter);
 app.use('/patient/connect',patientConnectRouter);
 app.use('/patient/pracProfile',patientPracProfileRouter);
 
-//test geocoder 
-/*var NodeGeocoder = require('node-geocoder');
-var geoOptions={
-	provider: 'google',
-	httpAdapter: 'https',
-	formatter:null,
-	apiKey:'AIzaSyDQEvjV-rvP7DHgpf0IhYBGOrduZkxluNc'
-}
-
-var geocoder=NodeGeocoder(geoOptions);
-geocoder.geocode('93 Albert St Revesby NSW 2212 Australia', function(err, res) {
-  console.log(res);
-});*/
-
-//test view document
-/*app.get('/viewDocument',function(req,res,next){
-	var stream =fs.createReadStream("./receivedDocuments/hqh147/hqh719/FF.pdf");
-	var filename="lol";
-	res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
-	res.setHeader('Content-type', 'application/pdf');
-
-	stream.pipe(res);
-})*/
 
 app.use(errorHandler.errorHandler());
 

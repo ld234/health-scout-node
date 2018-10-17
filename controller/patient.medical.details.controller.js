@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Client profile controller handling viewing, updating profile of client
+ * Created: 13 Aug 2018
+ * Last modified: 30 Sep 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Patient = db.Patient;
 const PatientRelation = db.PatientRelation;

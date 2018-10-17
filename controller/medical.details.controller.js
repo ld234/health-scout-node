@@ -1,3 +1,9 @@
+/* * * * * * * * * * * * * * * * * * * * * *
+ * @Kevin
+ * Description: Handles client medical details
+ * Created: 12 Aug 2018
+ * Last modified: 2 Sep 2018
+ * * * * * * * * * * * * * * * * * * * * * */
 const db = require('../utils/create.db');
 const Consultation=db.Consultation;
 const PatientRelation = db.PatientRelation;
@@ -28,7 +34,6 @@ function getConsultHistory(patientUsername) {
 			+ ' ORDER BY Consultation.consultDate DESC;';
 	return sequelize.query(sql,{replacements: {p: patientUsername},type: Sequelize.QueryTypes.SELECT})
 	.then(rows=> {
-		console.log(rows);
 		return Promise.resolve(rows);
 	})
 	.catch(err=> {

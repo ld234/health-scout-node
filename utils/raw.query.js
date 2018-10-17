@@ -11,7 +11,6 @@ function init(){
 	fileContent.forEach( (line, idx) => {
 		sequelize.query(line, { type: sequelize.QueryTypes.INSERT})
 		.then((res) => {
-			// console.log(res);
 		})
 		.catch( (err) => {console.log('err',err)} );
 	})

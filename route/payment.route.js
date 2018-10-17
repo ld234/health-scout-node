@@ -9,7 +9,6 @@ router.put('/subscribe', subscribe);
 module.exports = router;
 
 function pracCharge(req,res,next) {
-    console.log('charging');
     const pracUsername = req.user;
 	if (!req.body.stripeToken) {
 		next({
