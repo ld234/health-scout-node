@@ -48,7 +48,7 @@
     "passport-local": "^1.0.0",
     "react-native-tab-view": "^1.2.0",
     "require.async": "^0.1.1",
-    "sequelize": "^4.37.10",
+    "sequelize": "^5.15.1",
     "stripe": "^6.0.0"
   }
 }
